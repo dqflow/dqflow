@@ -2,8 +2,11 @@
 
 [![PyPI version](https://badge.fury.io/py/dqflow.svg)](https://pypi.org/project/dqflow/)
 [![CI](https://github.com/dqflow/dqflow/actions/workflows/ci.yml/badge.svg)](https://github.com/dqflow/dqflow/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://dqflow.github.io/dqflow/)
 [![Python](https://img.shields.io/pypi/pyversions/dqflow.svg)](https://pypi.org/project/dqflow/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**[Documentation](https://dqflow.github.io/dqflow/)** | **[PyPI](https://pypi.org/project/dqflow/)** | **[GitHub](https://github.com/dqflow/dqflow)**
 
 **dqflow** is a lightweight, contract-first data quality engine for modern data pipelines.
 
