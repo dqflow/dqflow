@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pandas as pd
+
 from dqflow import Contract
 
 

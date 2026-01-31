@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 
 import pandas as pd
 from click.testing import CliRunner
+
 from dqflow.cli import main
 
 
