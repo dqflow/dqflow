@@ -6,6 +6,19 @@ from dataclasses import dataclass, field
 from typing import Any
 
 
+def _to_native(obj: Any) -> Any:
+    """Convert numpy types to native Python types for JSON serialization."""
+    if hasattr(obj, "item"):  # numpy scalar
+        return obj.item()
+    if isinstance(obj, dict):
+        return {k: _to_native(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_to_native(v) for v in obj]
+    if isinstance(obj, set):
+        return [_to_native(v) for v in obj]
+    return obj
+
+
 @dataclass
 class CheckResult:
     """Result of a single validation check."""
@@ -52,16 +65,16 @@ class ValidationResult:
         """Return JSON-serializable dict."""
         return {
             "contract_name": self.contract_name,
-            "ok": self.ok,
+            "ok": bool(self.ok),
             "total_checks": len(self.checks),
             "passed": sum(1 for c in self.checks if c.passed),
             "failed": sum(1 for c in self.checks if not c.passed),
             "checks": [
                 {
                     "name": c.name,
-                    "passed": c.passed,
+                    "passed": bool(c.passed),
                     "message": c.message,
-                    "details": c.details,
+                    "details": _to_native(c.details),
                 }
                 for c in self.checks
             ],

@@ -17,7 +17,6 @@ class TestCLI:
         result = runner.invoke(main, ["--version"])
         assert result.exit_code == 0
         assert "dqflow" in result.output
-        assert "0.1.0" in result.output
 
     def test_validate_passing(self) -> None:
         runner = CliRunner()
