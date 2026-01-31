@@ -1,0 +1,33 @@
+name: orders
+description: E-commerce order data quality contract
+
+columns:
+  order_id:
+    type: string
+    not_null: true
+
+  customer_id:
+    type: string
+    not_null: true
+
+  amount:
+    type: float
+    min: 0
+    max: 100000
+
+  currency:
+    type: string
+    allowed: ["USD", "EUR", "GBP"]
+
+  status:
+    type: string
+    allowed: ["pending", "processing", "shipped", "delivered", "cancelled"]
+
+  created_at:
+    type: timestamp
+    freshness_minutes: 1440  # 24 hours
+
+rules:
+  - row_count > 0
+  - null_rate(amount) < 0.01
+  - null_rate(customer_id) < 0.001
