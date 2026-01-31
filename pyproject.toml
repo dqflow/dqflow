@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dqflow"
-version = "0.1.2"
+version = "0.1.3"
 description = "Lightweight, contract-first data quality engine for modern data pipelines"
 readme = "README.md"
 license = "MIT"
