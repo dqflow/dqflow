@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Sequence
+from typing import Any
 
 
 @dataclass
@@ -20,6 +21,5 @@ class Column:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        if self.min is not None and self.max is not None:
-            if self.min > self.max:
-                raise ValueError(f"min ({self.min}) cannot be greater than max ({self.max})")
+        if self.min is not None and self.max is not None and self.min > self.max:
+            raise ValueError(f"min ({self.min}) cannot be greater than max ({self.max})")

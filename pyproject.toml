@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dqflow"
-version = "0.1.0"
+version = "0.1.1"
 description = "Lightweight, contract-first data quality engine for modern data pipelines"
 readme = "README.md"
 license = "MIT"
@@ -49,9 +49,9 @@ dev = [
 dq = "dqflow.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/quang/dqflow"
-Repository = "https://github.com/quang/dqflow"
-Issues = "https://github.com/quang/dqflow/issues"
+Homepage = "https://github.com/dqflow/dqflow"
+Repository = "https://github.com/dqflow/dqflow"
+Issues = "https://github.com/dqflow/dqflow/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dqflow"]
