@@ -31,9 +31,7 @@ class PandasEngine(Engine):
                     )
                 )
             else:
-                result.checks.append(
-                    CheckResult(name=f"column_exists:{col_name}", passed=True)
-                )
+                result.checks.append(CheckResult(name=f"column_exists:{col_name}", passed=True))
 
         # Column-level checks
         for col_name, col_def in contract.columns.items():

@@ -124,11 +124,13 @@ rules:
             tmpdir = Path(tmpdir)
 
             data_path = tmpdir / "data.csv"
-            df = pd.DataFrame({
-                "id": [1, 2, 3],
-                "name": ["a", "b", "c"],
-                "value": [1.5, 2.5, 3.5],
-            })
+            df = pd.DataFrame(
+                {
+                    "id": [1, 2, 3],
+                    "name": ["a", "b", "c"],
+                    "value": [1.5, 2.5, 3.5],
+                }
+            )
             df.to_csv(data_path, index=False)
 
             output_path = tmpdir / "inferred.yaml"

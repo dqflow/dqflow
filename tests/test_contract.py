@@ -23,9 +23,7 @@ class TestContract:
         assert "amount" in sample_contract.columns
         assert "currency" in sample_contract.columns
 
-    def test_validate_passing(
-        self, sample_contract: Contract, sample_df: pd.DataFrame
-    ) -> None:
+    def test_validate_passing(self, sample_contract: Contract, sample_df: pd.DataFrame) -> None:
         result = sample_contract.validate(sample_df)
         assert result.ok is True
         assert result.contract_name == "orders"

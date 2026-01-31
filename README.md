@@ -1,5 +1,10 @@
 # dqflow
 
+[![PyPI version](https://badge.fury.io/py/dqflow.svg)](https://pypi.org/project/dqflow/)
+[![CI](https://github.com/dqflow/dqflow/actions/workflows/ci.yml/badge.svg)](https://github.com/dqflow/dqflow/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/pypi/pyversions/dqflow.svg)](https://pypi.org/project/dqflow/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **dqflow** is a lightweight, contract-first data quality engine for modern data pipelines.
 
 Define explicit expectations for your data (schema, validity, freshness) and **fail fast** when data breaks — before bad data reaches downstream systems.
