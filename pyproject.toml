@@ -46,6 +46,10 @@ dev = [
     "types-PyYAML>=6.0",
     "pre-commit>=3.0",
 ]
+docs = [
+    "mkdocs>=1.5",
+    "mkdocs-material>=9.5",
+]
 
 [project.scripts]
 dq = "dqflow.cli:main"

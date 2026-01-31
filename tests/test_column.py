@@ -1,7 +1,6 @@
 """Tests for Column class."""
 
 import pytest
-
 from dqflow import Column
 
 
