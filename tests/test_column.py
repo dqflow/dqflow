@@ -49,3 +49,20 @@ class TestColumn:
         )
         assert col.description == "Customer identifier"
         assert col.metadata == {"source": "crm"}
+
+    def test_column_with_custom_check(self) -> None:
+        def is_email(value: str) -> bool:
+            """Check if value is a valid email."""
+            return "@" in str(value) and "." in str(value)
+
+        col = Column(dtype=str, custom=is_email)
+        assert col.custom is not None
+        assert col.custom("test@example.com") is True
+        assert col.custom("invalid-email") is False
+
+    def test_column_with_custom_check_lambda(self) -> None:
+        col = Column(dtype=int, custom=lambda x: x > 0)
+        assert col.custom is not None
+        assert col.custom(10) is True
+        assert col.custom(-5) is False
+        assert col.custom(0) is False
