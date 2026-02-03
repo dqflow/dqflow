@@ -16,6 +16,7 @@ column = Column(
     freshness_minutes: int | None = None,
     description: str = "",
     metadata: dict[str, Any] = {},
+    custom: Callable[[Any], bool] | None = None,
 )
 ```
 
@@ -31,6 +32,7 @@ column = Column(
 | `freshness_minutes` | `int \| None` | `None` | Max age for timestamps |
 | `description` | `str` | `""` | Human-readable description |
 | `metadata` | `dict[str, Any]` | `{}` | Custom metadata |
+| `custom` | `Callable[[Any], bool] \| None` | `None` | Custom validation function |
 
 ## Supported Types
 
@@ -91,6 +93,50 @@ Column(
 )
 ```
 
+### Custom Validation
+
+Define custom validation logic with a function that takes a value and returns `True` if valid:
+
+```python
+def is_email(value: str) -> bool:
+    """Check if value is a valid email."""
+    return "@" in str(value) and "." in str(value)
+
+Column(str, custom=is_email)
+```
+
+Using lambda functions:
+
+```python
+Column(int, custom=lambda x: x > 0)  # Positive numbers only
+Column(int, custom=lambda x: x % 2 == 0)  # Even numbers only
+Column(float, custom=lambda x: 0 <= x <= 1)  # Between 0 and 1
+```
+
+More complex validation:
+
+```python
+def is_valid_phone(value: str) -> bool:
+    """Check if value is a valid phone number."""
+    import re
+    return bool(re.match(r'^\+?1?\d{9,15}$', str(value)))
+
+Column(str, custom=is_valid_phone)
+```
+
+Combining with other constraints:
+
+```python
+Column(
+    dtype=float,
+    not_null=True,
+    min=0,
+    max=100,
+    custom=lambda x: x % 5 == 0,  # Must be divisible by 5
+    description="Score (0-100, increments of 5)"
+)
+```
+
 ### Full Example
 
 ```python
@@ -115,3 +161,4 @@ columns = {
 | `max=X` | Fails if any value > X |
 | `allowed=[...]` | Fails if any value not in list |
 | `freshness_minutes=X` | Fails if max timestamp > X minutes old |
+| `custom=func` | Fails if func(value) returns False for any value |

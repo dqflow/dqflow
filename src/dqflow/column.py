@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -19,6 +19,7 @@ class Column:
     freshness_minutes: int | None = None
     description: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
+    custom: Callable[[Any], bool] | None = None
 
     def __post_init__(self) -> None:
         if self.min is not None and self.max is not None and self.min > self.max:

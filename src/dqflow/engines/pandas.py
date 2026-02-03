@@ -107,6 +107,36 @@ class PandasEngine(Engine):
         if col_def.freshness_minutes is not None:
             checks.append(self._check_freshness(series, col_name, col_def.freshness_minutes))
 
+        # Custom check
+        if col_def.custom is not None:
+            try:
+                # Apply custom function to each value in the series
+                results = series.apply(col_def.custom)
+                passed_count = results.sum()
+                total_count = len(series)
+                all_passed = passed_count == total_count
+
+                checks.append(
+                    CheckResult(
+                        name=f"custom:{col_name}",
+                        passed=all_passed,
+                        message=(
+                            f"{total_count - passed_count} values failed custom check"
+                            if not all_passed
+                            else ""
+                        ),
+                        details={"passed": int(passed_count), "total": int(total_count)},
+                    )
+                )
+            except Exception as e:
+                checks.append(
+                    CheckResult(
+                        name=f"custom:{col_name}",
+                        passed=False,
+                        message=f"Custom check raised exception: {e}",
+                    )
+                )
+
         return checks
 
     def _check_freshness(
