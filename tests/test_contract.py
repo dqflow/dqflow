@@ -136,6 +136,82 @@ class TestValidationResult:
             assert not check.passed
 
 
+class TestUniqueConstraint:
+    """Tests for unique column constraint."""
+
+    def test_unique_passing(self) -> None:
+        contract = Contract(name="test", columns={"id": Column(str, unique=True)})
+        df = pd.DataFrame({"id": ["A001", "A002", "A003"]})
+        result = contract.validate(df)
+        assert result.ok
+        assert any("unique:id" in c.name and c.passed for c in result.checks)
+
+    def test_unique_failing(self) -> None:
+        contract = Contract(name="test", columns={"id": Column(str, unique=True)})
+        df = pd.DataFrame({"id": ["A001", "A002", "A001"]})
+        result = contract.validate(df)
+        assert not result.ok
+        failed = next(c for c in result.failed_checks if "unique:id" in c.name)
+        assert failed.details["duplicate_count"] == 2
+
+    def test_unique_roundtrip_yaml(self) -> None:
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        contract = Contract(name="test", columns={"id": Column(str, unique=True)})
+        with TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "contract.yaml"
+            contract.to_yaml(path)
+            loaded = Contract.from_yaml(path)
+            assert loaded.columns["id"].unique is True
+
+
+class TestPatternConstraint:
+    """Tests for pattern column constraint."""
+
+    def test_pattern_passing(self) -> None:
+        contract = Contract(
+            name="test",
+            columns={"date": Column(str, pattern=r"^\d{4}-\d{2}-\d{2}$")},
+        )
+        df = pd.DataFrame({"date": ["2024-01-01", "2024-12-31"]})
+        result = contract.validate(df)
+        assert result.ok
+        assert any("pattern:date" in c.name and c.passed for c in result.checks)
+
+    def test_pattern_failing(self) -> None:
+        contract = Contract(
+            name="test",
+            columns={"email": Column(str, pattern=r"^[\w.+-]+@[\w-]+\.[\w.]+$")},
+        )
+        df = pd.DataFrame({"email": ["user@example.com", "not-an-email", "other@domain.org"]})
+        result = contract.validate(df)
+        assert not result.ok
+        failed = next(c for c in result.failed_checks if "pattern:email" in c.name)
+        assert failed.details["invalid_count"] == 1
+
+    def test_pattern_ignores_nulls(self) -> None:
+        contract = Contract(
+            name="test",
+            columns={"code": Column(str, pattern=r"^[A-Z]{3}$")},
+        )
+        df = pd.DataFrame({"code": ["USD", None, "EUR"]})
+        result = contract.validate(df)
+        assert result.ok
+
+    def test_pattern_roundtrip_yaml(self) -> None:
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        pat = r"^\d{4}-\d{2}-\d{2}$"
+        contract = Contract(name="test", columns={"date": Column(str, pattern=pat)})
+        with TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "contract.yaml"
+            contract.to_yaml(path)
+            loaded = Contract.from_yaml(path)
+            assert loaded.columns["date"].pattern == pat
+
+
 class TestCustomChecks:
     """Tests for custom validation functions."""
 

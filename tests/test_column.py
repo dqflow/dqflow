@@ -66,3 +66,19 @@ class TestColumn:
         assert col.custom(10) is True
         assert col.custom(-5) is False
         assert col.custom(0) is False
+
+    def test_column_with_unique(self) -> None:
+        col = Column(dtype=str, unique=True)
+        assert col.unique is True
+
+    def test_column_unique_default_false(self) -> None:
+        col = Column(dtype=str)
+        assert col.unique is False
+
+    def test_column_with_pattern(self) -> None:
+        col = Column(dtype=str, pattern=r"^\d{4}-\d{2}-\d{2}$")
+        assert col.pattern == r"^\d{4}-\d{2}-\d{2}$"
+
+    def test_column_pattern_default_none(self) -> None:
+        col = Column(dtype=str)
+        assert col.pattern is None

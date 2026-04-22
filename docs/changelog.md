@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `unique` constraint on `Column` to enforce no duplicate values
+- `pattern` constraint on `Column` for regex-based string format validation
+
 ## [0.1.3] - 2025-01-31
 
 ### Added

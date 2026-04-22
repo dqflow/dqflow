@@ -17,6 +17,8 @@ class Column:
     max: float | None = None
     allowed: Sequence[Any] | None = None
     freshness_minutes: int | None = None
+    unique: bool = False
+    pattern: str | None = None
     description: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
     custom: Callable[[Any], bool] | None = None

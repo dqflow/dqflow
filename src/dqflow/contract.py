@@ -72,6 +72,10 @@ class Contract:
                 col_dict["allowed"] = list(col.allowed)
             if col.freshness_minutes is not None:
                 col_dict["freshness_minutes"] = col.freshness_minutes
+            if col.unique:
+                col_dict["unique"] = True
+            if col.pattern is not None:
+                col_dict["pattern"] = col.pattern
             columns_data[col_name] = col_dict
 
         data = {

@@ -107,6 +107,39 @@ class PandasEngine(Engine):
         if col_def.freshness_minutes is not None:
             checks.append(self._check_freshness(series, col_name, col_def.freshness_minutes))
 
+        # Unique check
+        if col_def.unique:
+            duplicate_mask = series.duplicated(keep=False)
+            duplicate_count = int(duplicate_mask.sum())
+            checks.append(
+                CheckResult(
+                    name=f"unique:{col_name}",
+                    passed=duplicate_count == 0,
+                    message=(
+                        f"Found {duplicate_count} duplicate values" if duplicate_count > 0 else ""
+                    ),
+                    details={"duplicate_count": duplicate_count},
+                )
+            )
+
+        # Pattern check
+        if col_def.pattern is not None:
+            non_null = series.dropna()
+            matches = non_null.astype(str).str.match(col_def.pattern, na=False)
+            invalid_count = int((~matches).sum())
+            checks.append(
+                CheckResult(
+                    name=f"pattern:{col_name}",
+                    passed=invalid_count == 0,
+                    message=(
+                        f"{invalid_count} values do not match pattern '{col_def.pattern}'"
+                        if invalid_count > 0
+                        else ""
+                    ),
+                    details={"invalid_count": invalid_count, "pattern": col_def.pattern},
+                )
+            )
+
         # Custom check
         if col_def.custom is not None:
             try:
