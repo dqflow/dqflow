@@ -43,6 +43,7 @@ nav:
       - Column: api/column.md
       - ValidationResult: api/result.md
   - Changelog: changelog.md
+  - Contributing: contributing.md
 
 markdown_extensions:
   - pymdownx.highlight:
