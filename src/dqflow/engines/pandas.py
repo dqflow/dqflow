@@ -226,10 +226,7 @@ class PandasEngine(Engine):
         return cache
 
     def _evaluate_rule(
-        self, 
-        df: pd.DataFrame, 
-        rule: str, 
-        cache: dict[str, dict[str, float | int]]
+        self, df: pd.DataFrame, rule: str, cache: dict[str, dict[str, float | int]]
     ) -> CheckResult:
         """Evaluate a table-level rule."""
         try:
@@ -254,14 +251,11 @@ class PandasEngine(Engine):
     ) -> Any:
 
         context = {
-            "row_count": len(df),  
+            "row_count": len(df),
             "null_rate": lambda col: cache.get(col, {}).get("null_rate", 0),
             "unique_count": lambda col: cache.get(col, {}).get("unique_count", 0),
             "duplicate_rate": lambda col: (
-                (
-                    cache.get(col, {}).get("row_count", 0)
-                    - cache.get(col, {}).get("unique_count", 0)
-                )
+                (cache.get(col, {}).get("row_count", 0) - cache.get(col, {}).get("unique_count", 0))
                 / cache.get(col, {}).get("row_count", 1)
                 if cache.get(col)
                 else 0
