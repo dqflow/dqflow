@@ -162,12 +162,12 @@ class PandasEngine(Engine):
                         details={"passed": int(passed_count), "total": int(total_count)},
                     )
                 )
-            except Exception as e:
+            except Exception as exc:
                 checks.append(
                     CheckResult(
                         name=f"custom:{col_name}",
                         passed=False,
-                        message=f"Custom check raised exception: {e}",
+                        message=f"Custom check raised exception: {exc}",
                     )
                 )
 
@@ -225,7 +225,12 @@ class PandasEngine(Engine):
 
         return cache
 
-    def _evaluate_rule(self, df: pd.DataFrame, rule: str, cache: dict[str, dict[str, float | int]]) -> CheckResult:
+    def _evaluate_rule(
+        self, 
+        df: pd.DataFrame, 
+        rule: str, 
+        cache: dict[str, dict[str, float | int]]
+    ) -> CheckResult:
         """Evaluate a table-level rule."""
         try:
             result = self._parse_and_evaluate(df, rule, cache)
@@ -245,15 +250,13 @@ class PandasEngine(Engine):
         self,
         df: pd.DataFrame,
         rule: str,
-        cache: dict[str, dict[str, float]],
+        cache: dict[str, dict[str, float | int]],
     ) -> Any:
 
         context = {
             "row_count": len(df),  
-
             "null_rate": lambda col: cache.get(col, {}).get("null_rate", 0),
             "unique_count": lambda col: cache.get(col, {}).get("unique_count", 0),
-
             "duplicate_rate": lambda col: (
                 (
                     cache.get(col, {}).get("row_count", 0)
