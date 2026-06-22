@@ -19,6 +19,7 @@ class PandasEngine(Engine):
     def validate(self, df: pd.DataFrame, contract: Contract) -> ValidationResult:
         """Validate a DataFrame against a contract."""
         result = ValidationResult(contract_name=contract.name)
+        cache = self._build_stats_cache(df)
 
         # Column existence checks
         for col_name in contract.columns:
@@ -41,7 +42,7 @@ class PandasEngine(Engine):
 
         # Table-level rules
         for rule in contract.rules:
-            result.checks.append(self._evaluate_rule(df, rule))
+            result.checks.append(self._evaluate_rule(df, rule, cache))
 
         return result
 
@@ -161,12 +162,12 @@ class PandasEngine(Engine):
                         details={"passed": int(passed_count), "total": int(total_count)},
                     )
                 )
-            except Exception as e:
+            except Exception as exc:
                 checks.append(
                     CheckResult(
                         name=f"custom:{col_name}",
                         passed=False,
-                        message=f"Custom check raised exception: {e}",
+                        message=f"Custom check raised exception: {exc}",
                     )
                 )
 
@@ -210,10 +211,26 @@ class PandasEngine(Engine):
                 message=f"Failed to check freshness: {e}",
             )
 
-    def _evaluate_rule(self, df: pd.DataFrame, rule: str) -> CheckResult:
+    def _build_stats_cache(self, df: pd.DataFrame) -> dict[str, dict[str, float | int]]:
+        cache: dict[str, dict[str, float | int]] = {}
+        row_count = len(df)
+
+        for col in df.columns:
+            series = df[col]
+            cache[col] = {
+                "null_rate": series.isna().mean(),
+                "unique_count": series.nunique(dropna=False),
+                "row_count": row_count,
+            }
+
+        return cache
+
+    def _evaluate_rule(
+        self, df: pd.DataFrame, rule: str, cache: dict[str, dict[str, float | int]]
+    ) -> CheckResult:
         """Evaluate a table-level rule."""
         try:
-            result = self._parse_and_evaluate(df, rule)
+            result = self._parse_and_evaluate(df, rule, cache)
             return CheckResult(
                 name=f"rule:{rule}",
                 passed=bool(result),
@@ -226,15 +243,23 @@ class PandasEngine(Engine):
                 message=f"Failed to evaluate rule: {e}",
             )
 
-    def _parse_and_evaluate(self, df: pd.DataFrame, rule: str) -> Any:
-        """Parse and evaluate a rule expression."""
-        # Simple rule parser - extend as needed
+    def _parse_and_evaluate(
+        self,
+        df: pd.DataFrame,
+        rule: str,
+        cache: dict[str, dict[str, float | int]],
+    ) -> Any:
+
         context = {
             "row_count": len(df),
-            "null_rate": lambda col: df[col].isna().mean() if col in df.columns else 1.0,
-            "unique_count": lambda col: df[col].nunique() if col in df.columns else 0,
+            "null_rate": lambda col: cache.get(col, {}).get("null_rate", 0),
+            "unique_count": lambda col: cache.get(col, {}).get("unique_count", 0),
             "duplicate_rate": lambda col: (
-                1 - (df[col].nunique() / len(df)) if col in df.columns and len(df) > 0 else 0
+                (cache.get(col, {}).get("row_count", 0) - cache.get(col, {}).get("unique_count", 0))
+                / cache.get(col, {}).get("row_count", 1)
+                if cache.get(col)
+                else 0
             ),
         }
+
         return eval(rule, {"__builtins__": {}}, context)
