@@ -6,7 +6,7 @@ dqflow aims to evolve into a lightweight, high-performance, and extensible data 
 
 ---
 
-# Version 0.2 — Performance , Scalability & Visual Identity
+# Version 0.2 - Performance , Scalability & Visual Identity
 
 Focus: Improve execution speed and scalability for large datasets.
 
@@ -39,7 +39,7 @@ Focus: Improve execution speed and scalability for large datasets.
 
 ---
 
-# Version 0.3 — Rule System & Expressiveness
+# Version 0.3 - Rule System & Expressiveness
 
 Focus: Improve flexibility and safety of rule definitions.
 
@@ -64,7 +64,7 @@ Focus: Improve flexibility and safety of rule definitions.
 
 ---
 
-# Version 0.4 — Integrations & Pipeline Support
+# Version 0.4 - Integrations & Pipeline Support
 
 Focus: Extend dqflow into modern data stack ecosystems.
 
@@ -83,7 +83,7 @@ Focus: Extend dqflow into modern data stack ecosystems.
 
 ---
 
-# Version 0.5 — Observability & Reporting
+# Version 0.5 - Observability & Reporting
 
 Focus: Turn validation results into actionable insights.
 
@@ -107,7 +107,7 @@ Focus: Turn validation results into actionable insights.
 
 ---
 
-# Version 0.6 — Developer Experience
+# Version 0.6 - Developer Experience
 
 Focus: Improve usability, onboarding, and debugging.
 
@@ -130,7 +130,7 @@ Focus: Improve usability, onboarding, and debugging.
 
 ---
 
-# Version 0.7 — Ecosystem & Branding
+# Version 0.7 - Ecosystem & Branding
 
 Focus: Establish dqflow as a recognizable open-source project.
 
