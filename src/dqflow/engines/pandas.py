@@ -21,7 +21,7 @@ class PandasEngine(Engine):
         self,
         df: pd.DataFrame,
         contract: Contract,
-        parallel: bool = False, 
+        parallel: bool = False,
         max_workers: int | None = None,
     ) -> ValidationResult:
         """
