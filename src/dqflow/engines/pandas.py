@@ -36,7 +36,6 @@ class PandasEngine(Engine):
         result = ValidationResult(contract_name=contract.name)
         cache = self._build_stats_cache(df)
 
-       
         for col_name in contract.columns:
             if col_name not in df.columns:
                 result.checks.append(
@@ -56,9 +55,7 @@ class PandasEngine(Engine):
                 )
 
         if parallel:
-            column_checks = self._validate_columns_parallel(
-                df, contract, max_workers=max_workers
-            )
+            column_checks = self._validate_columns_parallel(df, contract, max_workers=max_workers)
         else:
             column_checks = self._validate_columns_sequential(df, contract)
 
@@ -68,8 +65,6 @@ class PandasEngine(Engine):
             result.checks.append(self._evaluate_rule(df, rule, cache))
 
         return result
-
-
 
     def _validate_columns_sequential(
         self,
@@ -133,7 +128,6 @@ class PandasEngine(Engine):
         """
         return self._validate_column(df[col_name], col_name, col_def)
 
-
     def _validate_column(
         self,
         series: pd.Series,
@@ -143,7 +137,6 @@ class PandasEngine(Engine):
 
         checks: list[CheckResult] = []
 
-  
         if col_def.not_null:
             null_count = series.isna().sum()
             checks.append(
@@ -155,7 +148,6 @@ class PandasEngine(Engine):
                 )
             )
 
- 
         if col_def.min is not None:
             min_val = series.min()
             passed = pd.isna(min_val) or min_val >= col_def.min
@@ -165,15 +157,12 @@ class PandasEngine(Engine):
                     name=f"min:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Minimum value {min_val} is below {col_def.min}"
-                        if not passed
-                        else ""
+                        f"Minimum value {min_val} is below {col_def.min}" if not passed else ""
                     ),
                     details={"actual_min": float(min_val) if pd.notna(min_val) else None},
                 )
             )
 
-  
         if col_def.max is not None:
             max_val = series.max()
             passed = pd.isna(max_val) or max_val <= col_def.max
@@ -183,15 +172,12 @@ class PandasEngine(Engine):
                     name=f"max:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Maximum value {max_val} exceeds {col_def.max}"
-                        if not passed
-                        else ""
+                        f"Maximum value {max_val} exceeds {col_def.max}" if not passed else ""
                     ),
                     details={"actual_max": float(max_val) if pd.notna(max_val) else None},
                 )
             )
 
-    
         if col_def.allowed is not None:
             allowed_set = set(col_def.allowed)
             unique_vals = set(series.dropna().unique())
@@ -206,13 +192,9 @@ class PandasEngine(Engine):
                 )
             )
 
-    
         if col_def.freshness_minutes is not None:
-            checks.append(
-                self._check_freshness(series, col_name, col_def.freshness_minutes)
-            )
+            checks.append(self._check_freshness(series, col_name, col_def.freshness_minutes))
 
-    
         if col_def.unique:
             duplicate_count = int(series.duplicated(keep=False).sum())
             checks.append(
@@ -220,9 +202,7 @@ class PandasEngine(Engine):
                     name=f"unique:{col_name}",
                     passed=duplicate_count == 0,
                     message=(
-                        f"Found {duplicate_count} duplicate values"
-                        if duplicate_count > 0
-                        else ""
+                        f"Found {duplicate_count} duplicate values" if duplicate_count > 0 else ""
                     ),
                     details={"duplicate_count": duplicate_count},
                 )
@@ -248,7 +228,6 @@ class PandasEngine(Engine):
                     },
                 )
             )
-
 
         if col_def.custom is not None:
             try:
@@ -283,8 +262,6 @@ class PandasEngine(Engine):
 
         return checks
 
-
-
     def _check_freshness(
         self,
         series: pd.Series,
@@ -316,11 +293,7 @@ class PandasEngine(Engine):
             return CheckResult(
                 name=f"freshness:{col_name}",
                 passed=passed,
-                message=(
-                    f"Data is {age} old, threshold is {threshold}"
-                    if not passed
-                    else ""
-                ),
+                message=(f"Data is {age} old, threshold is {threshold}" if not passed else ""),
                 details={
                     "max_timestamp": max_ts.isoformat(),
                     "age_minutes": age.total_seconds() / 60,
@@ -334,9 +307,6 @@ class PandasEngine(Engine):
                 message=f"Failed to check freshness: {e}",
             )
 
- 
-
- 
     def _build_stats_cache(
         self,
         df: pd.DataFrame,
@@ -352,9 +322,6 @@ class PandasEngine(Engine):
             }
             for col in df.columns
         }
-
-
-
 
     def _evaluate_rule(
         self,
@@ -391,8 +358,7 @@ class PandasEngine(Engine):
             "null_rate": lambda col: cache.get(col, {}).get("null_rate", 0),
             "unique_count": lambda col: cache.get(col, {}).get("unique_count", 0),
             "duplicate_rate": lambda col: (
-                (cache.get(col, {}).get("row_count", 0)
-                 - cache.get(col, {}).get("unique_count", 0))
+                (cache.get(col, {}).get("row_count", 0) - cache.get(col, {}).get("unique_count", 0))
                 / cache.get(col, {}).get("row_count", 1)
                 if cache.get(col)
                 else 0

@@ -54,8 +54,6 @@ class TestContract:
         assert "allowed:currency" in failed_names
 
 
-
-
 class TestParallelValidation:
     """Ensure sequential vs parallel execution produces identical results."""
 
@@ -69,13 +67,11 @@ class TestParallelValidation:
 
         engine = PandasEngine()
 
-  
         result_seq = engine.validate(
             sample_df,
             sample_contract,
             parallel=False,
         )
-
 
         result_par = engine.validate(
             sample_df,
@@ -83,20 +79,16 @@ class TestParallelValidation:
             parallel=True,
         )
 
-     
-
         assert result_seq.ok == result_par.ok
         assert result_seq.contract_name == result_par.contract_name
 
         # Same number of checks
         assert len(result_seq.checks) == len(result_par.checks)
 
-
         seq_names = sorted(c.name for c in result_seq.checks)
         par_names = sorted(c.name for c in result_par.checks)
 
         assert seq_names == par_names
-
 
         seq_map = {c.name: c.passed for c in result_seq.checks}
         par_map = {c.name: c.passed for c in result_par.checks}
