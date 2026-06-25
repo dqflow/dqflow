@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -17,12 +17,26 @@ from dqflow.result import CheckResult, ValidationResult
 class PandasEngine(Engine):
     """Validation engine for pandas DataFrames."""
 
-    def validate(self, df: pd.DataFrame, contract: Contract) -> ValidationResult:
-        """Validate a DataFrame against a contract."""
+    def validate(
+        self,
+        df: pd.DataFrame,
+        contract: Contract,
+        parallel: bool = False,  # ✅ NEW: execution mode switch
+        max_workers: int | None = None,
+    ) -> ValidationResult:
+        """
+        Validate a DataFrame against a contract.
+
+        Args:
+            df: input DataFrame
+            contract: validation contract
+            parallel: whether to run column validation in parallel
+            max_workers: optional worker limit for thread pool
+        """
         result = ValidationResult(contract_name=contract.name)
         cache = self._build_stats_cache(df)
 
-        # Column existence checks
+       
         for col_name in contract.columns:
             if col_name not in df.columns:
                 result.checks.append(
@@ -37,56 +51,101 @@ class PandasEngine(Engine):
                     CheckResult(
                         name=f"column_exists:{col_name}",
                         passed=True,
+                        message="",
                     )
                 )
 
-        # Column-level checks (parallel validation)
-        with ThreadPoolExecutor() as executor:
-            column_results = executor.map(
-                lambda item: self._validate_single_column(
-                    df,
-                    item[0],
-                    item[1],
-                ),
-                contract.columns.items(),
+        if parallel:
+            column_checks = self._validate_columns_parallel(
+                df, contract, max_workers=max_workers
             )
+        else:
+            column_checks = self._validate_columns_sequential(df, contract)
 
-        for checks in column_results:
-            result.checks.extend(checks)
+        result.checks.extend(column_checks)
 
-        # Table-level rules
         for rule in contract.rules:
             result.checks.append(self._evaluate_rule(df, rule, cache))
 
         return result
 
-    def _validate_single_column(
+
+
+    def _validate_columns_sequential(
+        self,
+        df: pd.DataFrame,
+        contract: Contract,
+    ) -> list[CheckResult]:
+        """Original sequential execution (baseline)."""
+        results: list[CheckResult] = []
+
+        for col_name, col_def in contract.columns.items():
+            if col_name not in df.columns:
+                continue
+
+            results.extend(
+                self._validate_column(
+                    df[col_name],
+                    col_name,
+                    col_def,
+                )
+            )
+
+        return results
+
+    def _validate_columns_parallel(
+        self,
+        df: pd.DataFrame,
+        contract: Contract,
+        max_workers: int | None = None,
+    ) -> list[CheckResult]:
+        """Parallel column validation using threads."""
+
+        results: list[CheckResult] = []
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(
+                    self._validate_column_safe,
+                    df,
+                    col_name,
+                    col_def,
+                ): col_name
+                for col_name, col_def in contract.columns.items()
+                if col_name in df.columns
+            }
+
+            for future in as_completed(futures):
+                results.extend(future.result())
+
+        return results
+
+    def _validate_column_safe(
         self,
         df: pd.DataFrame,
         col_name: str,
         col_def: Column,
     ) -> list[CheckResult]:
-        """Validate a single column from a DataFrame."""
+        """
+        Thread-safe wrapper for column validation.
 
-        if col_name not in df.columns:
-            return []
+        Ensures no shared mutable state is accessed.
+        """
+        return self._validate_column(df[col_name], col_name, col_def)
 
-        return self._validate_column(
-            df[col_name],
-            col_name,
-            col_def,
-        )
 
     def _validate_column(
-        self, series: pd.Series, col_name: str, col_def: Column
+        self,
+        series: pd.Series,
+        col_name: str,
+        col_def: Column,
     ) -> list[CheckResult]:
-        """Validate a single column."""
-        checks = []
 
-        # Not null check
+        checks: list[CheckResult] = []
+
+  
         if col_def.not_null:
             null_count = series.isna().sum()
-
             checks.append(
                 CheckResult(
                     name=f"not_null:{col_name}",
@@ -96,10 +155,9 @@ class PandasEngine(Engine):
                 )
             )
 
-        # Min check
+ 
         if col_def.min is not None:
             min_val = series.min()
-
             passed = pd.isna(min_val) or min_val >= col_def.min
 
             checks.append(
@@ -107,16 +165,17 @@ class PandasEngine(Engine):
                     name=f"min:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Minimum value {min_val} is below {col_def.min}" if not passed else ""
+                        f"Minimum value {min_val} is below {col_def.min}"
+                        if not passed
+                        else ""
                     ),
                     details={"actual_min": float(min_val) if pd.notna(min_val) else None},
                 )
             )
 
-        # Max check
+  
         if col_def.max is not None:
             max_val = series.max()
-
             passed = pd.isna(max_val) or max_val <= col_def.max
 
             checks.append(
@@ -124,13 +183,15 @@ class PandasEngine(Engine):
                     name=f"max:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Maximum value {max_val} exceeds {col_def.max}" if not passed else ""
+                        f"Maximum value {max_val} exceeds {col_def.max}"
+                        if not passed
+                        else ""
                     ),
                     details={"actual_max": float(max_val) if pd.notna(max_val) else None},
                 )
             )
 
-        # Allowed values check
+    
         if col_def.allowed is not None:
             allowed_set = set(col_def.allowed)
             unique_vals = set(series.dropna().unique())
@@ -145,41 +206,31 @@ class PandasEngine(Engine):
                 )
             )
 
-        # Freshness check
+    
         if col_def.freshness_minutes is not None:
             checks.append(
-                self._check_freshness(
-                    series,
-                    col_name,
-                    col_def.freshness_minutes,
-                )
+                self._check_freshness(series, col_name, col_def.freshness_minutes)
             )
 
-        # Unique check
+    
         if col_def.unique:
-            duplicate_mask = series.duplicated(keep=False)
-            duplicate_count = int(duplicate_mask.sum())
-
+            duplicate_count = int(series.duplicated(keep=False).sum())
             checks.append(
                 CheckResult(
                     name=f"unique:{col_name}",
                     passed=duplicate_count == 0,
                     message=(
-                        f"Found {duplicate_count} duplicate values" if duplicate_count > 0 else ""
+                        f"Found {duplicate_count} duplicate values"
+                        if duplicate_count > 0
+                        else ""
                     ),
                     details={"duplicate_count": duplicate_count},
                 )
             )
 
-        # Pattern check
         if col_def.pattern is not None:
             non_null = series.dropna()
-
-            matches = non_null.astype(str).str.match(
-                col_def.pattern,
-                na=False,
-            )
-
+            matches = non_null.astype(str).str.match(col_def.pattern, na=False)
             invalid_count = int((~matches).sum())
 
             checks.append(
@@ -198,28 +249,25 @@ class PandasEngine(Engine):
                 )
             )
 
-        # Custom check
+
         if col_def.custom is not None:
             try:
                 results = series.apply(col_def.custom)
-
-                passed_count = results.sum()
+                passed_count = int(results.sum())
                 total_count = len(series)
-
-                all_passed = passed_count == total_count
 
                 checks.append(
                     CheckResult(
                         name=f"custom:{col_name}",
-                        passed=all_passed,
+                        passed=passed_count == total_count,
                         message=(
                             f"{total_count - passed_count} values failed custom check"
-                            if not all_passed
+                            if passed_count != total_count
                             else ""
                         ),
                         details={
-                            "passed": int(passed_count),
-                            "total": int(total_count),
+                            "passed": passed_count,
+                            "total": total_count,
                         },
                     )
                 )
@@ -235,13 +283,14 @@ class PandasEngine(Engine):
 
         return checks
 
+
+
     def _check_freshness(
         self,
         series: pd.Series,
         col_name: str,
         freshness_minutes: int,
     ) -> CheckResult:
-        """Check if timestamp column has recent data."""
 
         try:
             ts_series = pd.to_datetime(series)
@@ -260,7 +309,6 @@ class PandasEngine(Engine):
                 max_ts = max_ts.replace(tzinfo=timezone.utc)
 
             age = now - max_ts
-
             threshold = timedelta(minutes=freshness_minutes)
 
             passed = age <= threshold
@@ -268,7 +316,11 @@ class PandasEngine(Engine):
             return CheckResult(
                 name=f"freshness:{col_name}",
                 passed=passed,
-                message=(f"Data is {age} old, threshold is {threshold}" if not passed else ""),
+                message=(
+                    f"Data is {age} old, threshold is {threshold}"
+                    if not passed
+                    else ""
+                ),
                 details={
                     "max_timestamp": max_ts.isoformat(),
                     "age_minutes": age.total_seconds() / 60,
@@ -282,25 +334,27 @@ class PandasEngine(Engine):
                 message=f"Failed to check freshness: {e}",
             )
 
+ 
+
+ 
     def _build_stats_cache(
         self,
         df: pd.DataFrame,
     ) -> dict[str, dict[str, float | int]]:
 
-        cache: dict[str, dict[str, float | int]] = {}
-
         row_count = len(df)
 
-        for col in df.columns:
-            series = df[col]
-
-            cache[col] = {
-                "null_rate": series.isna().mean(),
-                "unique_count": series.nunique(dropna=False),
+        return {
+            col: {
+                "null_rate": df[col].isna().mean(),
+                "unique_count": df[col].nunique(dropna=False),
                 "row_count": row_count,
             }
+            for col in df.columns
+        }
 
-        return cache
+
+
 
     def _evaluate_rule(
         self,
@@ -310,11 +364,7 @@ class PandasEngine(Engine):
     ) -> CheckResult:
 
         try:
-            result = self._parse_and_evaluate(
-                df,
-                rule,
-                cache,
-            )
+            result = self._parse_and_evaluate(df, rule, cache)
 
             return CheckResult(
                 name=f"rule:{rule}",
@@ -338,24 +388,15 @@ class PandasEngine(Engine):
 
         context = {
             "row_count": len(df),
-            "null_rate": lambda col: cache.get(col, {}).get(
-                "null_rate",
-                0,
-            ),
-            "unique_count": lambda col: cache.get(col, {}).get(
-                "unique_count",
-                0,
-            ),
+            "null_rate": lambda col: cache.get(col, {}).get("null_rate", 0),
+            "unique_count": lambda col: cache.get(col, {}).get("unique_count", 0),
             "duplicate_rate": lambda col: (
-                (cache.get(col, {}).get("row_count", 0) - cache.get(col, {}).get("unique_count", 0))
+                (cache.get(col, {}).get("row_count", 0)
+                 - cache.get(col, {}).get("unique_count", 0))
                 / cache.get(col, {}).get("row_count", 1)
                 if cache.get(col)
                 else 0
             ),
         }
 
-        return eval(
-            rule,
-            {"__builtins__": {}},
-            context,
-        )
+        return eval(rule, {"__builtins__": {}}, context)

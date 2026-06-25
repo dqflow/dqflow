@@ -54,25 +54,51 @@ class TestContract:
         assert "allowed:currency" in failed_names
 
 
-# (parallel validation regression test)
-class TestParallelValidation:
-    """Ensure parallel validation does not change correctness."""
 
-    def test_parallel_column_validation_consistency(
-        self, sample_contract: Contract, sample_df: pd.DataFrame
+
+class TestParallelValidation:
+    """Ensure sequential vs parallel execution produces identical results."""
+
+    def test_parallel_vs_sequential_consistency(
+        self,
+        sample_contract: Contract,
+        sample_df: pd.DataFrame,
     ) -> None:
 
         from dqflow.engines.pandas import PandasEngine
 
         engine = PandasEngine()
 
-        result1 = engine.validate(sample_df, sample_contract)
-        result2 = engine.validate(sample_df, sample_contract)
+  
+        result_seq = engine.validate(
+            sample_df,
+            sample_contract,
+            parallel=False,
+        )
 
-        # Core correctness checks
-        assert result1.ok == result2.ok
-        assert result1.contract_name == result2.contract_name
-        assert len(result1.checks) == len(result2.checks)
 
-        # Compare check names (order-independent)
-        assert sorted(c.name for c in result1.checks) == sorted(c.name for c in result2.checks)
+        result_par = engine.validate(
+            sample_df,
+            sample_contract,
+            parallel=True,
+        )
+
+     
+
+        assert result_seq.ok == result_par.ok
+        assert result_seq.contract_name == result_par.contract_name
+
+        # Same number of checks
+        assert len(result_seq.checks) == len(result_par.checks)
+
+
+        seq_names = sorted(c.name for c in result_seq.checks)
+        par_names = sorted(c.name for c in result_par.checks)
+
+        assert seq_names == par_names
+
+
+        seq_map = {c.name: c.passed for c in result_seq.checks}
+        par_map = {c.name: c.passed for c in result_par.checks}
+
+        assert seq_map == par_map
