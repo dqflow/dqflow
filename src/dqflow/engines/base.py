@@ -3,36 +3,20 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-if TYPE_CHECKING:
-    from dqflow.contract import Contract
-    from dqflow.result import ValidationResult
+from dqflow.contract import Contract
+from dqflow.result import ValidationResult
 
 
 class Engine(ABC):
     """Abstract base class for validation engines."""
 
     @abstractmethod
-    def validate(
-        self,
-        data: Any,
-        contract: Contract,
-        context: dict[str, Any] | None = None,
-    ) -> ValidationResult:
+    def validate(self, data: Any, contract: Contract) -> ValidationResult:
         """
         Validate data against a contract.
 
-        Args:
-            data:
-                Input dataset to validate.
-
-            contract:
-                Validation contract definition.
-
-            context:
-                Runtime execution context / options.
-
-        Returns:
-            ValidationResult containing validation outcomes.
+        Must return identical ValidationResult structure across all engines.
         """
+        raise NotImplementedError

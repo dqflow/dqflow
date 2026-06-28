@@ -280,9 +280,9 @@ dq validate contracts/orders.yaml data/orders.parquet --output json --fail-fast
 
 ## Supported engines
 
-* ✅ Pandas
-* 🚧 PySpark (planned)
-* 🚧 SQL tables (planned)
+* Pandas
+* PySpark (planned)
+* SQL tables (planned)
 
 ---
 

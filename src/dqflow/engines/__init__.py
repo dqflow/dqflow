@@ -1,13 +1,8 @@
-"""Validation engines."""
+"""dqflow - Lightweight, contract-first data quality engine."""
 
-from dqflow.engines.base import Engine
-from dqflow.engines.pandas import PandasEngine
+from dqflow.column import Column
+from dqflow.contract import Contract
+from dqflow.result import ValidationResult
 
-__all__ = ["Engine", "PandasEngine"]
-
-try:
-    from dqflow.engines.polars import PolarsEngine
-
-    __all__ = [*__all__, "PolarsEngine"]
-except ImportError:
-    pass
+__version__ = "0.1.3"
+__all__ = ["Contract", "Column", "ValidationResult"]

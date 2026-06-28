@@ -15,6 +15,30 @@ if TYPE_CHECKING:
     import pandas as pd
 
 
+def _ensure_column(col_def: Any) -> Column:
+    """
+    Normalize column definition into Column object.
+
+    Supports both:
+    - {"type": ...}  (CLI / YAML legacy)
+    - {"dtype": ...} (internal standard)
+    """
+    if isinstance(col_def, Column):
+        return col_def
+
+    if isinstance(col_def, dict):
+        col_def = col_def.copy()
+
+        # Accept BOTH formats safely
+        dtype = col_def.pop("dtype", None)
+        if dtype is None:
+            dtype = col_def.pop("type", str)
+
+        return Column(dtype=dtype, **col_def)
+
+    return Column(dtype=col_def)
+
+
 @dataclass
 class Contract:
     """Data quality contract defining expectations for a dataset."""
@@ -25,27 +49,33 @@ class Contract:
     description: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
 
-    def validate(self, df: pd.DataFrame) -> ValidationResult:
-        """Validate a DataFrame against this contract."""
-        from dqflow.engines.pandas import PandasEngine
+    def __post_init__(self):
+        """Ensure all columns are normalized into Column objects."""
+        self.columns = {
+            name: _ensure_column(col)
+            for name, col in self.columns.items()
+        }
 
-        engine = PandasEngine()
+    def validate(self, df: Any, engine: Any | None = None) -> ValidationResult:
+        """Validate dataset using an engine (defaults to PandasEngine)."""
+        if engine is None:
+            from dqflow.engines.pandas import PandasEngine
+            engine = PandasEngine()
+
         return engine.validate(df, self)
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> Contract:
         """Load contract from YAML file."""
         path = Path(path)
+
         with path.open() as f:
             data = yaml.safe_load(f)
 
-        columns = {}
-        for col_name, col_def in data.get("columns", {}).items():
-            if isinstance(col_def, dict):
-                dtype = col_def.pop("type", str)
-                columns[col_name] = Column(dtype=dtype, **col_def)
-            else:
-                columns[col_name] = Column(dtype=col_def)
+        columns = {
+            name: _ensure_column(col_def)
+            for name, col_def in data.get("columns", {}).items()
+        }
 
         return cls(
             name=data.get("name", path.stem),
@@ -59,9 +89,14 @@ class Contract:
         """Save contract to YAML file."""
         path = Path(path)
 
-        columns_data = {}
+        columns_data: dict[str, Any] = {}
+
         for col_name, col in self.columns.items():
-            col_dict: dict[str, Any] = {"type": _dtype_to_str(col.dtype)}
+            col_dict: dict[str, Any] = {
+                # STANDARDIZED OUTPUT FORMAT
+                "dtype": _dtype_to_str(col.dtype)
+            }
+
             if col.not_null:
                 col_dict["not_null"] = True
             if col.min is not None:
@@ -76,12 +111,14 @@ class Contract:
                 col_dict["unique"] = True
             if col.pattern is not None:
                 col_dict["pattern"] = col.pattern
+
             columns_data[col_name] = col_dict
 
         data = {
             "name": self.name,
             "columns": columns_data,
         }
+
         if self.rules:
             data["rules"] = self.rules
         if self.description:
