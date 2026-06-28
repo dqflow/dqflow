@@ -9,9 +9,11 @@ description = "Lightweight, contract-first data quality engine for modern data p
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
+
 authors = [
     { name = "Quang", email = "nguyenvanquang247@gmail.com" },
 ]
+
 keywords = [
     "data-quality",
     "data-validation",
@@ -19,6 +21,7 @@ keywords = [
     "etl",
     "pandas",
 ]
+
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -30,6 +33,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+
 dependencies = [
     "pandas>=1.5.0",
     "pyyaml>=6.0",
@@ -40,6 +44,7 @@ dependencies = [
 polars = [
     "polars>=0.20.0",
 ]
+
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
@@ -48,7 +53,9 @@ dev = [
     "pandas-stubs>=2.0",
     "types-PyYAML>=6.0",
     "pre-commit>=3.0",
+    "polars>=0.20.0"
 ]
+
 docs = [
     "mkdocs>=1.5",
     "mkdocs-material>=9.5",
