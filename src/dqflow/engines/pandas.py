@@ -19,7 +19,7 @@ class PandasEngine(Engine):
     def validate(
         self,
         data: pd.DataFrame,
-        contract: Contract,
+        spec: Contract,  # standardized (matches PolarsEngine + tests)
         context: dict[str, Any] | None = None,
     ) -> ValidationResult:
         """
@@ -31,12 +31,13 @@ class PandasEngine(Engine):
         parallel = context.get("parallel", False)
         max_workers = context.get("max_workers")
 
-        result = ValidationResult(contract_name=contract.name)
+        result = ValidationResult(contract_name=spec.name)
 
         cache = self._build_stats_cache(data)
 
+
         # Column existence checks
-        for col_name in contract.columns:
+        for col_name in spec.columns:
             if col_name not in data.columns:
                 result.checks.append(
                     CheckResult(
@@ -54,23 +55,25 @@ class PandasEngine(Engine):
                     )
                 )
 
+    
         # Column validation
         if parallel:
             column_checks = self._validate_columns_parallel(
                 data,
-                contract,
+                spec,
                 max_workers=max_workers,
             )
         else:
             column_checks = self._validate_columns_sequential(
                 data,
-                contract,
+                spec,
             )
 
         result.checks.extend(column_checks)
 
+
         # Rule evaluation
-        for rule in contract.rules:
+        for rule in spec.rules:
             result.checks.append(
                 self._evaluate_rule(
                     data,
@@ -82,15 +85,17 @@ class PandasEngine(Engine):
 
         return result
 
+
+    # Column validation (sequential)
     def _validate_columns_sequential(
         self,
         data: pd.DataFrame,
-        contract: Contract,
+        spec: Contract,
     ) -> list[CheckResult]:
 
         results: list[CheckResult] = []
 
-        for col_name, col_def in contract.columns.items():
+        for col_name, col_def in spec.columns.items():
             if col_name not in data.columns:
                 continue
 
@@ -104,17 +109,18 @@ class PandasEngine(Engine):
 
         return results
 
+
+    # Column validation (parallel)
     def _validate_columns_parallel(
         self,
         data: pd.DataFrame,
-        contract: Contract,
+        spec: Contract,
         max_workers: int | None = None,
     ) -> list[CheckResult]:
 
         results: list[CheckResult] = []
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-
             futures = {
                 executor.submit(
                     self._validate_column_safe,
@@ -122,7 +128,7 @@ class PandasEngine(Engine):
                     col_name,
                     col_def,
                 ): col_name
-                for col_name, col_def in contract.columns.items()
+                for col_name, col_def in spec.columns.items()
                 if col_name in data.columns
             }
 
@@ -144,6 +150,8 @@ class PandasEngine(Engine):
             col_def,
         )
 
+
+    # Column-level checks
     def _validate_column(
         self,
         series: pd.Series,
@@ -153,6 +161,7 @@ class PandasEngine(Engine):
 
         checks: list[CheckResult] = []
 
+        
         if col_def.not_null:
             null_count = series.isna().sum()
 
@@ -169,9 +178,9 @@ class PandasEngine(Engine):
                 )
             )
 
+      
         if col_def.min is not None:
             min_val = series.min()
-
             passed = pd.isna(min_val) or min_val >= col_def.min
 
             checks.append(
@@ -186,9 +195,9 @@ class PandasEngine(Engine):
                 )
             )
 
+   
         if col_def.max is not None:
             max_val = series.max()
-
             passed = pd.isna(max_val) or max_val <= col_def.max
 
             checks.append(
@@ -203,6 +212,7 @@ class PandasEngine(Engine):
                 )
             )
 
+        # ALLOWED VALUES
         if col_def.allowed is not None:
             invalid = set(series.dropna().unique()) - set(col_def.allowed)
 
@@ -221,6 +231,8 @@ class PandasEngine(Engine):
 
         return checks
 
+   
+    # Stats cache
     def _build_stats_cache(
         self,
         data: pd.DataFrame,
@@ -237,6 +249,8 @@ class PandasEngine(Engine):
             for col in data.columns
         }
 
+ 
+    # Rule evaluation
     def _evaluate_rule(
         self,
         data: pd.DataFrame,
