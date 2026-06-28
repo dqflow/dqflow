@@ -17,18 +17,18 @@ class Engine(ABC):
     def validate(
         self,
         data: Any,
-        spec: Contract,
+        contract: Contract,
         context: dict[str, Any] | None = None,
     ) -> ValidationResult:
         """
-        Validate data against a specification.
+        Validate data against a contract.
 
         Args:
             data:
                 Input dataset to validate.
 
-            spec:
-                Validation specification (contract).
+            contract:
+                Validation contract definition.
 
             context:
                 Runtime execution context / options.
