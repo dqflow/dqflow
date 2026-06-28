@@ -14,6 +14,20 @@ class Engine(ABC):
     """Abstract base class for validation engines."""
 
     @abstractmethod
-    def validate(self, data: Any, contract: Contract) -> ValidationResult:
-        """Validate data against a contract."""
-        ...
+    def validate(
+        self,
+        data: Any,
+        contract: Contract,
+        **kwargs: Any,
+    ) -> ValidationResult:
+        """
+        Validate data against a contract.
+
+        Args:
+            data: Input dataset to validate.
+            contract: Validation contract definition.
+            **kwargs: Engine-specific execution options.
+
+        Returns:
+            ValidationResult containing validation outcomes.
+        """
