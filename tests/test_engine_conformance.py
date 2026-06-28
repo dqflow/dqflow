@@ -69,9 +69,10 @@ def run_engine(engine_cls, data, spec: Contract):
 
     engine = engine_cls()
 
-    # Polars expects Polars DataFrame
+    # IMPORTANT FIX:
+    # Avoid pl.from_pandas() → requires pyarrow in many environments
     if engine_cls.__name__ == "PolarsEngine":
-        data = pl.from_pandas(data)
+        data = pl.DataFrame(data.to_dict(orient="list"))
 
     return engine.validate(data, spec, context={})
 
@@ -83,7 +84,7 @@ def test_all_engines_follow_validate_interface():
     validate(data, spec, context)
     """
 
-    expected_signature = ["self", "data", "spec", "context"]
+    expected_signature = ["self", "data", "contract", "context"]
 
     for name, engine_cls in ENGINES:
         sig = inspect.signature(engine_cls.validate)
@@ -182,7 +183,6 @@ def test_validation_result_structure_stable(base_contract, clean_data):
     for result in results[1:]:
         assert result.contract_name == reference.contract_name
 
-        # FIXED: removed type() comparison (E721 safe fix)
         assert len(result.checks) == len(reference.checks)
 
         assert all(
