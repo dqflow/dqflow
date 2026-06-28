@@ -23,7 +23,7 @@ class PolarsEngine(Engine):
     def validate(
         self,
         data: pl.DataFrame | pl.LazyFrame,
-        spec: Contract,
+        contract: Contract,
         context: dict[str, Any] | None = None,
     ) -> ValidationResult:
 
@@ -32,12 +32,13 @@ class PolarsEngine(Engine):
         if isinstance(data, pl.LazyFrame):
             data = data.collect()
 
-        result = ValidationResult(contract_name=spec.name)
+        result = ValidationResult(contract_name=contract.name)
 
         cache = self._build_stats_cache(data)
 
+
         # Column existence checks
-        for col_name, _ in spec.columns.items():
+        for col_name in contract.columns:
             if col_name not in data.columns:
                 result.checks.append(
                     CheckResult(
@@ -55,8 +56,9 @@ class PolarsEngine(Engine):
                     )
                 )
 
+      
         # Column validation
-        for col_name, col_def in spec.columns.items():
+        for col_name, col_def in contract.columns.items():
             if col_name not in data.columns:
                 continue
 
@@ -68,8 +70,9 @@ class PolarsEngine(Engine):
                 )
             )
 
+      
         # Rule evaluation
-        for rule in spec.rules:
+        for rule in contract.rules:
             result.checks.append(
                 self._evaluate_rule(
                     data,
@@ -97,7 +100,11 @@ class PolarsEngine(Engine):
                 CheckResult(
                     name=f"not_null:{col_name}",
                     passed=null_count == 0,
-                    message=(f"Found {null_count} null values" if null_count > 0 else ""),
+                    message=(
+                        f"Found {null_count} null values"
+                        if null_count > 0
+                        else ""
+                    ),
                     details={"null_count": null_count},
                 )
             )
@@ -111,7 +118,9 @@ class PolarsEngine(Engine):
                     name=f"min:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Minimum value {min_val} is below {col_def.min}" if not passed else ""
+                        f"Minimum value {min_val} is below {col_def.min}"
+                        if not passed
+                        else ""
                     ),
                 )
             )
@@ -125,19 +134,28 @@ class PolarsEngine(Engine):
                     name=f"max:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Maximum value {max_val} exceeds {col_def.max}" if not passed else ""
+                        f"Maximum value {max_val} exceeds {col_def.max}"
+                        if not passed
+                        else ""
                     ),
                 )
             )
 
         if col_def.allowed is not None:
-            invalid = set(series.drop_nulls().unique().to_list()) - set(col_def.allowed)
+            invalid = (
+                set(series.drop_nulls().unique().to_list())
+                - set(col_def.allowed)
+            )
 
             checks.append(
                 CheckResult(
                     name=f"allowed:{col_name}",
                     passed=len(invalid) == 0,
-                    message=(f"Found invalid values: {invalid}" if invalid else ""),
+                    message=(
+                        f"Found invalid values: {invalid}"
+                        if invalid
+                        else ""
+                    ),
                     details={"invalid_values": list(invalid)},
                 )
             )
@@ -153,7 +171,11 @@ class PolarsEngine(Engine):
 
         return {
             col: {
-                "null_rate": (data[col].null_count() / row_count if row_count else 0.0),
+                "null_rate": (
+                    data[col].null_count() / row_count
+                    if row_count
+                    else 0.0
+                ),
                 "unique_count": data[col].n_unique(),
                 "row_count": row_count,
             }
