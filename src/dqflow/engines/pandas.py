@@ -19,11 +19,11 @@ class PandasEngine(Engine):
     def validate(
         self,
         data: pd.DataFrame,
-        spec: Contract,
+        contract: Contract,
         context: dict[str, Any] | None = None,
     ) -> ValidationResult:
         """
-        Validate a pandas DataFrame against a specification.
+        Validate a pandas DataFrame against a contract.
         """
 
         context = context or {}
@@ -31,12 +31,12 @@ class PandasEngine(Engine):
         parallel = context.get("parallel", False)
         max_workers = context.get("max_workers")
 
-        result = ValidationResult(contract_name=spec.name)
+        result = ValidationResult(contract_name=contract.name)
 
         cache = self._build_stats_cache(data)
 
         # Column existence checks
-        for col_name, _ in spec.columns.items():
+        for col_name in contract.columns:
             if col_name not in data.columns:
                 result.checks.append(
                     CheckResult(
@@ -56,14 +56,21 @@ class PandasEngine(Engine):
 
         # Column validation
         if parallel:
-            column_checks = self._validate_columns_parallel(data, spec, max_workers=max_workers)
+            column_checks = self._validate_columns_parallel(
+                data,
+                contract,
+                max_workers=max_workers,
+            )
         else:
-            column_checks = self._validate_columns_sequential(data, spec)
+            column_checks = self._validate_columns_sequential(
+                data,
+                contract,
+            )
 
         result.checks.extend(column_checks)
 
         # Rule evaluation
-        for rule in spec.rules:
+        for rule in contract.rules:
             result.checks.append(
                 self._evaluate_rule(
                     data,
@@ -78,12 +85,12 @@ class PandasEngine(Engine):
     def _validate_columns_sequential(
         self,
         data: pd.DataFrame,
-        spec: Contract,
+        contract: Contract,
     ) -> list[CheckResult]:
 
         results: list[CheckResult] = []
 
-        for col_name, col_def in spec.columns.items():
+        for col_name, col_def in contract.columns.items():
             if col_name not in data.columns:
                 continue
 
@@ -100,13 +107,14 @@ class PandasEngine(Engine):
     def _validate_columns_parallel(
         self,
         data: pd.DataFrame,
-        spec: Contract,
+        contract: Contract,
         max_workers: int | None = None,
     ) -> list[CheckResult]:
 
         results: list[CheckResult] = []
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
+
             futures = {
                 executor.submit(
                     self._validate_column_safe,
@@ -114,7 +122,7 @@ class PandasEngine(Engine):
                     col_name,
                     col_def,
                 ): col_name
-                for col_name, col_def in spec.columns.items()
+                for col_name, col_def in contract.columns.items()
                 if col_name in data.columns
             }
 
@@ -152,7 +160,11 @@ class PandasEngine(Engine):
                 CheckResult(
                     name=f"not_null:{col_name}",
                     passed=null_count == 0,
-                    message=(f"Found {null_count} null values" if null_count > 0 else ""),
+                    message=(
+                        f"Found {null_count} null values"
+                        if null_count > 0
+                        else ""
+                    ),
                     details={"null_count": int(null_count)},
                 )
             )
@@ -167,7 +179,9 @@ class PandasEngine(Engine):
                     name=f"min:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Minimum value {min_val} is below {col_def.min}" if not passed else ""
+                        f"Minimum value {min_val} is below {col_def.min}"
+                        if not passed
+                        else ""
                     ),
                 )
             )
@@ -182,7 +196,9 @@ class PandasEngine(Engine):
                     name=f"max:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Maximum value {max_val} exceeds {col_def.max}" if not passed else ""
+                        f"Maximum value {max_val} exceeds {col_def.max}"
+                        if not passed
+                        else ""
                     ),
                 )
             )
@@ -194,7 +210,11 @@ class PandasEngine(Engine):
                 CheckResult(
                     name=f"allowed:{col_name}",
                     passed=len(invalid) == 0,
-                    message=(f"Found invalid values: {invalid}" if invalid else ""),
+                    message=(
+                        f"Found invalid values: {invalid}"
+                        if invalid
+                        else ""
+                    ),
                     details={"invalid_values": list(invalid)},
                 )
             )
