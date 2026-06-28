@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from dqflow.contract import Contract
@@ -17,16 +17,21 @@ class Engine(ABC):
     def validate(
         self,
         data: Any,
-        contract: Contract,
-        **kwargs: Any,
+        spec: Contract,
+        context: dict[str, Any] | None = None,
     ) -> ValidationResult:
         """
-        Validate data against a contract.
+        Validate data against a specification.
 
         Args:
-            data: Input dataset to validate.
-            contract: Validation contract definition.
-            **kwargs: Engine-specific execution options.
+            data:
+                Input dataset to validate.
+
+            spec:
+                Validation specification (contract).
+
+            context:
+                Runtime execution context / options.
 
         Returns:
             ValidationResult containing validation outcomes.
