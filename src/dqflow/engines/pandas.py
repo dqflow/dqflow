@@ -13,7 +13,15 @@ from dqflow.result import CheckResult, ValidationResult
 class PandasEngine(Engine):
     """Validation engine for pandas DataFrames."""
 
-    def validate(self, df: pd.DataFrame, contract: Contract, **kwargs) -> ValidationResult:
+    def validate(
+        self,
+        data: pd.DataFrame,
+        contract: Contract,
+        **kwargs,
+    ) -> ValidationResult:
+
+        df = data  # normalize name for internal use
+
         result = ValidationResult(contract_name=contract.name)
         cache = self._build_stats_cache(df)
 
@@ -23,15 +31,13 @@ class PandasEngine(Engine):
 
         # 1. COLUMN EXISTENCE CHECKS
         for col_name in contract.columns:
+            exists = col_name in df.columns
+
             result.checks.append(
                 CheckResult(
                     name=f"column_exists:{col_name}",
-                    passed=col_name in df.columns,
-                    message=(
-                        ""
-                        if col_name in df.columns
-                        else f"Column '{col_name}' not found in DataFrame"
-                    ),
+                    passed=exists,
+                    message=("" if exists else f"Column '{col_name}' not found in DataFrame"),
                 )
             )
 
@@ -48,9 +54,8 @@ class PandasEngine(Engine):
 
         return result
 
-    # -------------------------
     # COLUMN VALIDATION
-    # -------------------------
+
     def _validate_column(
         self,
         series: pd.Series,
@@ -134,9 +139,8 @@ class PandasEngine(Engine):
 
         return checks
 
-    # -------------------------
     # STATS CACHE
-    # -------------------------
+
     def _build_stats_cache(self, df: pd.DataFrame) -> dict[str, dict[str, float | int]]:
         return {
             col: {
@@ -147,9 +151,8 @@ class PandasEngine(Engine):
             for col in df.columns
         }
 
-    # -------------------------
     # RULE ENGINE
-    # -------------------------
+
     def _evaluate_rule(
         self,
         df: pd.DataFrame,

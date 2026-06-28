@@ -14,26 +14,29 @@ class PolarsEngine(Engine):
     """Validation engine for Polars DataFrames."""
 
     def validate(
-        self, df: pl.DataFrame | pl.LazyFrame, contract: Contract, **kwargs
+        self,
+        data: pl.DataFrame | pl.LazyFrame,
+        contract: Contract,
+        **kwargs,
     ) -> ValidationResult:
 
-        if isinstance(df, pl.LazyFrame):
-            df = df.collect()
+        if isinstance(data, pl.LazyFrame):
+            data = data.collect()
+
+        df = data  # normalize
 
         result = ValidationResult(contract_name=contract.name)
         cache = self._build_stats_cache(df)
 
         # 1. COLUMN EXISTENCE CHECKS
         for col_name in contract.columns:
+            exists = col_name in df.columns
+
             result.checks.append(
                 CheckResult(
                     name=f"column_exists:{col_name}",
-                    passed=col_name in df.columns,
-                    message=(
-                        ""
-                        if col_name in df.columns
-                        else f"Column '{col_name}' not found in DataFrame"
-                    ),
+                    passed=exists,
+                    message=("" if exists else f"Column '{col_name}' not found in DataFrame"),
                 )
             )
 
@@ -50,9 +53,8 @@ class PolarsEngine(Engine):
 
         return result
 
-    # -------------------------
     # COLUMN VALIDATION
-    # -------------------------
+
     def _validate_column(
         self,
         series: pl.Series,
@@ -136,9 +138,8 @@ class PolarsEngine(Engine):
 
         return checks
 
-    # -------------------------
     # STATS CACHE
-    # -------------------------
+
     def _build_stats_cache(self, df: pl.DataFrame) -> dict[str, dict[str, float | int]]:
         return {
             col: {
@@ -149,9 +150,8 @@ class PolarsEngine(Engine):
             for col in df.columns
         }
 
-    # -------------------------
     # RULE ENGINE
-    # -------------------------
+
     def _evaluate_rule(
         self,
         df: pl.DataFrame,

@@ -49,7 +49,7 @@ class Contract:
     description: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Ensure all columns are normalized into Column objects."""
         self.columns = {name: _ensure_column(col) for name, col in self.columns.items()}
 
