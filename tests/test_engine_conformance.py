@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import inspect
+
 import pandas as pd
 import pytest
-
-pl = pytest.importorskip("polars")
 
 from dqflow import Column, Contract
 from dqflow.engines.pandas import PandasEngine
 from dqflow.engines.polars import PolarsEngine
+
+pl = pytest.importorskip("polars")
 
 
 # Engine Registry
@@ -36,7 +37,6 @@ def base_contract() -> Contract:
     )
 
 
-
 # Shared Datasets
 @pytest.fixture
 def clean_data() -> pd.DataFrame:
@@ -60,7 +60,6 @@ def dirty_data() -> pd.DataFrame:
     )
 
 
-
 # Engine Runner
 def run_engine(engine_cls, data, spec: Contract):
     """
@@ -77,8 +76,7 @@ def run_engine(engine_cls, data, spec: Contract):
     return engine.validate(data, spec, context={})
 
 
-
-# 1. Interface Compliance 
+# 1. Interface Compliance
 def test_all_engines_follow_validate_interface():
     """
     Ensures strict compliance:
@@ -89,16 +87,17 @@ def test_all_engines_follow_validate_interface():
 
     for name, engine_cls in ENGINES:
         sig = inspect.signature(engine_cls.validate)
+
         assert list(sig.parameters.keys()) == expected_signature, (
             f"{name} engine signature mismatch: {sig}"
         )
 
-        
         assert not any(
             p.kind == inspect.Parameter.VAR_KEYWORD
             for p in sig.parameters.values()
-        ), f"{name} engine must not use **kwargs"
-
+        ), (
+            f"{name} engine must not use **kwargs"
+        )
 
 
 # 2. Clean Data Consistency
@@ -112,7 +111,6 @@ def test_all_engines_pass_clean_data(base_contract, clean_data):
     for name, engine_cls in ENGINES:
         results[name] = run_engine(engine_cls, clean_data, base_contract)
 
- 
     assert all(r.ok for r in results.values())
 
     reference = results["pandas"]
@@ -122,7 +120,6 @@ def test_all_engines_pass_clean_data(base_contract, clean_data):
         assert len(result.checks) == len(reference.checks), (
             f"{name} check count mismatch"
         )
-
 
 
 # 3. Dirty Data Consistency
@@ -136,7 +133,6 @@ def test_all_engines_fail_consistently(base_contract, dirty_data):
     for name, engine_cls in ENGINES:
         results[name] = run_engine(engine_cls, dirty_data, base_contract)
 
-   
     assert all(not r.ok for r in results.values())
 
     failed_sets = {
@@ -150,7 +146,6 @@ def test_all_engines_fail_consistently(base_contract, dirty_data):
         assert failed == reference, f"{name} failed checks mismatch"
 
 
-
 # 4. Rule Evaluation Consistency
 def test_rule_evaluation_consistency(base_contract, clean_data):
     """
@@ -161,14 +156,14 @@ def test_rule_evaluation_consistency(base_contract, clean_data):
         result = run_engine(engine_cls, clean_data, base_contract)
 
         rule_checks = [
-            c for c in result.checks if c.name.startswith("rule:")
+            c for c in result.checks
+            if c.name.startswith("rule:")
         ]
 
         assert len(rule_checks) > 0, f"{name} missing rule checks"
         assert all(c.passed for c in rule_checks), (
             f"{name} rule evaluation failed unexpectedly"
         )
-
 
 
 # 5. Structural Stability Test (Regression Guard)
@@ -187,13 +182,13 @@ def test_validation_result_structure_stable(base_contract, clean_data):
     for result in results[1:]:
         assert result.contract_name == reference.contract_name
 
-        assert type(result.checks) == type(reference.checks)
+        # FIXED: removed type() comparison (E721 safe fix)
+        assert len(result.checks) == len(reference.checks)
 
         assert all(
             hasattr(c, "name") and hasattr(c, "passed")
             for c in result.checks
         )
-
 
 
 # 6. Column-Level Determinism Check
@@ -209,7 +204,9 @@ def test_column_level_determinism(base_contract, clean_data):
 
     column_checks = {
         name: {
-            c.name for c in result.checks if "column_exists" in c.name
+            c.name
+            for c in result.checks
+            if "column_exists" in c.name
         }
         for name, result in results.items()
     }
@@ -217,4 +214,6 @@ def test_column_level_determinism(base_contract, clean_data):
     reference = next(iter(column_checks.values()))
 
     for name, checks in column_checks.items():
-        assert checks == reference, f"{name} column checks mismatch"
+        assert checks == reference, (
+            f"{name} column checks mismatch"
+        )

@@ -37,7 +37,6 @@ class PandasEngine(Engine):
 
         # Column existence checks
         for col_name, _ in spec.columns.items():
-
             if col_name not in data.columns:
                 result.checks.append(
                     CheckResult(
@@ -57,13 +56,9 @@ class PandasEngine(Engine):
 
         # Column validation
         if parallel:
-            column_checks = self._validate_columns_parallel(
-                data, spec, max_workers=max_workers
-            )
+            column_checks = self._validate_columns_parallel(data, spec, max_workers=max_workers)
         else:
-            column_checks = self._validate_columns_sequential(
-                data, spec
-            )
+            column_checks = self._validate_columns_sequential(data, spec)
 
         result.checks.extend(column_checks)
 
@@ -89,7 +84,6 @@ class PandasEngine(Engine):
         results: list[CheckResult] = []
 
         for col_name, col_def in spec.columns.items():
-
             if col_name not in data.columns:
                 continue
 
@@ -113,7 +107,6 @@ class PandasEngine(Engine):
         results: list[CheckResult] = []
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-
             futures = {
                 executor.submit(
                     self._validate_column_safe,
@@ -159,11 +152,7 @@ class PandasEngine(Engine):
                 CheckResult(
                     name=f"not_null:{col_name}",
                     passed=null_count == 0,
-                    message=(
-                        f"Found {null_count} null values"
-                        if null_count > 0
-                        else ""
-                    ),
+                    message=(f"Found {null_count} null values" if null_count > 0 else ""),
                     details={"null_count": int(null_count)},
                 )
             )
@@ -178,9 +167,7 @@ class PandasEngine(Engine):
                     name=f"min:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Minimum value {min_val} is below {col_def.min}"
-                        if not passed
-                        else ""
+                        f"Minimum value {min_val} is below {col_def.min}" if not passed else ""
                     ),
                 )
             )
@@ -195,9 +182,7 @@ class PandasEngine(Engine):
                     name=f"max:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Maximum value {max_val} exceeds {col_def.max}"
-                        if not passed
-                        else ""
+                        f"Maximum value {max_val} exceeds {col_def.max}" if not passed else ""
                     ),
                 )
             )
@@ -209,11 +194,7 @@ class PandasEngine(Engine):
                 CheckResult(
                     name=f"allowed:{col_name}",
                     passed=len(invalid) == 0,
-                    message=(
-                        f"Found invalid values: {invalid}"
-                        if invalid
-                        else ""
-                    ),
+                    message=(f"Found invalid values: {invalid}" if invalid else ""),
                     details={"invalid_values": list(invalid)},
                 )
             )
