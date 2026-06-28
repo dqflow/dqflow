@@ -1,10 +1,11 @@
 import inspect
+
 import pandas as pd
 import polars as pl
 
+from dqflow.contract import Contract
 from dqflow.engines.pandas import PandasEngine
 from dqflow.engines.polars import PolarsEngine
-from dqflow.contract import Contract
 from dqflow.result import ValidationResult
 
 

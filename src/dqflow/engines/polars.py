@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import polars as pl
 
 from dqflow.column import Column
@@ -16,10 +14,7 @@ class PolarsEngine(Engine):
     """Validation engine for Polars DataFrames."""
 
     def validate(
-        self,
-        df: pl.DataFrame | pl.LazyFrame,
-        contract: Contract,
-        **kwargs
+        self, df: pl.DataFrame | pl.LazyFrame, contract: Contract, **kwargs
     ) -> ValidationResult:
 
         if isinstance(df, pl.LazyFrame):
@@ -35,7 +30,8 @@ class PolarsEngine(Engine):
                     name=f"column_exists:{col_name}",
                     passed=col_name in df.columns,
                     message=(
-                        "" if col_name in df.columns
+                        ""
+                        if col_name in df.columns
                         else f"Column '{col_name}' not found in DataFrame"
                     ),
                 )
@@ -46,9 +42,7 @@ class PolarsEngine(Engine):
             if col_name not in df.columns:
                 continue
 
-            result.checks.extend(
-                self._validate_column(df[col_name], col_name, col_def)
-            )
+            result.checks.extend(self._validate_column(df[col_name], col_name, col_def))
 
         # 3. RULES
         for rule in contract.rules:
@@ -90,8 +84,7 @@ class PolarsEngine(Engine):
                     name=f"min:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Minimum value {min_val} is below {col_def.min}"
-                        if not passed else ""
+                        f"Minimum value {min_val} is below {col_def.min}" if not passed else ""
                     ),
                     details={"actual_min": float(min_val) if min_val is not None else None},
                 )
@@ -107,8 +100,7 @@ class PolarsEngine(Engine):
                     name=f"max:{col_name}",
                     passed=bool(passed),
                     message=(
-                        f"Maximum value {max_val} exceeds {col_def.max}"
-                        if not passed else ""
+                        f"Maximum value {max_val} exceeds {col_def.max}" if not passed else ""
                     ),
                     details={"actual_max": float(max_val) if max_val is not None else None},
                 )
@@ -136,8 +128,7 @@ class PolarsEngine(Engine):
                     name=f"unique:{col_name}",
                     passed=duplicate_count == 0,
                     message=(
-                        f"Found {duplicate_count} duplicate values"
-                        if duplicate_count > 0 else ""
+                        f"Found {duplicate_count} duplicate values" if duplicate_count > 0 else ""
                     ),
                     details={"duplicate_count": duplicate_count},
                 )

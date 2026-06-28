@@ -12,7 +12,7 @@ from dqflow.column import Column
 from dqflow.result import ValidationResult
 
 if TYPE_CHECKING:
-    import pandas as pd
+    pass
 
 
 def _ensure_column(col_def: Any) -> Column:
@@ -51,15 +51,13 @@ class Contract:
 
     def __post_init__(self):
         """Ensure all columns are normalized into Column objects."""
-        self.columns = {
-            name: _ensure_column(col)
-            for name, col in self.columns.items()
-        }
+        self.columns = {name: _ensure_column(col) for name, col in self.columns.items()}
 
     def validate(self, df: Any, engine: Any | None = None) -> ValidationResult:
         """Validate dataset using an engine (defaults to PandasEngine)."""
         if engine is None:
             from dqflow.engines.pandas import PandasEngine
+
             engine = PandasEngine()
 
         return engine.validate(df, self)
@@ -73,8 +71,7 @@ class Contract:
             data = yaml.safe_load(f)
 
         columns = {
-            name: _ensure_column(col_def)
-            for name, col_def in data.get("columns", {}).items()
+            name: _ensure_column(col_def) for name, col_def in data.get("columns", {}).items()
         }
 
         return cls(

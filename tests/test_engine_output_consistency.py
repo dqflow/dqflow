@@ -1,9 +1,9 @@
 import pandas as pd
 import polars as pl
 
+from dqflow.contract import Contract
 from dqflow.engines.pandas import PandasEngine
 from dqflow.engines.polars import PolarsEngine
-from dqflow.contract import Contract
 
 
 def normalize(result):
@@ -29,7 +29,7 @@ def test_pandas_and_polars_engine_output_match_simple_case():
             "a": {"dtype": int, "not_null": True},
             "b": {"dtype": int, "min": 0},
         },
-        rules=[]
+        rules=[],
     )
 
     df_pd = pd.DataFrame({"a": [1, 2, 3], "b": [0, 1, 2]})
@@ -48,7 +48,7 @@ def test_engine_output_match_with_missing_column():
             "a": {"dtype": int},
             "missing": {"dtype": int},
         },
-        rules=[]
+        rules=[],
     )
 
     df_pd = pd.DataFrame({"a": [1, 2, 3]})
@@ -66,10 +66,7 @@ def test_engine_output_match_with_rules():
         columns={
             "a": {"dtype": int},
         },
-        rules=[
-            "row_count == 3",
-            "unique_count('a') == 3"
-        ]
+        rules=["row_count == 3", "unique_count('a') == 3"],
     )
 
     df_pd = pd.DataFrame({"a": [1, 2, 3]})
