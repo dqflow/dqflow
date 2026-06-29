@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 import yaml
 
-from dqflow.column import Column
+from dqflow.column import Column, CrossColumnRule
 from dqflow.result import ValidationResult
 
 if TYPE_CHECKING:
@@ -46,6 +46,7 @@ class Contract:
     name: str
     columns: dict[str, Column] = field(default_factory=dict)
     rules: list[str] = field(default_factory=list)
+    cross_column_rules: list[CrossColumnRule] = field(default_factory=list)
     description: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -74,10 +75,22 @@ class Contract:
             name: _ensure_column(col_def) for name, col_def in data.get("columns", {}).items()
         }
 
+        cross_column_rules = [
+            CrossColumnRule(
+                name=r["name"],
+                error_message=r.get("error_message", ""),
+                left=r.get("left"),
+                op=r.get("op"),
+                right=r.get("right"),
+            )
+            for r in data.get("cross_column_rules", [])
+        ]
+
         return cls(
             name=data.get("name", path.stem),
             columns=columns,
             rules=data.get("rules", []),
+            cross_column_rules=cross_column_rules,
             description=data.get("description", ""),
             metadata=data.get("metadata", {}),
         )
@@ -111,13 +124,29 @@ class Contract:
 
             columns_data[col_name] = col_dict
 
-        data = {
+        data: dict[str, Any] = {
             "name": self.name,
             "columns": columns_data,
         }
 
         if self.rules:
             data["rules"] = self.rules
+
+        serializable_cross = [r for r in self.cross_column_rules if r.check is None]
+        if serializable_cross:
+            cross_data = []
+            for r in serializable_cross:
+                rule_dict: dict[str, Any] = {
+                    "name": r.name,
+                    "left": r.left,
+                    "op": r.op,
+                    "right": r.right,
+                }
+                if r.error_message:
+                    rule_dict["error_message"] = r.error_message
+                cross_data.append(rule_dict)
+            data["cross_column_rules"] = cross_data
+
         if self.description:
             data["description"] = self.description
 

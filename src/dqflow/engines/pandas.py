@@ -2,12 +2,25 @@
 
 from __future__ import annotations
 
+import operator as _op
+from collections.abc import Callable
+from typing import Any
+
 import pandas as pd
 
-from dqflow.column import Column
+from dqflow.column import Column, CrossColumnRule
 from dqflow.contract import Contract
 from dqflow.engines.base import Engine
 from dqflow.result import CheckResult, ValidationResult
+
+_OPS: dict[str, Callable[[Any, Any], Any]] = {
+    ">=": _op.ge,
+    "<=": _op.le,
+    ">": _op.gt,
+    "<": _op.lt,
+    "==": _op.eq,
+    "!=": _op.ne,
+}
 
 
 class PandasEngine(Engine):
@@ -17,9 +30,8 @@ class PandasEngine(Engine):
         self,
         data: pd.DataFrame,
         contract: Contract,
-        **kwargs,
+        **kwargs: Any,
     ) -> ValidationResult:
-
         df = data  # normalize name for internal use
 
         result = ValidationResult(contract_name=contract.name)
@@ -52,6 +64,10 @@ class PandasEngine(Engine):
         for rule in contract.rules:
             result.checks.append(self._evaluate_rule(df, rule, cache))
 
+        # 4. CROSS-COLUMN RULES
+        for cc_rule in contract.cross_column_rules:
+            result.checks.append(self._evaluate_cross_column_rule(df, cc_rule))
+
         return result
 
     # COLUMN VALIDATION
@@ -62,7 +78,6 @@ class PandasEngine(Engine):
         col_name: str,
         col_def: Column,
     ) -> list[CheckResult]:
-
         checks: list[CheckResult] = []
 
         # NOT NULL
@@ -159,7 +174,6 @@ class PandasEngine(Engine):
         rule: str,
         cache: dict[str, dict[str, float | int]],
     ) -> CheckResult:
-
         try:
             context = {
                 "row_count": len(df),
@@ -180,4 +194,37 @@ class PandasEngine(Engine):
                 name=f"rule:{rule}",
                 passed=False,
                 message=f"Failed to evaluate rule: {e}",
+            )
+
+    def _evaluate_cross_column_rule(
+        self,
+        df: pd.DataFrame,
+        rule: CrossColumnRule,
+    ) -> CheckResult:
+        try:
+            if rule.check is not None:
+                mask: Any = rule.check(df)
+            else:
+                assert rule.left is not None and rule.op is not None
+                left_series = df[rule.left]
+                right_val: Any = (
+                    df[rule.right]
+                    if isinstance(rule.right, str) and rule.right in df.columns
+                    else rule.right
+                )
+                mask = _OPS[rule.op](left_series, right_val)
+
+            failing_rows = int((~mask).sum())
+            passed = failing_rows == 0
+            return CheckResult(
+                name=f"cross_column:{rule.name}",
+                passed=passed,
+                message=rule.error_message if not passed else "",
+                details={"failing_rows": failing_rows},
+            )
+        except Exception as e:
+            return CheckResult(
+                name=f"cross_column:{rule.name}",
+                passed=False,
+                message=f"Failed to evaluate cross-column rule '{rule.name}': {e}",
             )

@@ -6,6 +6,40 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+SUPPORTED_OPS: frozenset[str] = frozenset({">=", "<=", ">", "<", "==", "!="})
+
+
+@dataclass
+class CrossColumnRule:
+    """Row-level validation rule that compares two columns or a column against a literal."""
+
+    name: str
+    error_message: str = ""
+    check: Callable[[Any], Any] | None = None
+    left: str | None = None
+    op: str | None = None
+    right: str | int | float | None = None
+
+    def __post_init__(self) -> None:
+        has_callable = self.check is not None
+        has_structured = self.left is not None and self.op is not None and self.right is not None
+
+        if has_callable and has_structured:
+            raise ValueError(
+                f"CrossColumnRule '{self.name}': provide either 'check' or "
+                f"'left'/'op'/'right', not both."
+            )
+        if not has_callable and not has_structured:
+            raise ValueError(
+                f"CrossColumnRule '{self.name}': provide either 'check' or "
+                f"all of 'left', 'op', 'right'."
+            )
+        if has_structured and self.op not in SUPPORTED_OPS:
+            raise ValueError(
+                f"CrossColumnRule '{self.name}': unsupported op '{self.op}'. "
+                f"Must be one of: {sorted(SUPPORTED_OPS)}"
+            )
+
 
 @dataclass
 class Column:
