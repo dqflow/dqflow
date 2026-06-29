@@ -26,6 +26,7 @@
 
 **[Documentation](https://dqflow.github.io/dqflow/)** | **[PyPI](https://pypi.org/project/dqflow/)** | **[GitHub](https://github.com/dqflow/dqflow)**
 
+
 **dqflow** is a lightweight, contract-first data quality engine for modern data pipelines.
 
 Define explicit expectations for your data (schema, validity, freshness) and **fail fast** when data breaks — before bad data reaches downstream systems.
