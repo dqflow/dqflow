@@ -6,14 +6,14 @@
   <picture>
     <source
       media="(prefers-color-scheme: dark)"
-      srcset="https://github.com/dqflow/dqflow/blob/main/docs/assets/dqflow-dark-logo.png"
+      srcset="./docs/assets/dqflow-logo-dark.png"
     />
     <source
       media="(prefers-color-scheme: light)"
-      srcset="https://github.com/dqflow/dqflow/blob/main/docs/assets/dqflow-light-logo.png"
+      srcset="./docs/assets/dqflow-logo-light.png"
     />
     <img
-      src="https://github.com/dqflow/dqflow/blob/main/docs/assets/dqflow-dark-logo.png"
+      src="./docs/assets/dqflow-logo-dark.png"
       width="400"
       alt="Dqflow Logo"
     />
