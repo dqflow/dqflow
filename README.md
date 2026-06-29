@@ -1,5 +1,23 @@
 # dqflow
 
+<p align="center">
+  <picture>
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="https://raw.githubusercontent.com/dqflow/dqflow/docs/assets/dqflow-logo-dark.png"
+    />
+    <source
+      media="(prefers-color-scheme: light)"
+      srcset="https://raw.githubusercontent.com/dqflow/dqflow/docs/assets/dqflow-logo-light.png"
+    />
+    <img
+      src="https://raw.githubusercontent.com/dqflow/dqflow/docs/assets/dqflow-logo-dark.png"
+      width="400"
+      alt="Dqflow Logo"
+    />
+  </picture>
+</p>
+
 [![PyPI version](https://badge.fury.io/py/dqflow.svg)](https://pypi.org/project/dqflow/)
 [![CI](https://github.com/dqflow/dqflow/actions/workflows/ci.yml/badge.svg)](https://github.com/dqflow/dqflow/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://dqflow.github.io/dqflow/)
