@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import operator as _op
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 import polars as pl
 
@@ -93,7 +93,7 @@ class PolarsEngine(Engine):
 
         # MIN
         if col_def.min is not None:
-            min_val = series.min()
+            min_val = cast("float | None", series.min())
             passed = min_val is None or min_val >= col_def.min
 
             checks.append(
@@ -103,13 +103,13 @@ class PolarsEngine(Engine):
                     message=(
                         f"Minimum value {min_val} is below {col_def.min}" if not passed else ""
                     ),
-                    details={"actual_min": float(min_val) if min_val is not None else None},
+                    details={"actual_min": min_val},
                 )
             )
 
         # MAX
         if col_def.max is not None:
-            max_val = series.max()
+            max_val = cast("float | None", series.max())
             passed = max_val is None or max_val <= col_def.max
 
             checks.append(
@@ -119,7 +119,7 @@ class PolarsEngine(Engine):
                     message=(
                         f"Maximum value {max_val} exceeds {col_def.max}" if not passed else ""
                     ),
-                    details={"actual_max": float(max_val) if max_val is not None else None},
+                    details={"actual_max": max_val},
                 )
             )
 

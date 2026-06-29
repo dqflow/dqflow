@@ -62,7 +62,6 @@ class TestParallelValidation:
         sample_contract: Contract,
         sample_df: pd.DataFrame,
     ) -> None:
-
         from dqflow.engines.pandas import PandasEngine
 
         engine = PandasEngine()
