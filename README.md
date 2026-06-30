@@ -4,16 +4,16 @@
   <picture>
     <source
       media="(prefers-color-scheme: dark)"
-      srcset="./docs/assets/dqflow-logo-dark.png"
+      srcset="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-dark-logo.png"
     />
     <source
       media="(prefers-color-scheme: light)"
-      srcset="./docs/assets/dqflow-logo-light.png"
+      srcset="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-light-logo.png"
     />
     <img
-      src="./docs/assets/dqflow-logo-dark.png"
+      src="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-dark-logo.png"
       width="400"
-      alt="Dqflow Logo"
+      alt="dqflow Logo"
     />
   </picture>
 </p>
