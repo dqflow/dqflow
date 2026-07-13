@@ -8,7 +8,8 @@ from typing import Any
 
 import pandas as pd
 
-from dqflow import Column, Contract
+from dqflow.column import Column
+from dqflow.contract import Contract
 from dqflow.engines.pandas import PandasEngine
 
 
@@ -50,21 +51,20 @@ def create_dataset(
 def create_contract(
     columns: int,
 ) -> Contract:
-    """Create validation contract."""
+    """Create benchmark validation contract."""
 
-    contract = Contract(
-        name="benchmark",
-    )
+    column_definitions = {}
 
     for index in range(columns):
-        contract.add_column(
-            Column(
-                name=f"column_{index}",
-                not_null=True,
-            )
+        column_definitions[f"column_{index}"] = Column(
+            dtype=int,
+            not_null=True,
         )
 
-    return contract
+    return Contract(
+        name="benchmark",
+        columns=column_definitions,
+    )
 
 
 def benchmark_engine(
@@ -74,17 +74,23 @@ def benchmark_engine(
     name: str,
     runs: int = 5,
 ) -> BenchmarkResult:
-    """Benchmark validation engine."""
+    """Measure engine validation performance."""
 
     timings: list[float] = []
 
-    # Warm-up
-    engine.validate(data, contract)
+    # Warm-up execution
+    engine.validate(
+        data,
+        contract,
+    )
 
     for _ in range(runs):
         start = time.perf_counter()
 
-        engine.validate(data, contract)
+        engine.validate(
+            data,
+            contract,
+        )
 
         end = time.perf_counter()
 
@@ -102,13 +108,18 @@ def run_benchmark(
     rows: int = 100_000,
     columns: int = 10,
 ) -> list[BenchmarkResult]:
-    """Run pandas and polars benchmarks."""
+    """Run benchmark suite."""
 
-    pandas_df = create_dataset(rows, columns)
+    pandas_df = create_dataset(
+        rows,
+        columns,
+    )
 
-    contract = create_contract(columns)
+    contract = create_contract(
+        columns,
+    )
 
-    results = []
+    results: list[BenchmarkResult] = []
 
     results.append(
         benchmark_engine(
@@ -135,7 +146,7 @@ def run_benchmark(
 def print_results(
     results: list[BenchmarkResult],
 ) -> None:
-    """Display benchmark results."""
+    """Print benchmark output."""
 
     print("\nBenchmark Results")
     print("-" * 50)
@@ -150,8 +161,6 @@ def print_results(
 
 
 if __name__ == "__main__":
-    benchmark_results = run_benchmark()
-
     print_results(
-        benchmark_results,
+        run_benchmark()
     )
