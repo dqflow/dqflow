@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from benchmark_engine import run_benchmark
+from benchmarks.benchmark_engine import run_benchmark
 
 
 def run_scaling_tests() -> None:
