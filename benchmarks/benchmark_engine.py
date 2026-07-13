@@ -12,7 +12,6 @@ from dqflow.column import Column
 from dqflow.contract import Contract
 from dqflow.engines.pandas import PandasEngine
 
-
 try:
     import polars as pl
 
