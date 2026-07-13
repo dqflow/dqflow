@@ -6,7 +6,7 @@ from benchmarks.benchmark_engine import run_benchmark
 
 
 def run_scaling_tests() -> None:
-    """Run validation benchmarks across dataset sizes."""
+    """Run benchmarks across different dataset sizes."""
 
     sizes = [
         1_000,
