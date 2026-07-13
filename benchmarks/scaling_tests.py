@@ -26,10 +26,7 @@ def run_scaling_tests() -> None:
         )
 
         for result in results:
-            print(
-                f"{result.engine}: "
-                f"{result.execution_time:.5f}s"
-            )
+            print(f"{result.engine}: {result.execution_time:.5f}s")
 
 
 if __name__ == "__main__":

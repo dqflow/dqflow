@@ -152,14 +152,9 @@ def print_results(
 
     for result in results:
         print(
-            f"{result.engine:<10}"
-            f"{result.rows:<12}"
-            f"{result.columns:<12}"
-            f"{result.execution_time:.5f}s"
+            f"{result.engine:<10}{result.rows:<12}{result.columns:<12}{result.execution_time:.5f}s"
         )
 
 
 if __name__ == "__main__":
-    print_results(
-        run_benchmark()
-    )
+    print_results(run_benchmark())
