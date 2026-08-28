@@ -12,343 +12,352 @@
     />
     <img
       src="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-dark-logo.png"
-      width="400"
-      alt="dqflow Logo"
+      width="360"
+      alt="dqflow"
     />
   </picture>
 </p>
 
-[![PyPI version](https://badge.fury.io/py/dqflow.svg)](https://pypi.org/project/dqflow/)
-[![CI](https://github.com/dqflow/dqflow/actions/workflows/ci.yml/badge.svg)](https://github.com/dqflow/dqflow/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://dqflow.github.io/dqflow/)
-[![Python](https://img.shields.io/pypi/pyversions/dqflow.svg)](https://pypi.org/project/dqflow/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<h2 align="center">Data contracts for Python data pipelines.</h2>
+<p align="center"><strong>Define → Validate → Fail Fast</strong></p>
 
-**[Documentation](https://dqflow.github.io/dqflow/)** | **[PyPI](https://pypi.org/project/dqflow/)** | **[GitHub](https://github.com/dqflow/dqflow)**
+<p align="center">
+  <a href="https://pypi.org/project/dqflow/"><img src="https://badge.fury.io/py/dqflow.svg" alt="PyPI version"></a>
+  <a href="https://github.com/dqflow/dqflow/actions/workflows/ci.yml"><img src="https://github.com/dqflow/dqflow/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://dqflow.github.io/dqflow/"><img src="https://img.shields.io/badge/docs-mkdocs-blue.svg" alt="Docs"></a>
+  <a href="https://pypi.org/project/dqflow/"><img src="https://img.shields.io/pypi/pyversions/dqflow.svg" alt="Python versions"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+</p>
 
-**dqflow** is a lightweight, contract-first data quality engine for modern data pipelines.
-
-Define explicit expectations for your data (schema, validity, freshness) and **fail fast** when data breaks — before bad data reaches downstream systems.
-
----
-
-## Why dqflow?
-
-Data quality issues are inevitable — silent failures are not.
-
-Most teams rely on ad-hoc checks, fragile assertions, or heavyweight frameworks that are hard to maintain. dqflow takes a different approach:
-
-* **Contracts over checks** — expectations are explicit and versionable
-* **Pipeline-first** — designed for ETL, ELT, and streaming workflows
-* **Lightweight & Pythonic** — minimal API, easy to embed
-* **Fail fast** — break pipelines intentionally, not silently
+<p align="center">
+  <a href="https://dqflow.github.io/dqflow/">Documentation</a> ·
+  <a href="https://pypi.org/project/dqflow/">PyPI</a> ·
+  <a href="ROADMAP.md">Roadmap</a>
+</p>
 
 ---
+
+**dqflow** lets you declare what a DataFrame must look like — required columns, valid
+values, table-level rules — as a small, versionable contract, validate your data
+against it inside the pipeline, and stop bad data *before* it reaches anything
+downstream.
+
+> 🚧 Early development (0.1.x). The API is small and usable, but still changing.
+
+## Workflow
+
+```mermaid
+flowchart LR
+    Define["1 · Define<br/>contract in Python or YAML"] --> Validate["2 · Validate<br/>contract.validate(df)"]
+    Validate --> Check{"result.ok?"}
+    Check -- "True"  --> Go["pipeline continues"]
+    Check -- "False" --> Stop["3 · Fail fast<br/>raise · non-zero exit code"]
+```
+
+## Why dqflow
+
+- **Contracts, not scattered asserts.** One declarative artifact — reviewed, diffed,
+  and versioned like the rest of your code.
+- **Lightweight.** Three runtime dependencies (`pandas`, `pyyaml`, `click`). No
+  server, no database, no daemon. `pip install` and embed it.
+- **Pythonic.** Plain `Contract` / `Column` objects, or YAML. Validation returns a
+  structured result object, not a stack trace.
+- **Fail fast, on purpose.** `result.ok` is a boolean; `dq validate --fail-fast`
+  returns a non-zero exit code. Wire it into a pipeline task or a CI step.
+- **Deliberately scoped.** dqflow emits structured results — it does not try to be a
+  monitoring platform.
 
 ## Installation
 
 ```bash
 pip install dqflow
+
+# optional, experimental Polars engine
+pip install "dqflow[polars]"
 ```
 
----
+Requires Python 3.9+.
 
-## Quick Example
+## 30-second Quick Start
 
 ```python
 import pandas as pd
 from dqflow import Contract, Column
 
-# Sample data with quality issues
 df = pd.DataFrame({
-    "order_id": ["A001", None, "A003"],      # Has null value
-    "amount": [100.0, -50.0, 75.0],          # Has negative value
-    "currency": ["USD", "GBP", "EUR"],       # GBP not in allowed list
+    "order_id": ["A001", "A002", None, "A004"],
+    "amount":   [19.99, -5.00, 42.50, 99.00],
+    "currency": ["USD", "EUR", "USD", "GBP"],
 })
 
-# Define your data contract
 contract = Contract(
     name="orders",
     columns={
-        "order_id": Column(str, not_null=True),
-        "amount": Column(float, min=0),
+        "order_id": Column(str, not_null=True, unique=True),
+        "amount":   Column(float, min=0),
         "currency": Column(str, allowed=["USD", "EUR"]),
     },
     rules=["row_count > 0"],
 )
 
-# Validate
 result = contract.validate(df)
-
-# Check results
 print(result.summary())
+
+if not result.ok:
+    raise ValueError(result.summary())
 ```
 
-**Output:**
-```
-Contract 'orders': 4/7 checks passed
+```text
+Contract 'orders': 5/8 checks passed
 Failed checks:
   - not_null:order_id: Found 1 null values
-  - min:amount: Minimum value -50.0 is below 0
+  - min:amount: Minimum value -5.0 is below 0
   - allowed:currency: Found invalid values: {'GBP'}
 ```
 
-**Use in pipelines:**
-```python
-if not result.ok:
-    raise Exception(result.summary())  # Fail fast!
-```
+## Python contract
 
----
-
-## Full Example with All Features
+Contracts also carry table rules and cross-column rules, and hand back a structured
+result.
 
 ```python
 import pandas as pd
-from dqflow import Contract, Column
+from dqflow import Contract, Column, CrossColumnRule
 
-# Define contract with all constraint types
-orders = Contract(
+df = pd.DataFrame({
+    "order_id":   ["A001", "A002", "A003"],
+    "amount":     [19.99, 5.00, 42.50],
+    "currency":   ["USD", "EUR", "USD"],
+    "created_at": pd.to_datetime(["2026-08-01", "2026-08-02", "2026-08-03"]),
+    "shipped_at": pd.to_datetime(["2026-08-02", "2026-08-01", "2026-08-05"]),
+})
+
+contract = Contract(
     name="orders",
+    description="Orders emitted by the checkout service",
     columns={
-        "order_id": Column(str, not_null=True),
-        "amount": Column(float, min=0, max=100000),
-        "currency": Column(str, allowed=["USD", "EUR"]),
-        "created_at": Column("timestamp", freshness_minutes=60),
+        "order_id":   Column(str, not_null=True, unique=True),
+        "amount":     Column(float, min=0, max=100_000),
+        "currency":   Column(str, allowed=["USD", "EUR"]),
+        "created_at": Column("timestamp", not_null=True),
     },
     rules=[
-        "row_count > 1000",
-        "null_rate(amount) < 0.01",
+        "row_count > 0",
+        "null_rate('amount') < 0.01",
+        "unique_count('currency') <= 3",
+    ],
+    cross_column_rules=[
+        CrossColumnRule(
+            name="shipped_after_created",
+            left="shipped_at", op=">=", right="created_at",
+            error_message="shipped_at must not precede created_at",
+        ),
     ],
 )
 
-result = orders.validate(df)
+result = contract.validate(df)
+print(result.summary())
 
-# Programmatic access to results
-print("Passed:", result.ok)
-print("Failed checks:", [c.name for c in result.failed_checks])
-
-# JSON output for logging/monitoring
-import json
-print(json.dumps(result.to_dict(), indent=2))
+result.ok              # bool  — did every check pass?
+result.failed_checks   # list[CheckResult]
+result.to_dict()       # JSON-serializable dict for logs / CI
 ```
 
-**Output:**
-```shell
-Passed: False
-Failed checks: ['column_exists:created_at', 'not_null:order_id', 'min:amount', 'allowed:currency', 'rule:row_count > 1000', 'rule:null_rate(amount) < 0.01']
-{
-  "checks": [
-    {
-      "details": {},
-      "message": "",
-      "name": "column_exists:order_id",
-      "passed": true
-    },
-    {
-      "details": {},
-      "message": "",
-      "name": "column_exists:amount",
-      "passed": true
-    },
-    {
-      "details": {},
-      "message": "",
-      "name": "column_exists:currency",
-      "passed": true
-    },
-    {
-      "details": {},
-      "message": "Column 'created_at' not found in DataFrame",
-      "name": "column_exists:created_at",
-      "passed": false
-    },
-    {
-      "details": {
-        "null_count": 1
-      },
-      "message": "Found 1 null values",
-      "name": "not_null:order_id",
-      "passed": false
-    },
-    {
-      "details": {
-        "actual_min": -50.0
-      },
-      "message": "Minimum value -50.0 is below 0",
-      "name": "min:amount",
-      "passed": false
-    },
-    {
-      "details": {
-        "actual_max": 100.0
-      },
-      "message": "",
-      "name": "max:amount",
-      "passed": true
-    },
-    {
-      "details": {
-        "invalid_values": [
-          "GBP"
-        ]
-      },
-      "message": "Found invalid values: {'GBP'}",
-      "name": "allowed:currency",
-      "passed": false
-    },
-    {
-      "details": {},
-      "message": "Rule 'row_count > 1000' failed",
-      "name": "rule:row_count > 1000",
-      "passed": false
-    },
-    {
-      "details": {},
-      "message": "Failed to evaluate rule: name 'amount' is not defined",
-      "name": "rule:null_rate(amount) < 0.01",
-      "passed": false
-    }
-  ],
-  "contract_name": "orders",
-  "failed": 6,
-  "ok": false,
-  "passed": 4,
-  "total_checks": 10
-}
+```text
+Contract 'orders': 13/14 checks passed
+Failed checks:
+  - cross_column:shipped_after_created: shipped_at must not precede created_at
 ```
 
----
+Rule expressions run in a restricted evaluator. The available names are
+`row_count`, `null_rate('column')`, and `unique_count('column')` — column names are
+passed as strings; arbitrary Python is not allowed.
 
-## Features (v0.1 scope)
+## YAML contract
 
-* Contract-as-code (Python & YAML)
-* Column-level checks
-
-  * type validation
-  * not null
-  * min / max
-  * allowed values
-* Table-level checks
-
-  * row count
-  * freshness
-* Structured validation results (JSON-friendly)
-* Pandas engine
-* CLI support
-
----
-
-## YAML Contract
-
-Define contracts in YAML for version control:
+The same contract lives just as well in version control as YAML.
 
 ```yaml
 # contracts/orders.yaml
 name: orders
-description: E-commerce order data contract
+description: Orders emitted by the checkout service
 
 columns:
   order_id:
     type: string
     not_null: true
+    unique: true
   amount:
     type: float
     min: 0
-    max: 100000
   currency:
     type: string
-    allowed: ["USD", "EUR", "GBP"]
-  created_at:
-    type: timestamp
-    freshness_minutes: 1440
+    allowed: ["USD", "EUR"]
 
 rules:
   - row_count > 0
-  - "null_rate(amount) < 0.01"
+  - "null_rate('order_id') == 0"
 ```
 
-Load in Python:
 ```python
 from dqflow import Contract
 
+# load from YAML (or write a contract back out with contract.to_yaml(path))
 contract = Contract.from_yaml("contracts/orders.yaml")
 result = contract.validate(df)
 ```
 
----
+## CLI usage
 
-## CLI Usage
+The `dq` command validates data files (`.csv`, `.parquet`, `.json`) against a YAML
+contract.
 
 ```bash
 # Validate data against a contract
-dq validate contracts/orders.yaml data/orders.parquet
+dq validate contracts/orders.yaml data/orders.csv
 
-# Show contract details
+# Non-zero exit code on failure — drop this into CI
+dq validate contracts/orders.yaml data/orders.csv --fail-fast
+
+# Machine-readable output
+dq validate contracts/orders.yaml data/orders.csv --output json
+
+# Inspect a contract
 dq show contracts/orders.yaml
 
-# Infer contract from existing data
+# Infer a starter contract (column dtypes) from existing data
 dq infer data/orders.csv contracts/orders.yaml
-
-# JSON output for CI/CD
-dq validate contracts/orders.yaml data/orders.parquet --output json --fail-fast
 ```
 
----
+Given `data/orders.csv` where `order_id` has a duplicate and a null, `amount` has a
+negative value, and `currency` contains `GBP`:
+
+```console
+$ dq validate contracts/orders.yaml data/orders.csv --fail-fast
+Contract 'orders': 4/9 checks passed
+Failed checks:
+  - not_null:order_id: Found 1 null values
+  - unique:order_id: Found 2 duplicate values
+  - min:amount: Minimum value -5.0 is below 0
+  - allowed:currency: Found invalid values: {'GBP'}
+  - rule:null_rate('order_id') == 0: Rule 'null_rate('order_id') == 0' failed
+$ echo $?          # --fail-fast turns a failed contract into a non-zero exit
+1
+```
+
+## Features
+
+| Capability | Status |
+| --- | --- |
+| Python contracts — `Contract`, `Column`, `CrossColumnRule` | ✅ Implemented |
+| YAML contracts — `Contract.from_yaml()` / `.to_yaml()` | ✅ Implemented |
+| Schema check — required columns must be present in the data | ✅ Implemented |
+| Validity checks — `not_null`, `min`, `max`, `allowed`, `unique` | ✅ Implemented |
+| Table rules — `row_count`, `null_rate('col')`, `unique_count('col')` | ✅ Implemented |
+| Cross-column rules — `left`/`op`/`right` or a callable | ✅ Implemented |
+| Structured results — `.ok`, `.failed_checks`, `.summary()`, `.to_dict()` | ✅ Implemented |
+| CLI — `dq validate` / `dq show` / `dq infer` | ✅ Implemented |
+| Contract inference from data (column dtypes) | ✅ Implemented |
+| pandas engine | ✅ Implemented |
+| Polars engine (`dqflow[polars]`) | 🧪 Experimental |
+| Declared type / `freshness_minutes` / `pattern` / `custom` enforcement | 🔜 Declared in the contract, not yet enforced |
+| `dq diff`, GitHub Action, HTML reports, severity levels | 🔜 Planned — see [ROADMAP.md](ROADMAP.md) |
+| PySpark & SQL engines | 🔜 Planned — see [ROADMAP.md](ROADMAP.md) |
+
+> A `Column` accepts `dtype`, `freshness_minutes`, `pattern`, and `custom` today, and
+> `dq show` / `dq infer` use the declared dtype — but the engines do **not** yet check
+> data against them. Treat those fields as documentation until the roadmap catches up.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    Contract["Contract<br/>Python or YAML · columns · rules · cross-column rules"]
+    Spec["ValidationSpec<br/>engine-agnostic compiled checks"]
+    Rules["RuleEngine<br/>one sandboxed expression evaluator"]
+    Ctx["ExecutionContext<br/>engine choice · caching · flags"]
+    Pandas["pandas engine"]
+    Polars["Polars engine (experimental)"]
+    Result["ValidationResult<br/>ok · summary() · to_dict()"]
+    Out["your pipeline / CI<br/>raise · non-zero exit · JSON logs"]
+
+    Contract --> Spec --> Rules --> Ctx
+    Ctx --> Pandas --> Result
+    Ctx --> Polars --> Result
+    Result --> Out
+
+    classDef wip stroke-dasharray:6 4;
+    class Spec,Rules,Ctx wip
+```
+
+**Solid** components ship in 0.1.x — today the flow is
+`Contract → engine (pandas / Polars) → ValidationResult → your pipeline / CI`.
+**Dashed** components — `ValidationSpec`, `RuleEngine`, `ExecutionContext` — are the
+current P0 refactor: right now `Contract.validate(df)` calls an engine directly, and
+each engine carries its own `eval`-based rule evaluator and stats cache. Extracting
+those into shared layers is tracked in [ROADMAP.md](ROADMAP.md) (issues #15–#21).
 
 ## Supported engines
 
-* Pandas
-* PySpark (planned)
-* SQL tables (planned)
+| Engine | Input | Status |
+| --- | --- | --- |
+| **pandas** | `pandas.DataFrame` | Default, stable |
+| **Polars** | `polars.DataFrame` / `LazyFrame` | Experimental — `pip install "dqflow[polars]"` |
+| PySpark | `pyspark.sql.DataFrame` | Planned |
+| SQL | warehouse table / query | Planned |
 
----
+```python
+from dqflow.engines.polars import PolarsEngine
 
-## Philosophy
+result = contract.validate(polars_df, engine=PolarsEngine())
+```
 
-* **Explicit is better than implicit**
-* **Bad data should break pipelines early**
-* **Quality rules are part of your system design**
+## When to use dqflow
 
-> dqflow is not a full data observability platform.
-> It is a small, opinionated library meant to be embedded directly into pipelines.
+- You have Python data pipelines — Airflow, Dagster, Prefect, dbt-adjacent scripts,
+  notebooks headed for production.
+- You want data expectations in git, reviewed in pull requests.
+- You want a pipeline step or CI job to **hard-fail** on bad data instead of passing
+  it downstream.
+- Your data fits in memory as a pandas (or Polars) DataFrame.
+- You want structured pass/fail output to feed your own logs or dashboards.
 
----
+## When *not* to use dqflow
+
+- You need dashboards, alerting, anomaly detection, or lineage — dqflow produces
+  files and exit codes, not a web app.
+- You need to push checks down to a warehouse table without loading it (SQL engine is
+  planned, not available).
+- You need Spark-scale distributed validation (PySpark engine is planned).
+- You need dtype conformance, regex, or freshness enforced *today* — those fields are
+  declared but not yet checked.
+- Your checks need arbitrary Python at validation time — rule expressions are
+  deliberately sandboxed.
+
+> **dqflow is not a full data observability platform.** It is a small, opinionated
+> library meant to be embedded directly into pipelines. Where richer tooling is
+> useful, dqflow's job is to emit clean, structured results those systems can consume.
 
 ## Roadmap
 
-* PySpark engine
-* dbt / dlt integrations
-* Incremental & backfill-aware validation
-* Metrics export (Prometheus-compatible)
-
----
-
-## License
-
-MIT
-
----
-
-## Status
-
-🚧 Early development (v0.1.1)
-
-APIs may change. Feedback and contributions are welcome.
-
----
+Contract diffing, a GitHub Action, HTML reports, severity levels, Polars parity, and
+PySpark / SQL engines are all planned. See **[ROADMAP.md](ROADMAP.md)** for the full
+plan, priorities, and non-goals.
 
 ## Contributing
 
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ```bash
-# Clone and install dev dependencies
 git clone https://github.com/dqflow/dqflow.git
 cd dqflow
 pip install -e ".[dev]"
 
-# Run tests
-pytest
-
-# Lint
-ruff check .
+pytest              # run tests
+ruff check .        # lint
+mypy src/dqflow     # type-check
 ```
+
+## License
+
+[MIT](LICENSE)
