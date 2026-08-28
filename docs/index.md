@@ -1,26 +1,16 @@
 # dqflow
 
 <p align="center">
-  <picture>
-    <source
-      media="(prefers-color-scheme: dark)"
-      srcset="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-dark-logo.png"
-    />
-    <source
-      media="(prefers-color-scheme: light)"
-      srcset="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-light-logo.png"
-    />
-    <img
-      src="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-dark-logo.png"
-      width="360"
-      alt="dqflow"
-    />
-  </picture>
+  <img
+    src="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-light-logo.png"
+    width="360"
+    alt="dqflow"
+  />
 </p>
 
 <p align="center"><strong>Data contracts for Python data pipelines.</strong><br/>Define → Validate → Fail Fast</p>
 
-[![PyPI version](https://badge.fury.io/py/dqflow.svg)](https://pypi.org/project/dqflow/)
+[![PyPI version](https://img.shields.io/pypi/v/dqflow.svg)](https://pypi.org/project/dqflow/)
 [![CI](https://github.com/dqflow/dqflow/actions/workflows/ci.yml/badge.svg)](https://github.com/dqflow/dqflow/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/pypi/pyversions/dqflow.svg)](https://pypi.org/project/dqflow/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -37,12 +27,14 @@ downstream.
 
 ## Workflow
 
-```mermaid
-flowchart LR
-    Define["1 · Define<br/>contract in Python or YAML"] --> Validate["2 · Validate<br/>contract.validate(df)"]
-    Validate --> Check{"result.ok?"}
-    Check -- "True"  --> Go["pipeline continues"]
-    Check -- "False" --> Stop["3 · Fail fast<br/>raise · non-zero exit code"]
+```text
+  1. DEFINE                2. VALIDATE                 3. FAIL FAST
+  ─────────                ───────────                 ────────────
+  write a contract   ─▶    contract.validate(df)  ─▶   result.ok is False
+  in Python or YAML        → ValidationResult          → raise / exit code ≠ 0
+
+                                                       result.ok is True
+                                                       → pipeline continues
 ```
 
 ## 30-second quick start
@@ -97,17 +89,17 @@ Failed checks:
 
 | Capability | Status |
 | --- | --- |
-| Python & YAML contracts | :material-check: Implemented |
-| Schema check — required columns must be present | :material-check: Implemented |
-| Validity checks — `not_null`, `min`, `max`, `allowed`, `unique` | :material-check: Implemented |
-| Table rules — `row_count`, `null_rate('col')`, `unique_count('col')` | :material-check: Implemented |
-| Cross-column rules — `left`/`op`/`right` or a callable | :material-check: Implemented |
-| Structured results — `.ok`, `.failed_checks`, `.summary()`, `.to_dict()` | :material-check: Implemented |
-| CLI — `dq validate` / `dq show` / `dq infer` | :material-check: Implemented |
-| pandas engine | :material-check: Implemented |
-| Polars engine (`dqflow[polars]`) | :material-flask: Experimental |
-| Declared `dtype` / `freshness_minutes` / `pattern` / `custom` enforcement | :material-clock-outline: Not yet enforced |
-| PySpark & SQL engines, `dq diff`, GitHub Action, HTML reports | :material-clock-outline: Planned |
+| Python & YAML contracts | ✅ Implemented |
+| Schema check — required columns must be present | ✅ Implemented |
+| Validity checks — `not_null`, `min`, `max`, `allowed`, `unique` | ✅ Implemented |
+| Table rules — `row_count`, `null_rate('col')`, `unique_count('col')` | ✅ Implemented |
+| Cross-column rules — `left`/`op`/`right` or a callable | ✅ Implemented |
+| Structured results — `.ok`, `.failed_checks`, `.summary()`, `.to_dict()` | ✅ Implemented |
+| CLI — `dq validate` / `dq show` / `dq infer` | ✅ Implemented |
+| pandas engine | ✅ Implemented |
+| Polars engine (`dqflow[polars]`) | 🧪 Experimental |
+| Declared `dtype` / `freshness_minutes` / `pattern` / `custom` enforcement | 🔜 Not yet enforced |
+| PySpark & SQL engines, `dq diff`, GitHub Action, HTML reports | 🔜 Planned |
 
 !!! note
     A `Column` accepts `dtype`, `freshness_minutes`, `pattern`, and `custom` today,

@@ -6,12 +6,8 @@
       media="(prefers-color-scheme: dark)"
       srcset="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-dark-logo.png"
     />
-    <source
-      media="(prefers-color-scheme: light)"
-      srcset="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-light-logo.png"
-    />
     <img
-      src="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-dark-logo.png"
+      src="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-light-logo.png"
       width="360"
       alt="dqflow"
     />
@@ -22,7 +18,7 @@
 <p align="center"><strong>Define → Validate → Fail Fast</strong></p>
 
 <p align="center">
-  <a href="https://pypi.org/project/dqflow/"><img src="https://badge.fury.io/py/dqflow.svg" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/dqflow/"><img src="https://img.shields.io/pypi/v/dqflow.svg" alt="PyPI version"></a>
   <a href="https://github.com/dqflow/dqflow/actions/workflows/ci.yml"><img src="https://github.com/dqflow/dqflow/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://dqflow.github.io/dqflow/"><img src="https://img.shields.io/badge/docs-mkdocs-blue.svg" alt="Docs"></a>
   <a href="https://pypi.org/project/dqflow/"><img src="https://img.shields.io/pypi/pyversions/dqflow.svg" alt="Python versions"></a>
@@ -32,7 +28,7 @@
 <p align="center">
   <a href="https://dqflow.github.io/dqflow/">Documentation</a> ·
   <a href="https://pypi.org/project/dqflow/">PyPI</a> ·
-  <a href="ROADMAP.md">Roadmap</a>
+  <a href="https://github.com/dqflow/dqflow/blob/main/ROADMAP.md">Roadmap</a>
 </p>
 
 ---
@@ -42,16 +38,18 @@ values, table-level rules — as a small, versionable contract, validate your da
 against it inside the pipeline, and stop bad data *before* it reaches anything
 downstream.
 
-> 🚧 Early development (0.1.x). The API is small and usable, but still changing.
+> 🚧 Early development (0.2.x). The API is small and usable, but still changing.
 
 ## Workflow
 
-```mermaid
-flowchart LR
-    Define["1 · Define<br/>contract in Python or YAML"] --> Validate["2 · Validate<br/>contract.validate(df)"]
-    Validate --> Check{"result.ok?"}
-    Check -- "True"  --> Go["pipeline continues"]
-    Check -- "False" --> Stop["3 · Fail fast<br/>raise · non-zero exit code"]
+```text
+  1. DEFINE                2. VALIDATE                 3. FAIL FAST
+  ─────────                ───────────                 ────────────
+  write a contract   ─▶    contract.validate(df)  ─▶   result.ok is False
+  in Python or YAML        → ValidationResult          → raise / exit code ≠ 0
+
+                                                       result.ok is True
+                                                       → pipeline continues
 ```
 
 ## Why dqflow
@@ -261,8 +259,8 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 | pandas engine | ✅ Implemented |
 | Polars engine (`dqflow[polars]`) | 🧪 Experimental |
 | Declared type / `freshness_minutes` / `pattern` / `custom` enforcement | 🔜 Declared in the contract, not yet enforced |
-| `dq diff`, GitHub Action, HTML reports, severity levels | 🔜 Planned — see [ROADMAP.md](ROADMAP.md) |
-| PySpark & SQL engines | 🔜 Planned — see [ROADMAP.md](ROADMAP.md) |
+| `dq diff`, GitHub Action, HTML reports, severity levels | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
+| PySpark & SQL engines | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
 
 > A `Column` accepts `dtype`, `freshness_minutes`, `pattern`, and `custom` today, and
 > `dq show` / `dq infer` use the declared dtype — but the engines do **not** yet check
@@ -270,32 +268,27 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    Contract["Contract<br/>Python or YAML · columns · rules · cross-column rules"]
-    Spec["ValidationSpec<br/>engine-agnostic compiled checks"]
-    Rules["RuleEngine<br/>one sandboxed expression evaluator"]
-    Ctx["ExecutionContext<br/>engine choice · caching · flags"]
-    Pandas["pandas engine"]
-    Polars["Polars engine (experimental)"]
-    Result["ValidationResult<br/>ok · summary() · to_dict()"]
-    Out["your pipeline / CI<br/>raise · non-zero exit · JSON logs"]
-
-    Contract --> Spec --> Rules --> Ctx
-    Ctx --> Pandas --> Result
-    Ctx --> Polars --> Result
-    Result --> Out
-
-    classDef wip stroke-dasharray:6 4;
-    class Spec,Rules,Ctx wip
+```text
+  Contract                            Python object or YAML file
+  columns · rules · cross-column rules
+      │
+      ▼
+  ValidationSpec    ┐                  shared layers being extracted
+  RuleEngine        ├── (in progress)  (P0 refactor, issues #15–#21).
+  ExecutionContext  ┘                  today Contract.validate() calls
+      │                                an engine directly.
+      ▼
+  Engine  ───────────────────────▶     pandas   default, stable
+      │                                Polars   experimental
+      ▼
+  ValidationResult  ─────────────▶     your pipeline / CI
+  .ok · .summary() · .to_dict()        raise · non-zero exit · JSON logs
 ```
 
-**Solid** components ship in 0.1.x — today the flow is
-`Contract → engine (pandas / Polars) → ValidationResult → your pipeline / CI`.
-**Dashed** components — `ValidationSpec`, `RuleEngine`, `ExecutionContext` — are the
-current P0 refactor: right now `Contract.validate(df)` calls an engine directly, and
-each engine carries its own `eval`-based rule evaluator and stats cache. Extracting
-those into shared layers is tracked in [ROADMAP.md](ROADMAP.md) (issues #15–#21).
+Today the flow is `Contract → engine (pandas / Polars) → ValidationResult`, and each
+engine carries its own `eval`-based rule evaluator and stats cache. `ValidationSpec`,
+`RuleEngine`, and `ExecutionContext` are the shared layers being extracted — see
+[ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) (issues #15–#21).
 
 ## Supported engines
 
@@ -341,12 +334,12 @@ result = contract.validate(polars_df, engine=PolarsEngine())
 ## Roadmap
 
 Contract diffing, a GitHub Action, HTML reports, severity levels, Polars parity, and
-PySpark / SQL engines are all planned. See **[ROADMAP.md](ROADMAP.md)** for the full
+PySpark / SQL engines are all planned. See **[ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md)** for the full
 plan, priorities, and non-goals.
 
 ## Contributing
 
-Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Issues and pull requests are welcome. See [CONTRIBUTING.md](https://github.com/dqflow/dqflow/blob/main/CONTRIBUTING.md).
 
 ```bash
 git clone https://github.com/dqflow/dqflow.git
@@ -360,4 +353,4 @@ mypy src/dqflow     # type-check
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/dqflow/dqflow/blob/main/LICENSE)

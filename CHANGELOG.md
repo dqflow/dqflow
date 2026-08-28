@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-08-28
+
+### Fixed
+- README/docs rendering on PyPI: logo pointed at the dark-mode (white) artwork and
+  was invisible on PyPI's white background; now uses the light-mode artwork
+- Replaced Mermaid diagrams with plain-text diagrams so they render on PyPI and in
+  any Markdown viewer
+- Absolute links to `ROADMAP.md` / `CONTRIBUTING.md` / `LICENSE` in the README so
+  they work from the PyPI project page
+- Switched the PyPI version badge to shields.io
+
 ## [0.2.0] - 2026-08-28
 
 ### Added
