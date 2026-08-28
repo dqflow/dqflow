@@ -4,5 +4,5 @@ from dqflow.column import Column, CrossColumnRule
 from dqflow.contract import Contract
 from dqflow.result import ValidationResult
 
-__version__ = "0.1.3"
+__version__ = "0.2.0"
 __all__ = ["Contract", "Column", "CrossColumnRule", "ValidationResult"]

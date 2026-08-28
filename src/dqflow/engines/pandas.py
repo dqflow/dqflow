@@ -101,7 +101,6 @@ class PandasEngine(Engine):
         col_name: str,
         col_def: Column,
     ) -> list[CheckResult]:
-
         checks: list[CheckResult] = []
 
         if col_def.not_null:
@@ -207,7 +206,6 @@ class PandasEngine(Engine):
         rule: str,
         cache: dict[str, dict[str, float | int]],
     ) -> CheckResult:
-
         try:
             context = {
                 "row_count": len(df),
@@ -245,7 +243,6 @@ class PandasEngine(Engine):
         df: pd.DataFrame,
         rule: CrossColumnRule,
     ) -> CheckResult:
-
         try:
             if rule.check is not None:
                 mask: Any = rule.check(df)

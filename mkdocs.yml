@@ -1,5 +1,5 @@
 site_name: dqflow
-site_description: Lightweight, contract-first data quality engine for modern data pipelines
+site_description: Data contracts for Python data pipelines. Define, validate, fail fast.
 site_url: https://dqflow.github.io/dqflow
 repo_url: https://github.com/dqflow/dqflow
 repo_name: dqflow/dqflow
@@ -48,9 +48,16 @@ nav:
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - admonition
   - pymdownx.details
   - attr_list
