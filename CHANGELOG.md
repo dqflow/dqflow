@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `dqflow.cache.StatsCache` — one shared, lazy, memoized cache for the
+  `row_count` / `null_rate` / `unique_count` statistics table rules use. The
+  pandas and Polars engines each supply three primitives; a column referenced by
+  several rules is now scanned once, and columns no rule mentions are never
+  scanned ([#21](https://github.com/dqflow/dqflow/issues/21))
 - `dqflow.rules.evaluate_rule` — one shared table-rule evaluator for every
   engine. Expressions are parsed with `ast` and run through a strict node
   whitelist (`row_count`, `null_rate()`, `unique_count()`, literals, boolean and
@@ -40,6 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Engine `message` strings now always name the column and the expectation
   (e.g. `Column 'amount' has 2 values below the minimum 0`). The top-level
   `--output json` schema is unchanged; only `details` gained fields
+- `null_rate()` in a table rule is now `0.0` (not `NaN`) on an empty DataFrame
+  in the pandas engine, matching the Polars engine
+  ([#21](https://github.com/dqflow/dqflow/issues/21))
 
 ## [0.3.0] - 2026-08-31
 
