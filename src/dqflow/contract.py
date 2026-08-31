@@ -11,6 +11,7 @@ import yaml
 from dqflow.column import Column, CrossColumnRule
 from dqflow.engines.registry import get_engine
 from dqflow.result import ValidationResult
+from dqflow.spec import ValidationSpec
 
 if TYPE_CHECKING:
     from dqflow.engines.base import Engine
@@ -82,7 +83,7 @@ class Contract:
         if engine is None or isinstance(engine, str):
             engine = get_engine(engine)
 
-        return engine.validate(df, self)
+        return engine.validate(df, ValidationSpec.from_contract(self))
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> Contract:

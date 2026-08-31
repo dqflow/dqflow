@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `dqflow.spec.ValidationSpec` — the engine-agnostic intermediate representation
+  a contract compiles to. `Contract.validate()` compiles once via
+  `ValidationSpec.from_contract()`; the pandas and Polars engines now execute the
+  spec's flat, ordered `CheckSpec` list instead of interpreting `Column` objects.
+  `Engine.validate()` accepts a `Contract` or a prebuilt `ValidationSpec`
+  ([#16](https://github.com/dqflow/dqflow/issues/16))
 - Engine registry: `dqflow.engines.get_engine()`, `register_engine()`, and
   `available_engines()`. `Contract.validate(df, engine=...)` now accepts an
   engine name (`"pandas"` / `"polars"`), an `Engine` instance, or `None`, and
