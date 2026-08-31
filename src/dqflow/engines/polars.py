@@ -138,7 +138,7 @@ class PolarsEngine(Engine):
 
         # UNIQUE
         if col_def.unique:
-            duplicate_count = int(series.is_duplicated().sum())
+            duplicate_count = int(series.drop_nulls().is_duplicated().sum())
 
             checks.append(
                 CheckResult(
@@ -148,6 +148,23 @@ class PolarsEngine(Engine):
                         f"Found {duplicate_count} duplicate values" if duplicate_count > 0 else ""
                     ),
                     details={"duplicate_count": duplicate_count},
+                )
+            )
+
+        if col_def.pattern is not None:
+            non_null = series.drop_nulls().cast(pl.String)
+            invalid_count = int((~non_null.str.contains(col_def.pattern)).sum())
+
+            checks.append(
+                CheckResult(
+                    name=f"pattern:{col_name}",
+                    passed=invalid_count == 0,
+                    message=(
+                        f"Found {invalid_count} values that do not match {col_def.pattern!r}"
+                        if invalid_count
+                        else ""
+                    ),
+                    details={"invalid_count": invalid_count},
                 )
             )
 

@@ -47,8 +47,8 @@ class Column:
 
     dtype: type | str
     not_null: bool = False
-    min: float | None = None
-    max: float | None = None
+    min: Any | None = None
+    max: Any | None = None
     allowed: Sequence[Any] | None = None
     freshness_minutes: int | None = None
     unique: bool = False

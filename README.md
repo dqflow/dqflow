@@ -223,8 +223,8 @@ dq validate contracts/orders.yaml data/orders.csv --output json
 # Inspect a contract
 dq show contracts/orders.yaml
 
-# Infer a starter contract (column dtypes) from existing data
-dq infer data/orders.csv contracts/orders.yaml
+# Infer a draft contract (dtypes and observed constraints) from existing data
+dq infer data/orders.csv contracts/orders.yaml --sample 100000
 ```
 
 Given `data/orders.csv` where `order_id` has a duplicate and a null, `amount` has a
@@ -250,19 +250,19 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 | Python contracts — `Contract`, `Column`, `CrossColumnRule` | ✅ Implemented |
 | YAML contracts — `Contract.from_yaml()` / `.to_yaml()` | ✅ Implemented |
 | Schema check — required columns must be present in the data | ✅ Implemented |
-| Validity checks — `not_null`, `min`, `max`, `allowed`, `unique` | ✅ Implemented |
+| Validity checks — `not_null`, `min`, `max`, `allowed`, `unique`, `pattern` | ✅ Implemented |
 | Table rules — `row_count`, `null_rate('col')`, `unique_count('col')` | ✅ Implemented |
 | Cross-column rules — `left`/`op`/`right` or a callable | ✅ Implemented |
 | Structured results — `.ok`, `.failed_checks`, `.summary()`, `.to_dict()` | ✅ Implemented |
 | CLI — `dq validate` / `dq show` / `dq infer` | ✅ Implemented |
-| Contract inference from data (column dtypes) | ✅ Implemented |
+| Contract inference from data (dtypes and observed constraints) | ✅ Implemented |
 | pandas engine | ✅ Implemented |
 | Polars engine (`dqflow[polars]`) | 🧪 Experimental |
-| Declared type / `freshness_minutes` / `pattern` / `custom` enforcement | 🔜 Declared in the contract, not yet enforced |
+| Declared type / `freshness_minutes` / `custom` enforcement | 🔜 Declared in the contract, not yet enforced |
 | `dq diff`, GitHub Action, HTML reports, severity levels | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
 | PySpark & SQL engines | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
 
-> A `Column` accepts `dtype`, `freshness_minutes`, `pattern`, and `custom` today, and
+> A `Column` accepts `dtype`, `freshness_minutes`, and `custom` today, and
 > `dq show` / `dq infer` use the declared dtype — but the engines do **not** yet check
 > data against them. Treat those fields as documentation until the roadmap catches up.
 

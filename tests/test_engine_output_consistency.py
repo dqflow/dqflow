@@ -76,3 +76,19 @@ def test_engine_output_match_with_rules():
     polars_result = PolarsEngine().validate(df_pl, contract)
 
     assert normalize(pandas_result) == normalize(polars_result)
+
+
+def test_engine_output_match_with_pattern_and_nullable_unique():
+    contract = Contract(
+        name="string_constraints",
+        columns={
+            "code": {"dtype": str, "pattern": r"^[A-Z]{2}$"},
+            "optional_id": {"dtype": int, "unique": True},
+        },
+    )
+    data = {"code": ["US", "invalid"], "optional_id": [1, None]}
+
+    pandas_result = PandasEngine().validate(pd.DataFrame(data), contract)
+    polars_result = PolarsEngine().validate(pl.DataFrame(data), contract)
+
+    assert normalize(pandas_result) == normalize(polars_result)

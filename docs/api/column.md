@@ -10,10 +10,12 @@ from dqflow import Column
 column = Column(
     dtype: type | str,
     not_null: bool = False,
-    min: float | None = None,
-    max: float | None = None,
+    min: Any | None = None,
+    max: Any | None = None,
     allowed: Sequence[Any] | None = None,
     freshness_minutes: int | None = None,
+    unique: bool = False,
+    pattern: str | None = None,
     description: str = "",
     metadata: dict[str, Any] = {},
     custom: Callable[[Any], bool] | None = None,
@@ -26,10 +28,12 @@ column = Column(
 |-----------|------|---------|-------------|
 | `dtype` | `type \| str` | required | Expected data type |
 | `not_null` | `bool` | `False` | Reject null values |
-| `min` | `float \| None` | `None` | Minimum value (numeric) |
-| `max` | `float \| None` | `None` | Maximum value (numeric) |
+| `min` | `Any \| None` | `None` | Minimum value (numeric or datetime) |
+| `max` | `Any \| None` | `None` | Maximum value (numeric or datetime) |
 | `allowed` | `Sequence[Any] \| None` | `None` | Allowed values |
 | `freshness_minutes` | `int \| None` | `None` | Max age for timestamps |
+| `unique` | `bool` | `False` | Require distinct non-null values |
+| `pattern` | `str \| None` | `None` | Full-match regex for non-null values |
 | `description` | `str` | `""` | Human-readable description |
 | `metadata` | `dict[str, Any]` | `{}` | Custom metadata |
 | `custom` | `Callable[[Any], bool] \| None` | `None` | Custom validation function |
@@ -73,6 +77,13 @@ Column(float, min=0, max=100)
 ```python
 Column(str, allowed=["USD", "EUR", "GBP"])
 Column(int, allowed=[1, 2, 3, 4, 5])
+```
+
+### Unique Values and Patterns
+
+```python
+Column(str, unique=True)
+Column(str, pattern=r"^[A-Z]{3}$")
 ```
 
 ### Freshness Check
@@ -160,5 +171,7 @@ columns = {
 | `min=X` | Fails if any value < X |
 | `max=X` | Fails if any value > X |
 | `allowed=[...]` | Fails if any value not in list |
+| `unique=True` | Fails if any non-null value is duplicated |
+| `pattern=...` | Fails if any non-null value does not fully match the regex |
 | `freshness_minutes=X` | Fails if max timestamp > X minutes old |
 | `custom=func` | Fails if func(value) returns False for any value |

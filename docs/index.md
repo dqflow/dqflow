@@ -91,18 +91,18 @@ Failed checks:
 | --- | --- |
 | Python & YAML contracts | ✅ Implemented |
 | Schema check — required columns must be present | ✅ Implemented |
-| Validity checks — `not_null`, `min`, `max`, `allowed`, `unique` | ✅ Implemented |
+| Validity checks — `not_null`, `min`, `max`, `allowed`, `unique`, `pattern` | ✅ Implemented |
 | Table rules — `row_count`, `null_rate('col')`, `unique_count('col')` | ✅ Implemented |
 | Cross-column rules — `left`/`op`/`right` or a callable | ✅ Implemented |
 | Structured results — `.ok`, `.failed_checks`, `.summary()`, `.to_dict()` | ✅ Implemented |
 | CLI — `dq validate` / `dq show` / `dq infer` | ✅ Implemented |
 | pandas engine | ✅ Implemented |
 | Polars engine (`dqflow[polars]`) | 🧪 Experimental |
-| Declared `dtype` / `freshness_minutes` / `pattern` / `custom` enforcement | 🔜 Not yet enforced |
+| Declared `dtype` / `freshness_minutes` / `custom` enforcement | 🔜 Not yet enforced |
 | PySpark & SQL engines, `dq diff`, GitHub Action, HTML reports | 🔜 Planned |
 
 !!! note
-    A `Column` accepts `dtype`, `freshness_minutes`, `pattern`, and `custom` today,
+    A `Column` accepts `dtype`, `freshness_minutes`, and `custom` today,
     and `dq show` / `dq infer` use the declared dtype — but the engines do **not** yet
     validate data against them. See the [roadmap](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md).
 
