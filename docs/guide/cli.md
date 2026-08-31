@@ -71,7 +71,8 @@ Rules:
 Infer a contract from existing data:
 
 ```bash
-dq infer DATA OUTPUT
+dq infer DATA OUTPUT [--sample N] [--no-ranges]
+                     [--max-allowed-cardinality N] [--strict]
 ```
 
 **Arguments:**
@@ -84,6 +85,10 @@ dq infer DATA OUTPUT
 ```bash
 dq infer data/orders.csv contracts/orders.yaml
 ```
+
+The generated YAML contains inferred nullability, allowed values, ranges,
+uniqueness, and common string patterns. See [Inferring Contracts](inference.md)
+for every heuristic, its caveats, and flag details.
 
 ## Supported File Formats
 

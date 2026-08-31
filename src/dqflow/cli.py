@@ -1,5 +1,7 @@
 """Command-line interface for dqflow."""
 
+# mypy: disable-error-code=untyped-decorator
+
 from __future__ import annotations
 
 import json
@@ -11,6 +13,7 @@ import pandas as pd
 
 from dqflow import __version__
 from dqflow.contract import Contract
+from dqflow.inference import infer_contract, inference_header
 
 
 @click.group()
@@ -74,6 +77,10 @@ def show(contract: Path) -> None:
             constraints.append(f"allowed={col_def.allowed}")
         if col_def.freshness_minutes:
             constraints.append(f"freshness={col_def.freshness_minutes}m")
+        if col_def.unique:
+            constraints.append("UNIQUE")
+        if col_def.pattern:
+            constraints.append(f"pattern={col_def.pattern!r}")
 
         constraint_str = f" ({', '.join(constraints)})" if constraints else ""
         click.echo(f"  {col_name}: {col_def.dtype}{constraint_str}")
@@ -88,42 +95,66 @@ def show(contract: Path) -> None:
 @main.command()
 @click.argument("data", type=click.Path(exists=True, path_type=Path))
 @click.argument("output", type=click.Path(path_type=Path))
-def infer(data: Path, output: Path) -> None:
+@click.option(
+    "--sample",
+    type=click.IntRange(min=1),
+    help="Infer from at most N rows.",
+)
+@click.option("--no-ranges", is_flag=True, help="Do not infer min/max constraints.")
+@click.option(
+    "--max-allowed-cardinality",
+    type=click.IntRange(min=0),
+    default=20,
+    show_default=True,
+    help="Maximum distinct values for an allowed constraint.",
+)
+@click.option("--strict", is_flag=True, help="Fail instead of skipping malformed input rows.")
+def infer(
+    data: Path,
+    output: Path,
+    sample: int | None,
+    no_ranges: bool,
+    max_allowed_cardinality: int,
+    strict: bool,
+) -> None:
     """Infer a contract from DATA and write to OUTPUT."""
-    df = _load_dataframe(data)
+    try:
+        df = _load_dataframe(data, sample=sample, strict=strict)
+    except (OSError, ValueError, pd.errors.ParserError) as exc:
+        raise click.ClickException(f"Could not read {data}: {exc}") from exc
 
-    from dqflow.column import Column
-
-    columns = {}
-    for col in df.columns:
-        dtype = df[col].dtype
-        if pd.api.types.is_integer_dtype(dtype):
-            columns[col] = Column(dtype=int)
-        elif pd.api.types.is_float_dtype(dtype):
-            columns[col] = Column(dtype=float)
-        elif pd.api.types.is_bool_dtype(dtype):
-            columns[col] = Column(dtype=bool)
-        elif pd.api.types.is_datetime64_any_dtype(dtype):
-            columns[col] = Column(dtype="timestamp")
-        else:
-            columns[col] = Column(dtype=str)
-
-    contract = Contract(name=output.stem, columns=columns)
-    contract.to_yaml(output)
-    click.echo(f"Contract written to {output}")
+    contract = infer_contract(
+        df,
+        name=output.stem,
+        infer_ranges=not no_ranges,
+        max_allowed_cardinality=max_allowed_cardinality,
+    )
+    header = inference_header(str(data), len(df))
+    contract.to_yaml(output, header=header)
+    click.echo(f"Wrote {output} ({len(contract.columns)} columns, inferred from {len(df):,} rows)")
 
 
-def _load_dataframe(path: Path) -> pd.DataFrame:
+def _load_dataframe(
+    path: Path,
+    *,
+    sample: int | None = None,
+    strict: bool = True,
+) -> pd.DataFrame:
     """Load DataFrame from file based on extension."""
     suffix = path.suffix.lower()
     if suffix == ".parquet":
-        return pd.read_parquet(path)
+        df = pd.read_parquet(path)
     elif suffix == ".csv":
-        return pd.read_csv(path)
+        return pd.read_csv(
+            path,
+            nrows=sample,
+            on_bad_lines="error" if strict else "skip",
+        )
     elif suffix == ".json":
-        return pd.read_json(path)
+        df = pd.read_json(path)
     else:
         raise click.ClickException(f"Unsupported file format: {suffix}")
+    return df.head(sample) if sample is not None else df
 
 
 if __name__ == "__main__":

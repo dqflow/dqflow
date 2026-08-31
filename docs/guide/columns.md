@@ -43,6 +43,23 @@ Column(str, allowed=["USD", "EUR", "GBP"])
 Column(int, allowed=[1, 2, 3])
 ```
 
+### unique
+
+Require non-null values to be distinct. Multiple nulls are ignored by this
+constraint; combine it with `not_null=True` when nulls should also fail.
+
+```python
+Column(str, unique=True)
+```
+
+### pattern
+
+Require each non-null value to fully match a regular expression:
+
+```python
+Column(str, pattern=r"^[A-Z]{3}$")
+```
+
 ### freshness_minutes
 
 Ensure timestamp data is recent:

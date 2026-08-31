@@ -95,8 +95,8 @@ class Contract:
             metadata=data.get("metadata", {}),
         )
 
-    def to_yaml(self, path: str | Path) -> None:
-        """Save contract to YAML file."""
+    def to_yaml(self, path: str | Path, *, header: str | None = None) -> None:
+        """Save contract to YAML file, optionally preceded by comment lines."""
         path = Path(path)
 
         columns_data: dict[str, Any] = {}
@@ -151,6 +151,9 @@ class Contract:
             data["description"] = self.description
 
         with path.open("w") as f:
+            if header:
+                for line in header.splitlines():
+                    f.write(f"# {line}\n")
             yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False)
 
 

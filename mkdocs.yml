@@ -38,6 +38,7 @@ nav:
       - Table Rules: guide/rules.md
       - YAML Contracts: guide/yaml.md
       - CLI Usage: guide/cli.md
+      - Inferring Contracts: guide/inference.md
   - API Reference:
       - Contract: api/contract.md
       - Column: api/column.md

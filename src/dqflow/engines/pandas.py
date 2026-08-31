@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import operator as _op
 from collections.abc import Callable
+from datetime import date, datetime
 from typing import Any
 
 import pandas as pd
@@ -127,7 +128,7 @@ class PandasEngine(Engine):
                     message=(
                         f"Minimum value {min_val} is below {col_def.min}" if not passed else ""
                     ),
-                    details={"actual_min": (float(min_val) if pd.notna(min_val) else None)},
+                    details={"actual_min": _result_value(min_val)},
                 )
             )
 
@@ -143,7 +144,7 @@ class PandasEngine(Engine):
                     message=(
                         f"Maximum value {max_val} exceeds {col_def.max}" if not passed else ""
                     ),
-                    details={"actual_max": (float(max_val) if pd.notna(max_val) else None)},
+                    details={"actual_max": _result_value(max_val)},
                 )
             )
 
@@ -160,7 +161,7 @@ class PandasEngine(Engine):
             )
 
         if col_def.unique:
-            duplicate_count = int(series.duplicated(keep=False).sum())
+            duplicate_count = int(series.dropna().duplicated(keep=False).sum())
 
             checks.append(
                 CheckResult(
@@ -170,6 +171,23 @@ class PandasEngine(Engine):
                         f"Found {duplicate_count} duplicate values" if duplicate_count else ""
                     ),
                     details={"duplicate_count": duplicate_count},
+                )
+            )
+
+        if col_def.pattern is not None:
+            non_null = series.dropna().astype("string")
+            invalid_count = int((~non_null.str.fullmatch(col_def.pattern, na=False)).sum())
+
+            checks.append(
+                CheckResult(
+                    name=f"pattern:{col_name}",
+                    passed=invalid_count == 0,
+                    message=(
+                        f"Found {invalid_count} values that do not match {col_def.pattern!r}"
+                        if invalid_count
+                        else ""
+                    ),
+                    details={"invalid_count": invalid_count},
                 )
             )
 
@@ -278,3 +296,16 @@ class PandasEngine(Engine):
                 passed=False,
                 message=(f"Failed to evaluate cross-column rule '{rule.name}': {e}"),
             )
+
+
+def _result_value(value: Any) -> float | int | str | None:
+    """Convert pandas scalars to JSON-safe validation details."""
+    if pd.isna(value):
+        return None
+    if isinstance(value, (pd.Timestamp, datetime, date)):
+        return value.isoformat()
+    if hasattr(value, "item"):
+        value = value.item()
+    if isinstance(value, (float, int, str)):
+        return value
+    return str(value)

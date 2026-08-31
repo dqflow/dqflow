@@ -139,4 +139,65 @@ rules:
             assert output_path.exists()
 
             content = output_path.read_text()
-            assert "name:" in content or "id:" in content
+            assert content.startswith("# inferred by `dq infer` from")
+            assert "# review before committing" in content
+            assert (
+                "  id:\n"
+                "    dtype: integer\n"
+                "    not_null: true\n"
+                "    min: 1\n"
+                "    max: 3\n"
+                "    unique: true\n"
+            ) in content
+            assert result.output == (f"Wrote {output_path} (3 columns, inferred from 3 rows)\n")
+
+    def test_infer_command_options(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            data_path = tmpdir / "data.csv"
+            pd.DataFrame(
+                {
+                    "category": ["a", "b", "c"],
+                    "value": [1, 2, 100],
+                }
+            ).to_csv(data_path, index=False)
+            output_path = tmpdir / "inferred.yaml"
+
+            result = runner.invoke(
+                main,
+                [
+                    "infer",
+                    str(data_path),
+                    str(output_path),
+                    "--sample",
+                    "2",
+                    "--no-ranges",
+                    "--max-allowed-cardinality",
+                    "1",
+                ],
+            )
+
+            assert result.exit_code == 0
+            content = output_path.read_text()
+            assert "min:" not in content
+            assert "max:" not in content
+            assert "allowed:" not in content
+            assert "inferred from 2 rows" in result.output
+
+    def test_infer_command_strict_rejects_malformed_csv(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            data_path = tmpdir / "malformed.csv"
+            data_path.write_text('id,name\n1,"unterminated\n')
+            output_path = tmpdir / "inferred.yaml"
+
+            result = runner.invoke(
+                main,
+                ["infer", str(data_path), str(output_path), "--strict"],
+            )
+
+            assert result.exit_code != 0
+            assert "Could not read" in result.output
+            assert not output_path.exists()
