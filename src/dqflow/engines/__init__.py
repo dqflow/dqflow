@@ -1,8 +1,5 @@
-"""dqflow - Lightweight, contract-first data quality engine."""
+"""Validation engines for dqflow.
 
-from dqflow.column import Column
-from dqflow.contract import Contract
-from dqflow.result import ValidationResult
-
-__version__ = "0.2.2"
-__all__ = ["Contract", "Column", "ValidationResult"]
+Import engines from their submodules, e.g. ``from dqflow.engines.pandas import
+PandasEngine``.
+"""

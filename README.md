@@ -38,8 +38,6 @@ values, table-level rules — as a small, versionable contract, validate your da
 against it inside the pipeline, and stop bad data *before* it reaches anything
 downstream.
 
-> 🚧 Early development (0.2.x). The API is small and usable, but still changing.
-
 ## Workflow
 
 ```text
