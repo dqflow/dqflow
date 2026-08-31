@@ -29,6 +29,40 @@ the roadmap yet.
 - **Fail fast.** Validation failures are actionable and, by default, loud.
 - **CI/CD friendly.** Structured output, stable exit codes, machine-readable
   reports, and a real GitHub Action.
+- **Adoption is a product concern.** Discovery, time-to-first-value, retention,
+  and contribution are measured with the same discipline as code.
+
+## Adoption thesis
+
+dqflow's wedge is the shortest, clearest **contract pull-request gate for Python
+DataFrames**, not the largest catalogue of checks or connectors:
+
+```text
+infer → review → diff → validate → block a breaking change in the PR
+```
+
+The activation promise is a versioned contract and an actionable failed CI check
+in under ten minutes, without deploying a server. Architecture and activation
+work therefore run in parallel.
+
+### Baseline (2026-08-31)
+
+- 4 GitHub stars, 1 fork, and 2 code contributors
+- 222 PyPI downloads in the previous 30 days; downloads are a reach proxy, not
+  unique users, and include release/automation traffic
+- no active-user definition, adoption dashboard, or conversion funnel yet
+
+Issue [#60](https://github.com/dqflow/dqflow/issues/60) defines the north-star
+metric. Until it lands, “one million users” is a direction rather than a valid
+execution metric. One million monthly downloads can be a provisional reach
+milestone only when paired with active-project, retention, and contributor data.
+
+| Stage | Product proof | Reach proxy | Community proof |
+|-------|---------------|-------------|-----------------|
+| Activation | First failed PR gate in <10 minutes | 1k monthly downloads | 10 external adopter interviews |
+| Repeatability | Contracts retained across releases | 10k monthly downloads | 25 public examples, 10 contributors |
+| Ecosystem | Integrations generate inbound adoption | 100k monthly downloads | 250 public dependents, 50 contributors |
+| Scale | Self-serve acquisition compounds | 1M monthly downloads | active-project target defined by #60 |
 
 ---
 
@@ -38,8 +72,9 @@ Already shipped:
 
 - `Contract` as code (Python) and YAML (`Contract.from_yaml` / `to_yaml`)
 - Column checks: `not_null`, `min`, `max`, `allowed`, `unique`
-- Column fields defined but **not yet enforced** by engines: `pattern`,
-  `freshness_minutes`, `custom` (→ [#51](https://github.com/dqflow/dqflow/issues/51))
+- Column fields defined but **not yet enforced** by engines: `dtype`,
+  `freshness_minutes`, `custom`; `pattern` is enforced
+  (→ [#51](https://github.com/dqflow/dqflow/issues/51))
 - Table rules (`row_count`, `null_rate`, `unique_count`) via a restricted
   expression evaluator (still uses `eval` internally → [#18](https://github.com/dqflow/dqflow/issues/18))
 - Cross-column rules (`left`/`op`/`right` or a callable), no `eval` (#28, #29)
@@ -61,13 +96,15 @@ Already shipped:
 
 ## Categories
 
-Work is organised into six categories, roughly in priority order. Each maps to a
-GitHub milestone.
+Work is organised into eight categories. Architecture and activation run in
+parallel; later categories begin when their dependencies are ready.
 
 | Category | Priority | Milestone |
 |----------|----------|-----------|
+| [Adoption & Community](#adoption--community) | **P0** | Adoption & Community |
 | [Architecture Foundation](#architecture-foundation) | **P0** | [Architecture Foundation](https://github.com/dqflow/dqflow/milestone/2) |
 | [Developer Experience](#developer-experience) | **P0** | [Developer Experience](https://github.com/dqflow/dqflow/milestone/3) |
+| [Reliability & Trust](#reliability--trust) | **P0 / P1** | Reliability & Trust |
 | [Performance & Execution](#performance--execution) | **P1** | [Performance & Execution](https://github.com/dqflow/dqflow/milestone/4) |
 | [CI/CD & Reporting](#cicd--reporting) | **P1** | [CI/CD & Reporting](https://github.com/dqflow/dqflow/milestone/5) |
 | [Ecosystem & Integrations](#ecosystem--integrations) | **P1 / P2** | [Ecosystem & Integrations](https://github.com/dqflow/dqflow/milestone/6) |
@@ -75,9 +112,27 @@ GitHub milestone.
 
 ---
 
+## Adoption & Community
+
+**Priority: P0.** Measure public project health, lead with the shipped contract
+diff story, then improve discovery and run small measurable launches. No runtime
+telemetry is added.
+
+| Issue | Title | Priority | Depends on |
+|-------|-------|----------|------------|
+| [#60](https://github.com/dqflow/dqflow/issues/60) | Define adoption metrics and publish a privacy-safe project health dashboard | P0 | — |
+| [#62](https://github.com/dqflow/dqflow/issues/62) | Build repository discoverability and a repeatable community growth loop | P0 | #60 |
+| [#69](https://github.com/dqflow/dqflow/issues/69) | Make contract diff a headline README and docs story | P0 | #37 (shipped); measure with #60 |
+
+Covers: the active-user definition and funnel, repository metadata and community
+workflows, honest comparison/migration pages, and a canonical `dq diff` demo that
+blocks a breaking contract change in CI.
+
+---
+
 ## Architecture Foundation
 
-**Priority: P0.** Do this first. The engines currently interpret `Column`
+**Priority: P0.** Start this early, in parallel with activation. The engines currently interpret `Column`
 objects directly and each carries its own copy of rule evaluation (including
 `eval`). That duplication makes every later feature — new engines, severity,
 advanced rules, a shared cache — more expensive. These five issues pay that debt
@@ -117,18 +172,43 @@ down, in order.
 **Priority: P0.** The everyday loop — write a contract, run it, read the
 failure, fix it — is the product. Make it fast and pleasant.
 
+**Activation slice:** [#61](https://github.com/dqflow/dqflow/issues/61) →
+[#38](https://github.com/dqflow/dqflow/issues/38) →
+[#42](https://github.com/dqflow/dqflow/issues/42), followed by pytest integration
+[#64](https://github.com/dqflow/dqflow/issues/64).
+
 | Issue | Title | Priority | Depends on | Status |
 |-------|-------|----------|------------|--------|
 | [#37](https://github.com/dqflow/dqflow/issues/37) | Implement `dq diff` for contract comparison | P0 | — | ✅ Shipped in 0.3.0 |
 | [#38](https://github.com/dqflow/dqflow/issues/38) | Improve CLI validation output and error messages | P0 | — (benefits from #16) | ✅ Done |
 | [#39](https://github.com/dqflow/dqflow/issues/39) | Improve `dq infer` contract generation | P0 | — | ✅ Shipped in 0.2.1 |
 | [#40](https://github.com/dqflow/dqflow/issues/40) | Redesign README and project positioning | P0 | — | ✅ Shipped |
+| [#61](https://github.com/dqflow/dqflow/issues/61) | Add a versioned contract schema and `dq lint` | P0 | — (align with #16, #41) | Planned |
 | [#41](https://github.com/dqflow/dqflow/issues/41) | Add contract versioning and breaking-change detection | P1 | #37 | Planned |
+| [#64](https://github.com/dqflow/dqflow/issues/64) | Add a first-class pytest integration | P1 | #38 | Planned |
 
 Covers: `dq diff` + breaking/non-breaking classification, better CLI output and
-error messages, smarter `dq infer` (constraints, not just dtypes), README
-redesign around "data contracts for Python pipelines", architecture diagram,
-quick-start examples.
+error messages, smarter `dq infer` (constraints, not just dtypes), a versioned
+contract schema and lint command, pytest-native assertions, and quick-start
+examples.
+
+---
+
+## Reliability & Trust
+
+**Priority: P0 / P1.** A production pipeline gate needs explicit compatibility,
+security, and stability boundaries. These issues form the path from alpha to a
+credible 1.0.
+
+| Issue | Title | Priority | Depends on |
+|-------|-------|----------|------------|
+| [#65](https://github.com/dqflow/dqflow/issues/65) | Harden packaging and the supported compatibility matrix | P0 | — (benefits from #17) |
+| [#67](https://github.com/dqflow/dqflow/issues/67) | Define the stable public API and dqflow 1.0 readiness bar | P0 | #61 |
+| [#66](https://github.com/dqflow/dqflow/issues/66) | Add supply-chain security and verifiable release provenance | P1 | coordinates with #18, #61 |
+
+Covers: supported Python/pandas/Polars versions, cross-platform and built-wheel
+CI, backend-specific lightweight installs, API/CLI/JSON compatibility,
+deprecation policy, `SECURITY.md`, pinned Actions, attestations, and SBOMs.
 
 ---
 
@@ -178,14 +258,14 @@ the shared RuleEngine (#18).
 |-------|-------|----------|------------|
 | [#46](https://github.com/dqflow/dqflow/issues/46) | Improve documentation and examples | P1 | — (✅ shipped; ongoing) |
 | [#47](https://github.com/dqflow/dqflow/issues/47) | Add Airflow, Dagster and Prefect integrations | P1 | #17, #15, #44 |
+| [#63](https://github.com/dqflow/dqflow/issues/63) | Add ODCS import/export interoperability | P1 | #61 |
 | [#48](https://github.com/dqflow/dqflow/issues/48) | Add dbt integration | P2 | — |
 | [#49](https://github.com/dqflow/dqflow/issues/49) | Add PySpark engine | P2 | #16, #18, #15 |
 | [#50](https://github.com/dqflow/dqflow/issues/50) | Add SQL validation support | P2 | #16, #18, #15 |
 
-Covers: full API docs and runnable example projects, orchestrator adapters
-(fail-the-task on violation), a contract ⇄ dbt bridge, native PySpark and SQL
-(push-down) engines, a FastAPI example, contribution guide, issue templates,
-release/changelog/PyPI automation, GitHub Discussions.
+Covers: full API docs and runnable examples, orchestrator adapters, loss-aware
+ODCS interoperability, a contract ⇄ dbt bridge, native PySpark and SQL
+(push-down) engines, and a FastAPI example.
 
 ---
 
@@ -198,8 +278,8 @@ release/changelog/PyPI automation, GitHub Discussions.
 |-------|-------|----------|------------|
 | [#51](https://github.com/dqflow/dqflow/issues/51) | Add advanced validation rules | P2 | #16, #18, #44 |
 
-Covers: enforce the already-defined `pattern` / `freshness_minutes` / `custom`
-fields, referential integrity, distribution checks, absolute and relative
+Covers: enforce the already-defined `dtype` / `freshness_minutes` / `custom`
+fields (`pattern` already runs), referential integrity, distribution checks, absolute and relative
 row-count checks, `duplicate_rate` and other documented helpers, and a
 contract-level custom-validator hook. Severity levels (#44) apply throughout.
 
@@ -209,12 +289,13 @@ contract-level custom-validator hook. Severity levels (#44) apply throughout.
 
 | Priority | Focus | Issues |
 |----------|-------|--------|
-| **P0** | Architecture foundation, then contract diffing, developer-friendly CLI, contract inference, README/positioning | #17, #16, #18, #15, #21, #37, #38, #39, #40 |
-| **P1** | Contract versioning, GitHub Action, HTML reports, severity levels, Polars, performance, docs, orchestrator integrations | #41, #42, #43, #44, #22, #23, #25, #45, #46, #47 |
+| **P0** | Measure adoption; lead with contract diff; ship activation/trust alongside architecture | #60, #62, #69, #61, #65, #67, #17, #16, #18, #15, #21, #38 |
+| **P1** | PR/test workflows, reporting, security, performance, ODCS and orchestrators | #64, #66, #41, #42, #43, #44, #22, #23, #25, #45, #46, #47, #63 |
 | **P2** | dbt, PySpark, SQL, advanced validation rules | #48, #49, #50, #51 |
 
-The most important near-term work is the Architecture Foundation and the P0
-Developer Experience issues. Everything else is explicitly lower priority.
+The most important near-term work is a measured activation slice and the minimum
+architecture/reliability foundation needed to support it. Breadth should not
+outrun evidence that new users activate and retained teams keep using contracts.
 
 ---
 
