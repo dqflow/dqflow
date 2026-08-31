@@ -1,0 +1,4 @@
+user_id,email,status
+U001,ada@example.com,active
+U002,grace@example.com,inactive
+U003,linus@example.com,active

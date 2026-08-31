@@ -1,105 +1,51 @@
-# Table Rules
+# Table rules
 
-Table rules validate properties across the entire dataset.
-
-## Basic Rules
+Table rules evaluate aggregate properties of the complete DataFrame.
 
 ```python
 from dqflow import Contract
 
 contract = Contract(
     name="orders",
-    columns={...},
     rules=[
         "row_count > 0",
-        "row_count > 1000",
+        "null_rate('amount') < 0.01",
+        "unique_count('currency') <= 3",
     ],
 )
 ```
 
-## Available Functions
+## Available names
 
-### row_count
+| Name | Result |
+| --- | --- |
+| `row_count` | Total rows as an integer |
+| `null_rate('column')` | Null proportion from `0.0` to `1.0` |
+| `unique_count('column')` | Distinct count, including null as a distinct value |
 
-Total number of rows:
+Column names must be string literals. `duplicate_rate` and other helpers are not
+implemented yet.
 
-```python
-"row_count > 0"
-"row_count >= 1000"
-"row_count < 1000000"
-```
-
-### null_rate
-
-Proportion of null values (0.0 to 1.0):
+Rules can use ordinary comparisons and boolean operators:
 
 ```python
-"null_rate(amount) < 0.01"      # Less than 1% nulls
-"null_rate(email) == 0"         # No nulls allowed
-"null_rate(phone) < 0.5"        # Less than 50% nulls
-```
-
-### unique_count
-
-Number of distinct values:
-
-```python
-"unique_count(customer_id) > 100"
-"unique_count(status) <= 5"
-```
-
-### duplicate_rate
-
-Proportion of duplicate values (0.0 to 1.0):
-
-```python
-"duplicate_rate(order_id) == 0"    # All unique
-"duplicate_rate(email) < 0.1"      # Less than 10% duplicates
-```
-
-## Rule Syntax
-
-Rules are Python expressions evaluated against the DataFrame:
-
-```python
-# Comparison operators
-"row_count > 0"
 "row_count >= 100"
-"row_count < 1000"
-"row_count <= 500"
-"row_count == 100"
-
-# Combining conditions
-"row_count > 0 and row_count < 1000"
+"row_count > 0 and null_rate('email') < 0.05"
+"unique_count('status') <= 10"
 ```
 
-## Example Contract
+When a rule evaluates to false, its check fails. Evaluation errors also become
+failed checks rather than escaping as exceptions.
 
-```python
-contract = Contract(
-    name="orders",
-    columns={
-        "order_id": Column(str, not_null=True),
-        "amount": Column(float, min=0),
-    },
-    rules=[
-        "row_count > 0",
-        "row_count < 10000000",
-        "null_rate(amount) < 0.01",
-        "duplicate_rate(order_id) == 0",
-        "unique_count(order_id) == row_count",
-    ],
-)
-```
+## Safety model
 
-## Custom Expressions
+The pandas and Polars engines currently call Python `eval` with builtins removed
+and expose only the three names above. This reduces the available surface but is
+not a security boundary for untrusted input.
 
-Rules support basic Python expressions:
+Only run rule expressions from contracts you trust. Do not accept arbitrary YAML
+contracts from users or third parties. A dedicated central evaluator is tracked
+in [#18](https://github.com/dqflow/dqflow/issues/18).
 
-```python
-"row_count > 100 and null_rate(amount) < 0.05"
-"unique_count(status) <= 10"
-```
-
-!!! note
-    Rules are evaluated in a sandboxed environment with limited functions for security.
+For row-wise relationships and Python callables, use
+[Cross-column and custom checks](custom-checks.md).

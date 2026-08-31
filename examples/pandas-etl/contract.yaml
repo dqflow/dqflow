@@ -1,0 +1,15 @@
+name: orders
+columns:
+  order_id:
+    dtype: string
+    not_null: true
+    unique: true
+    pattern: "^A[0-9]{3}$"
+  amount:
+    dtype: float
+    min: 0
+  currency:
+    dtype: string
+    allowed: [USD, EUR]
+rules:
+  - row_count > 0

@@ -24,7 +24,11 @@ _OPS: dict[str, Callable[[Any, Any], Any]] = {
 
 
 class PolarsEngine(Engine):
-    """Validation engine for Polars DataFrames."""
+    """Execute contracts against Polars DataFrames or LazyFrames.
+
+    LazyFrames are currently collected before checks run, so validation is not
+    streaming or lazy yet.
+    """
 
     def validate(
         self,

@@ -21,7 +21,14 @@ def _to_native(obj: Any) -> Any:
 
 @dataclass
 class CheckResult:
-    """Result of a single validation check."""
+    """Represent one schema, column, table, or cross-column check.
+
+    Attributes:
+        name: Stable check identifier such as ``not_null:order_id``.
+        passed: Whether the check passed.
+        message: Human-readable failure detail; empty for passing checks.
+        details: Structured values useful for logs and reports.
+    """
 
     name: str
     passed: bool
@@ -31,23 +38,28 @@ class CheckResult:
 
 @dataclass
 class ValidationResult:
-    """Aggregated result of contract validation."""
+    """Aggregate all checks produced while validating one contract.
+
+    Attributes:
+        contract_name: Name of the validated contract.
+        checks: Checks in engine execution order.
+    """
 
     contract_name: str
     checks: list[CheckResult] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
-        """Return True if all checks passed."""
+        """Return whether every check passed."""
         return all(check.passed for check in self.checks)
 
     @property
     def failed_checks(self) -> list[CheckResult]:
-        """Return list of failed checks."""
+        """Return failed checks in execution order."""
         return [check for check in self.checks if not check.passed]
 
     def summary(self) -> str:
-        """Return human-readable summary."""
+        """Return a compact text summary including every failed check."""
         total = len(self.checks)
         passed = sum(1 for c in self.checks if c.passed)
         failed = total - passed
@@ -62,7 +74,7 @@ class ValidationResult:
         return "\n".join(lines)
 
     def to_dict(self) -> dict[str, Any]:
-        """Return JSON-serializable dict."""
+        """Return a JSON-serializable representation of this result."""
         return {
             "contract_name": self.contract_name,
             "ok": bool(self.ok),

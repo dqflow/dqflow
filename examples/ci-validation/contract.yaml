@@ -1,0 +1,17 @@
+name: users
+columns:
+  user_id:
+    dtype: string
+    not_null: true
+    unique: true
+    pattern: "^U[0-9]{3}$"
+  email:
+    dtype: string
+    not_null: true
+    pattern: "^[^@]+@[^@]+[.][^@]+$"
+  status:
+    dtype: string
+    allowed: [active, inactive]
+rules:
+  - row_count > 0
+  - "null_rate('email') == 0"

@@ -1,87 +1,69 @@
-# Defining Contracts
+# Defining contracts
 
-A **Contract** defines the expected shape and quality of your data.
-
-## Basic Contract
+A `Contract` defines required columns and quality checks for one dataset.
 
 ```python
-from dqflow import Contract, Column
+from dqflow import Column, Contract
 
 contract = Contract(
     name="orders",
+    description="Orders emitted by checkout",
     columns={
-        "order_id": Column(str, not_null=True),
-        "amount": Column(float, min=0),
-    },
-)
-```
-
-## Contract with Rules
-
-Add table-level rules:
-
-```python
-contract = Contract(
-    name="orders",
-    columns={
-        "order_id": Column(str, not_null=True),
+        "order_id": Column(str, not_null=True, unique=True),
         "amount": Column(float, min=0),
     },
     rules=[
         "row_count > 0",
-        "null_rate(amount) < 0.01",
+        "null_rate('amount') < 0.01",
     ],
+    metadata={"owner": "data-platform"},
 )
 ```
 
-## Contract with Metadata
+`dtype` is part of the declaration but is not checked yet. The current engines
+enforce column existence and the constraints listed in
+[Column validations](columns.md).
 
-```python
-contract = Contract(
-    name="orders",
-    description="E-commerce order data",
-    columns={...},
-    rules=[...],
-    metadata={
-        "owner": "data-team",
-        "source": "shopify",
-    },
-)
-```
-
-## Validating Data
+## Validate data
 
 ```python
 import pandas as pd
 
-df = pd.read_parquet("orders.parquet")
+df = pd.read_csv("orders.csv")
 result = contract.validate(df)
 
 if not result.ok:
-    print(result.summary())
-    raise Exception("Data quality check failed")
+    raise ValueError(result.summary())
 ```
 
-## Accessing Results
+The returned `ValidationResult` provides:
+
+- `ok`: whether every check passed;
+- `checks`: all `CheckResult` objects;
+- `failed_checks`: only failed checks;
+- `summary()`: human-readable text;
+- `to_dict()`: JSON-serializable output.
+
+## YAML contracts
 
 ```python
-# Boolean check
-result.ok  # True if all checks passed
+from dqflow import Contract
 
-# Summary string
-result.summary()
-
-# List of failed checks
-result.failed_checks
-
-# JSON-serializable dict
-result.to_dict()
-```
-
-## Loading from YAML
-
-```python
 contract = Contract.from_yaml("contracts/orders.yaml")
+contract.to_yaml("contracts/orders-copy.yaml")
 ```
 
-See [YAML Contracts](yaml.md) for more details.
+Use YAML for reviewable declarative contracts and Python when you need callable
+cross-column rules. See [YAML contracts](yaml.md).
+
+## Select an engine
+
+Pandas is the default. Polars is explicit:
+
+```python
+from dqflow.engines.polars import PolarsEngine
+
+result = contract.validate(polars_df, engine=PolarsEngine())
+```
+
+See [Choosing an engine](engines.md) for installation and current limitations.

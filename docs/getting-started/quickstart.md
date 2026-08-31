@@ -2,6 +2,11 @@
 
 This guide will help you validate your first DataFrame in under 5 minutes.
 
+!!! note
+    `dtype`, `freshness_minutes`, and `custom` are declarative fields that are not
+    enforced yet. Column existence, `not_null`, `min`, `max`, `allowed`, `unique`,
+    and regex `pattern` constraints are enforced.
+
 ## Basic Example
 
 ```python

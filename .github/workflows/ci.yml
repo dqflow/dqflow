@@ -77,3 +77,19 @@ jobs:
 
       - name: Run mypy
         run: mypy src/dqflow
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install documentation dependencies
+        run: pip install -e ".[docs,polars]"
+
+      - name: Build docs and reject warnings or broken links
+        run: mkdocs build --strict

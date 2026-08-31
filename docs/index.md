@@ -25,6 +25,10 @@ downstream.
 !!! warning "Early development (0.2.x)"
     The API is small and usable, but still changing.
 
+!!! note "Current enforcement boundary"
+    `dtype`, `freshness_minutes`, and `custom` can be declared but are not
+    validated by the engines yet. The `pattern` regex constraint is enforced.
+
 ## Workflow
 
 ```text
@@ -83,7 +87,7 @@ Failed checks:
 - **Pythonic.** Plain `Contract` / `Column` objects, or YAML. Validation returns a
   structured result object, not a stack trace.
 - **Fail fast, on purpose.** `result.ok` is a boolean; `dq validate --fail-fast`
-  returns a non-zero exit code.
+  evaluates every check and returns a non-zero exit code on validation failure.
 
 ## What's implemented
 
@@ -104,7 +108,8 @@ Failed checks:
 !!! note
     A `Column` accepts `dtype`, `freshness_minutes`, and `custom` today,
     and `dq show` / `dq infer` use the declared dtype — but the engines do **not** yet
-    validate data against them. See the [roadmap](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md).
+    validate data against them. Regex `pattern` constraints are enforced. See the
+    [roadmap](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md).
 
 ## When to use dqflow
 
@@ -120,7 +125,10 @@ Failed checks:
   files and exit codes, not a web app.
 - You need warehouse push-down or Spark-scale distributed validation (planned, not
   available).
-- You need dtype / regex / freshness enforced *today*.
+- You need dtype / freshness / `custom` enforcement *today*. Regex `pattern`
+  constraints are supported.
+- You need to execute contracts from untrusted sources; table-rule expressions
+  currently rely on Python `eval` with builtins removed.
 
 !!! quote
     dqflow is **not** a full data observability platform. It is a small, opinionated
@@ -135,4 +143,6 @@ Failed checks:
 - [Defining Contracts](guide/contracts.md)
 - [YAML Contracts](guide/yaml.md)
 - [CLI Usage](guide/cli.md)
+- [Validate in an ETL Pipeline](workflows/etl-pipeline.md)
+- [Gate a Pull Request](workflows/ci-pull-request.md)
 - [Roadmap](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md)

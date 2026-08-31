@@ -32,6 +32,19 @@ def infer_contract(
 
     The result describes only the supplied sample. Callers should review the
     generated constraints before treating them as a durable specification.
+
+    Args:
+        df: Source pandas DataFrame or representative sample.
+        name: Name for the inferred contract.
+        infer_ranges: Whether to infer observed numeric and datetime bounds.
+        max_allowed_cardinality: Maximum distinct string/category values that
+            can become an ``allowed`` constraint. Set to zero to disable it.
+
+    Returns:
+        A draft contract preserving source column order.
+
+    Raises:
+        ValueError: If ``max_allowed_cardinality`` is negative.
     """
     if max_allowed_cardinality < 0:
         raise ValueError("max_allowed_cardinality must be non-negative")
@@ -69,7 +82,16 @@ def inference_header(
     *,
     inferred_at: datetime | None = None,
 ) -> str:
-    """Build the provenance comment placed above an inferred YAML contract."""
+    """Build the provenance comment placed above an inferred YAML contract.
+
+    Args:
+        source: Human-readable source file name.
+        row_count: Number of observed rows.
+        inferred_at: Optional timestamp, primarily for deterministic output.
+
+    Returns:
+        Two lines of provenance and review guidance.
+    """
     timestamp = inferred_at or datetime.now().astimezone()
     safe_source = " ".join(source.splitlines())
     return (

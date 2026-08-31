@@ -1,0 +1,4 @@
+customer_id,tier,credit_limit
+C001,standard,1000
+C002,premium,5000
+C003,standard,2500

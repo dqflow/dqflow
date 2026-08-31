@@ -1,0 +1,15 @@
+name: events
+columns:
+  event_id:
+    dtype: string
+    not_null: true
+    unique: true
+    pattern: "^E[0-9]{3}$"
+  event_type:
+    dtype: string
+    allowed: [click, view]
+  duration_ms:
+    dtype: integer
+    min: 0
+rules:
+  - row_count > 0
