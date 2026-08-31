@@ -5,6 +5,17 @@ The complete release history lives in
 
 ## Unreleased
 
+## 0.3.0 — 2026-08-31
+
+- Added `dq diff` and `dqflow.diff.diff_contracts()` — compare two contract
+  versions and flag every change as breaking or non-breaking for data producers
+  (text / JSON output, CI exit code, a documented classification table, and a
+  runnable `examples/contract-diff` project).
+- Bumped the package version consistently (`dq --version` was stuck at `0.2.1`)
+  and removed stale re-exports from `dqflow.engines`.
+
+## 0.2.2 — 2026-08-31
+
 ### Added
 
 - Generated API reference for contracts, columns, results, engines, and inference

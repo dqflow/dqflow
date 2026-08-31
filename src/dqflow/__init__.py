@@ -6,7 +6,7 @@ from dqflow.diff import ContractChange, ContractDiff, diff_contracts
 from dqflow.inference import infer_contract
 from dqflow.result import ValidationResult
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __all__ = [
     "Column",
     "Contract",

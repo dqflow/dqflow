@@ -7,14 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-31
+
 ### Added
 - `dq diff OLD NEW` and `dqflow.diff.diff_contracts()` — compare two contract
   versions and classify every change as breaking or non-breaking for data
-  producers. Text and `--output json` output, a stable JSON schema, non-zero
-  exit on breaking changes with `--allow-breaking` to override, a docs page with
-  the classification table, and an `examples/contract-diff` project
+  producers. Text and `--output json` output, a stable JSON schema, a non-zero
+  exit on breaking changes with `--allow-breaking` to override, a documented
+  breaking-change classification table, and an `examples/contract-diff` project
 - `dqflow.contract.column_to_dict()` helper, shared by `Contract.to_yaml()` and
   the diff
+
+### Fixed
+- `dqflow.__version__` and `dq --version` still reported `0.2.1` after `0.2.2`
+  shipped; the package version is now bumped consistently across
+  `pyproject.toml` and `src/dqflow/__init__.py`
+- Removed the stale duplicate `__version__` and re-exports in `dqflow.engines`
 
 ## [0.2.2] - 2026-08-31
 

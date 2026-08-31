@@ -22,9 +22,6 @@ values, table-level rules — as a small, versionable contract, validate your da
 against it inside the pipeline, and stop bad data *before* it reaches anything
 downstream.
 
-!!! warning "Early development (0.2.x)"
-    The API is small and usable, but still changing.
-
 !!! note "Current enforcement boundary"
     `dtype`, `freshness_minutes`, and `custom` can be declared but are not
     validated by the engines yet. The `pattern` regex constraint is enforced.
