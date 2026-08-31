@@ -39,13 +39,17 @@ failed checks rather than escaping as exceptions.
 
 ## Safety model
 
-The pandas and Polars engines currently call Python `eval` with builtins removed
-and expose only the three names above. This reduces the available surface but is
-not a security boundary for untrusted input.
+Rule expressions are parsed with `ast` and evaluated by
+`dqflow.rules.evaluate_rule` — one shared evaluator for every engine — which
+walks a strict whitelist of nodes: the three names above, numeric and string
+literals, `and` / `or` / `not`, arithmetic, and comparisons. There is **no
+`eval`**, no attribute access, no indexing, no builtins, and no calls other than
+`null_rate()` / `unique_count()` with a string-literal column name. Anything else
+raises and the check fails with `Failed to evaluate rule: ...`.
 
-Only run rule expressions from contracts you trust. Do not accept arbitrary YAML
-contracts from users or third parties. A dedicated central evaluator is tracked
-in [#18](https://github.com/dqflow/dqflow/issues/18).
+This is a much smaller surface than `eval`, but it is still not a security
+boundary: only run rule expressions from contracts you trust. Do not accept
+arbitrary YAML contracts from users or third parties.
 
 For row-wise relationships and Python callables, use
 [Cross-column and custom checks](custom-checks.md).

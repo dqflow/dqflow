@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `dqflow.rules.evaluate_rule` — one shared table-rule evaluator for every
+  engine. Expressions are parsed with `ast` and run through a strict node
+  whitelist (`row_count`, `null_rate()`, `unique_count()`, literals, boolean and
+  arithmetic operators, comparisons); **`eval` is gone** from the pandas and
+  Polars engines ([#18](https://github.com/dqflow/dqflow/issues/18))
 - `dqflow.spec.ValidationSpec` — the engine-agnostic intermediate representation
   a contract compiles to. `Contract.validate()` compiles once via
   `ValidationSpec.from_contract()`; the pandas and Polars engines now execute the

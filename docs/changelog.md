@@ -5,6 +5,9 @@ The complete release history lives in
 
 ## Unreleased
 
+- `dqflow.rules.evaluate_rule` — a single whitelisted-AST evaluator for table
+  rules shared by every engine; the pandas and Polars engines no longer call
+  `eval` ([#18](https://github.com/dqflow/dqflow/issues/18)).
 - `dqflow.spec.ValidationSpec` — contracts compile to an engine-agnostic
   intermediate representation, and the pandas and Polars engines execute that
   spec rather than reading `Column` objects
