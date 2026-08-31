@@ -13,6 +13,7 @@ import pandas as pd
 
 from dqflow import __version__
 from dqflow.contract import Contract
+from dqflow.diff import diff_contracts
 from dqflow.inference import infer_contract, inference_header
 
 
@@ -50,6 +51,37 @@ def validate(contract: Path, data: Path, output: str, fail_fast: bool) -> None:
         click.echo(result.summary())
 
     if fail_fast and not result.ok:
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("old", type=click.Path(exists=True, path_type=Path))
+@click.argument("new", type=click.Path(exists=True, path_type=Path))
+@click.option("--output", "-o", type=click.Choice(["text", "json"]), default="text")
+@click.option(
+    "--allow-breaking",
+    is_flag=True,
+    help="Exit 0 even when breaking changes are present.",
+)
+def diff(old: Path, new: Path, output: str, allow_breaking: bool) -> None:
+    """Compare two contract versions and classify each change.
+
+    OLD: Path to the previous contract YAML file
+
+    NEW: Path to the updated contract YAML file
+
+    Each difference is classified as breaking (stricter, may reject data that
+    used to pass) or non-breaking (looser or additive) for data producers.
+    Exits 1 when breaking changes are present unless --allow-breaking is given.
+    """
+    result = diff_contracts(Contract.from_yaml(old), Contract.from_yaml(new))
+
+    if output == "json":
+        click.echo(json.dumps(result.to_dict(), indent=2))
+    else:
+        click.echo(result.render_text())
+
+    if result.has_breaking and not allow_breaking:
         sys.exit(1)
 
 

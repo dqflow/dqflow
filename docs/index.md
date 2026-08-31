@@ -99,11 +99,12 @@ Failed checks:
 | Table rules — `row_count`, `null_rate('col')`, `unique_count('col')` | ✅ Implemented |
 | Cross-column rules — `left`/`op`/`right` or a callable | ✅ Implemented |
 | Structured results — `.ok`, `.failed_checks`, `.summary()`, `.to_dict()` | ✅ Implemented |
-| CLI — `dq validate` / `dq show` / `dq infer` | ✅ Implemented |
+| CLI — `dq validate` / `dq show` / `dq infer` / `dq diff` | ✅ Implemented |
+| Contract diff — breaking / non-breaking classification, JSON, CI exit code | ✅ Implemented |
 | pandas engine | ✅ Implemented |
 | Polars engine (`dqflow[polars]`) | 🧪 Experimental |
 | Declared `dtype` / `freshness_minutes` / `custom` enforcement | 🔜 Not yet enforced |
-| PySpark & SQL engines, `dq diff`, GitHub Action, HTML reports | 🔜 Planned |
+| PySpark & SQL engines, GitHub Action, HTML reports | 🔜 Planned |
 
 !!! note
     A `Column` accepts `dtype`, `freshness_minutes`, and `custom` today,
@@ -143,6 +144,7 @@ Failed checks:
 - [Defining Contracts](guide/contracts.md)
 - [YAML Contracts](guide/yaml.md)
 - [CLI Usage](guide/cli.md)
+- [Diffing Contracts](guide/diff.md)
 - [Validate in an ETL Pipeline](workflows/etl-pipeline.md)
 - [Gate a Pull Request](workflows/ci-pull-request.md)
 - [Roadmap](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md)

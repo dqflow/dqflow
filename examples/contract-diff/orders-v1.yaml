@@ -1,0 +1,18 @@
+name: orders
+description: E-commerce orders contract (v1)
+
+columns:
+  order_id:
+    dtype: string
+    not_null: true
+
+  amount:
+    dtype: float
+    min: 0
+
+  currency:
+    dtype: string
+    allowed: [USD, EUR]
+
+rules:
+  - row_count > 0

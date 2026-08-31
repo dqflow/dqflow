@@ -1,0 +1,21 @@
+name: orders
+description: E-commerce orders contract (v2)
+
+columns:
+  order_id:
+    dtype: string
+    not_null: true
+
+  amount:
+    dtype: float
+    min: 1  # breaking: stricter lower bound
+
+  currency:
+    dtype: string
+    allowed: [USD, EUR, GBP]  # non-breaking: widened allowed set
+
+  discount:
+    dtype: float  # non-breaking: new nullable column
+
+rules:
+  - row_count > 0
