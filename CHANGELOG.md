@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `dq validate` text output is now grouped (schema / columns / table rules /
+  cross-column rules) with per-group pass/fail counts, a failure rate per check,
+  and a bounded sample of the offending values. Colour is used on a TTY and
+  disabled when piped or when `NO_COLOR` is set; `--color` / `--no-color`
+  overrides the detection ([#38](https://github.com/dqflow/dqflow/issues/38))
+- `dq validate --quiet` (only failures) and `--verbose` (every check)
+- `dqflow.report.render_result()` — the text renderer, a standalone presentation
+  layer with no engine dependencies
+- Failing `CheckResult.details` now carry `null_rate`, `violating_rows`,
+  `violating_rate`, `failing_rate`, `sample_invalid_values`,
+  `sample_duplicate_values`, and `invalid_value_count` where applicable
+
+### Changed
+- Engine `message` strings now always name the column and the expectation
+  (e.g. `Column 'amount' has 2 values below the minimum 0`). The top-level
+  `--output json` schema is unchanged; only `details` gained fields
+
 ## [0.3.0] - 2026-08-31
 
 ### Added

@@ -16,6 +16,7 @@ pip install "dqflow[parquet]"  # adds pyarrow
 
 ```bash
 dq validate CONTRACT DATA [--output text|json] [--fail-fast]
+             [--quiet | --verbose] [--color | --no-color]
 ```
 
 Supported extensions are `.csv`, `.json`, and—after installing the extra—
@@ -31,6 +32,41 @@ Without `--fail-fast`, a completed validation command exits `0` even when checks
 fail; inspect the text or JSON result. With `--fail-fast`, the command still
 evaluates and prints **all** checks, then exits `1` when the result is not OK. The
 option does not short-circuit at the first failure.
+
+### Text output
+
+The default renderer groups checks into **schema**, **columns**, **table rules**,
+and **cross-column rules**, shows per-group pass/fail counts, and appends a
+failure rate and a bounded sample of offending values to each failing check.
+
+```console
+$ dq validate contracts/orders.yaml data/orders.csv
+orders · 5 of 8 checks failed on 4 rows
+
+  Schema  3/3 passed
+
+  Columns  4/4 failed
+    order_id  ✘ not_null  has 1 null value (25.0%)
+              ✘ unique    has 2 non-unique values (50.0%)  ·  e.g. 'A001'
+    amount    ✘ min       has 1 value below the minimum 0 (25.0%)
+    currency  ✘ allowed   has 1 value outside the allowed set (25.0%)  ·  e.g. 'GBP'
+
+  Table rules  1/1 failed
+    ✘ null_rate('order_id') == 0
+
+  3 passed · 5 failed
+```
+
+- `-q` / `--quiet` prints only failing checks (plus the summary line).
+- `-v` / `--verbose` prints every check, passing ones included.
+- Colour is used on a TTY and suppressed when the output is piped or when the
+  `NO_COLOR` environment variable is set. `--color` / `--no-color` overrides the
+  detection.
+
+`--output json` is unaffected by these flags. Its schema is unchanged; failing
+checks now carry extra `details` keys (`null_rate`, `violating_rows`,
+`violating_rate`, `sample_invalid_values`, `sample_duplicate_values`,
+`failing_rate`).
 
 ## `dq diff`
 

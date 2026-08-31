@@ -5,6 +5,13 @@ The complete release history lives in
 
 ## Unreleased
 
+- Grouped, colourised `dq validate` text output with per-check failure rates and
+  a bounded sample of the offending values, plus `--quiet` / `--verbose` /
+  `--color` flags and a standalone `dqflow.report.render_result()` renderer.
+- Engine `message` strings now always name the column and the expectation;
+  failing `CheckResult.details` gained rate and sample fields. The top-level
+  `--output json` schema is unchanged.
+
 ## 0.3.0 — 2026-08-31
 
 - Added `dq diff` and `dqflow.diff.diff_contracts()` — compare two contract

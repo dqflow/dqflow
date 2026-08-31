@@ -70,9 +70,9 @@ if not result.ok:
 ```text
 Contract 'orders': 5/8 checks passed
 Failed checks:
-  - not_null:order_id: Found 1 null values
-  - min:amount: Minimum value -5.0 is below 0
-  - allowed:currency: Found invalid values: {'GBP'}
+  - not_null:order_id: Column 'order_id' has 1 null value
+  - min:amount: Column 'amount' has 1 value below the minimum 0
+  - allowed:currency: Column 'currency' has 1 value outside the allowed set
 ```
 
 ## Why dqflow

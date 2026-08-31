@@ -15,6 +15,7 @@ from dqflow import __version__
 from dqflow.contract import Contract
 from dqflow.diff import diff_contracts
 from dqflow.inference import infer_contract, inference_header
+from dqflow.report import Verbosity, render_result, resolve_color
 
 
 @click.group()
@@ -29,26 +30,49 @@ def main() -> None:
 @click.argument("data", type=click.Path(exists=True, path_type=Path))
 @click.option("--output", "-o", type=click.Choice(["text", "json"]), default="text")
 @click.option("--fail-fast", is_flag=True, help="Exit with error code on validation failure")
-def validate(contract: Path, data: Path, output: str, fail_fast: bool) -> None:
+@click.option("-q", "--quiet", is_flag=True, help="Print only failing checks.")
+@click.option("-v", "--verbose", is_flag=True, help="Print every check with its samples.")
+@click.option(
+    "--color/--no-color",
+    "color",
+    default=None,
+    help="Force or disable coloured output (default: colour on a TTY).",
+)
+def validate(
+    contract: Path,
+    data: Path,
+    output: str,
+    fail_fast: bool,
+    quiet: bool,
+    verbose: bool,
+    color: bool | None,
+) -> None:
     """Validate DATA against CONTRACT.
 
     CONTRACT: Path to contract YAML file
     DATA: Path to data file (parquet, csv, json)
     """
-    # Load contract
+    if quiet and verbose:
+        raise click.UsageError("Pass at most one of --quiet and --verbose.")
+
     c = Contract.from_yaml(contract)
-
-    # Load data based on extension
     df = _load_dataframe(data)
-
-    # Validate
     result = c.validate(df)
 
-    # Output results
     if output == "json":
         click.echo(json.dumps(result.to_dict(), indent=2))
     else:
-        click.echo(result.summary())
+        if quiet:
+            verbosity = Verbosity.QUIET
+        elif verbose:
+            verbosity = Verbosity.VERBOSE
+        else:
+            verbosity = Verbosity.NORMAL
+        use_color = resolve_color(color, isatty=sys.stdout.isatty())
+        click.echo(
+            render_result(result, row_count=len(df), verbosity=verbosity, color=use_color),
+            color=use_color,
+        )
 
     if fail_fast and not result.ok:
         sys.exit(1)
