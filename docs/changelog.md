@@ -5,6 +5,9 @@ The complete release history lives in
 
 ## Unreleased
 
+- `dqflow.cache.StatsCache` — a shared, lazy, memoized cache for the statistics
+  table rules use; each engine supplies three primitives and a column is scanned
+  at most once ([#21](https://github.com/dqflow/dqflow/issues/21)).
 - `dqflow.rules.evaluate_rule` — a single whitelisted-AST evaluator for table
   rules shared by every engine; the pandas and Polars engines no longer call
   `eval` ([#18](https://github.com/dqflow/dqflow/issues/18)).

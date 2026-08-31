@@ -305,6 +305,7 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
       ▼
   ValidationSpec    ✓                  contract compiled to a shared IR
   dqflow.rules      ✓                  one AST rule evaluator, no eval
+  StatsCache        ✓                  shared lazy column-stats cache
   ExecutionContext  … (in progress)    runtime knobs, issue #15
       │
       ▼
@@ -316,9 +317,10 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 ```
 
 Today the flow is `Contract → engine (pandas / Polars) → ValidationResult`.
-`Contract.validate()` compiles the contract to a shared `ValidationSpec`, and rule
-expressions run through the shared `dqflow.rules` evaluator (no `eval`). A per-engine
-stats cache and an `ExecutionContext` are the layers still being extracted — see
+`Contract.validate()` compiles the contract to a shared `ValidationSpec`, rule
+expressions run through the shared `dqflow.rules` evaluator (no `eval`), and
+table-rule statistics come from a shared lazy `StatsCache`. An `ExecutionContext`
+for runtime knobs is the layer still being extracted — see
 [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) (issues #15–#21).
 
 ## Supported engines

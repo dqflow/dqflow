@@ -9,6 +9,7 @@ from typing import Any
 
 import pandas as pd
 
+from dqflow.cache import StatsCache
 from dqflow.contract import Contract
 from dqflow.engines.base import (
     SAMPLE_LIMIT,
@@ -40,18 +41,35 @@ _OPS: dict[str, Callable[[Any, Any], Any]] = {
 }
 
 
+class PandasStatsCache(StatsCache):
+    """:class:`~dqflow.cache.StatsCache` backed by a pandas DataFrame."""
+
+    def __init__(self, df: pd.DataFrame) -> None:
+        super().__init__(df.columns)
+        self._df = df
+
+    def _compute_row_count(self) -> int:
+        return len(self._df)
+
+    def _compute_null_count(self, column: str) -> int:
+        return int(self._df[column].isna().sum())
+
+    def _compute_unique_count(self, column: str) -> int:
+        return int(self._df[column].nunique(dropna=False))
+
+
 class _Run:
     """Per-``validate`` state: the frame plus a lazily built stats cache."""
 
     def __init__(self, df: pd.DataFrame) -> None:
         self.df = df
         self.columns = set(df.columns)
-        self._stats: dict[str, dict[str, float | int]] | None = None
+        self._stats: StatsCache | None = None
 
     @property
-    def stats(self) -> dict[str, dict[str, float | int]]:
+    def stats(self) -> StatsCache:
         if self._stats is None:
-            self._stats = _compute_stats_cache(self.df)
+            self._stats = PandasStatsCache(self.df)
         return self._stats
 
 
@@ -239,13 +257,13 @@ class PandasEngine(Engine):
 
     def _check_rule(self, run: _Run, check: CheckSpec) -> CheckResult:
         expression = check.params["expression"]
-        cache = run.stats
+        stats = run.stats
         try:
             passed = evaluate_rule(
                 expression,
-                row_count=len(run.df),
-                null_rate=lambda c: float(cache.get(c, {}).get("null_rate", 0.0)),
-                unique_count=lambda c: cache.get(c, {}).get("unique_count", 0),
+                row_count=stats.row_count,
+                null_rate=stats.null_rate,
+                unique_count=stats.unique_count,
             )
         except Exception as exc:  # noqa: BLE001 - evaluation errors become failed checks
             return CheckResult(name=check.name, passed=False, message=rule_error_message(exc))
@@ -289,23 +307,6 @@ class PandasEngine(Engine):
                 "failing_rate": rate(failing_rows, len(df)),
             },
         )
-
-    def _build_stats_cache(self, df: pd.DataFrame) -> dict[str, dict[str, float | int]]:
-        """Backward-compatible alias for :func:`_compute_stats_cache` (issue #21)."""
-        return _compute_stats_cache(df)
-
-
-def _compute_stats_cache(df: pd.DataFrame) -> dict[str, dict[str, float | int]]:
-    """Build the per-column statistics used by table-rule expressions."""
-    row_count = len(df)
-    return {
-        column: {
-            "null_rate": float(df[column].isna().mean()),
-            "unique_count": int(df[column].nunique(dropna=False)),
-            "row_count": row_count,
-        }
-        for column in df.columns
-    }
 
 
 def _result_value(value: Any) -> float | int | str | None:

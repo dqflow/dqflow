@@ -57,4 +57,7 @@ enforces declared dtype, freshness, or `Column.custom`.
 Engines do not read `Column` objects directly. `Contract.validate()` first
 compiles the contract into an engine-agnostic
 [`ValidationSpec`](../api/spec.md) — an ordered list of checks — and every engine
-executes that same spec. A new engine only implements spec execution.
+executes that same spec. Table-rule expressions run through the shared
+[`dqflow.rules`](../api/rules.md) evaluator, and their statistics come from a
+shared lazy [`StatsCache`](../api/cache.md). A new engine only implements spec
+execution plus three cache primitives.
