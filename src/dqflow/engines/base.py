@@ -32,20 +32,22 @@ class Engine(ABC):
         ...
 
 
-def sample_values(values: Iterable[Any], limit: int = SAMPLE_LIMIT) -> list[Any]:
-    """Return up to ``limit`` distinct values in a deterministic, JSON-safe order.
+def sorted_values(values: Iterable[Any], *, limit: int | None = None) -> list[Any]:
+    """Return the distinct ``values`` in a deterministic, JSON-safe order.
 
-    Engines call this to attach a bounded sample of offending values to a
-    :class:`~dqflow.result.CheckResult` so the CLI can show *which* values failed
-    a check. Sorting keeps pandas and Polars output identical; values that are
-    not mutually comparable fall back to ``repr`` order.
+    Engines call this so the offending-value lists they attach to a
+    :class:`~dqflow.result.CheckResult` are identical across pandas and Polars
+    (their raw ``set`` iteration order is not). Values that are not mutually
+    comparable fall back to ``repr`` order; ``limit`` bounds the result.
     """
     distinct = list(dict.fromkeys(values))
     try:
         distinct.sort()
     except TypeError:
         distinct.sort(key=repr)
-    return [v.item() if hasattr(v, "item") else v for v in distinct[:limit]]
+    if limit is not None:
+        distinct = distinct[:limit]
+    return [v.item() if hasattr(v, "item") else v for v in distinct]
 
 
 def rate(count: int, total: int) -> float:

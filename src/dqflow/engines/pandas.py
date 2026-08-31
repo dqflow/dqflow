@@ -11,7 +11,7 @@ import pandas as pd
 
 from dqflow.column import Column, CrossColumnRule
 from dqflow.contract import Contract
-from dqflow.engines.base import Engine, count_noun, rate, sample_values
+from dqflow.engines.base import SAMPLE_LIMIT, Engine, count_noun, rate, sorted_values
 from dqflow.result import CheckResult, ValidationResult
 
 _OPS: dict[str, Callable[[Any, Any], Any]] = {
@@ -172,8 +172,8 @@ class PandasEngine(Engine):
 
         if col_def.allowed is not None:
             invalid = set(series.dropna().unique()) - set(col_def.allowed)
-            sample = sample_values(invalid)
-            violating = int(series.isin(list(invalid)).sum())
+            invalid_values = sorted_values(invalid)
+            violating = int(series.isin(invalid_values).sum())
 
             checks.append(
                 CheckResult(
@@ -186,8 +186,8 @@ class PandasEngine(Engine):
                         else ""
                     ),
                     details={
-                        "invalid_values": list(invalid),
-                        "sample_invalid_values": sample,
+                        "invalid_values": invalid_values,
+                        "sample_invalid_values": invalid_values[:SAMPLE_LIMIT],
                         "invalid_value_count": len(invalid),
                         "violating_rows": violating,
                         "violating_rate": rate(violating, total),
@@ -198,7 +198,7 @@ class PandasEngine(Engine):
         if col_def.unique:
             duplicated_mask = series.dropna().duplicated(keep=False)
             duplicate_count = int(duplicated_mask.sum())
-            sample = sample_values(series.dropna()[duplicated_mask])
+            sample = sorted_values(series.dropna()[duplicated_mask], limit=SAMPLE_LIMIT)
 
             checks.append(
                 CheckResult(
@@ -221,7 +221,7 @@ class PandasEngine(Engine):
             non_null = series.dropna().astype("string")
             mismatch_mask = ~non_null.str.fullmatch(col_def.pattern, na=False)
             invalid_count = int(mismatch_mask.sum())
-            sample = sample_values(non_null[mismatch_mask])
+            sample = sorted_values(non_null[mismatch_mask], limit=SAMPLE_LIMIT)
 
             checks.append(
                 CheckResult(

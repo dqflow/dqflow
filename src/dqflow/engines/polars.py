@@ -10,7 +10,7 @@ import polars as pl
 
 from dqflow.column import Column, CrossColumnRule
 from dqflow.contract import Contract
-from dqflow.engines.base import Engine, count_noun, rate, sample_values
+from dqflow.engines.base import SAMPLE_LIMIT, Engine, count_noun, rate, sorted_values
 from dqflow.result import CheckResult, ValidationResult
 
 _OPS: dict[str, Callable[[Any, Any], Any]] = {
@@ -154,8 +154,8 @@ class PolarsEngine(Engine):
         # ALLOWED VALUES
         if col_def.allowed is not None:
             invalid = set(series.drop_nulls().unique().to_list()) - set(col_def.allowed)
-            sample = sample_values(invalid)
-            violating = int(series.is_in(list(invalid)).sum())
+            invalid_values = sorted_values(invalid)
+            violating = int(series.is_in(invalid_values).sum())
 
             checks.append(
                 CheckResult(
@@ -168,8 +168,8 @@ class PolarsEngine(Engine):
                         else ""
                     ),
                     details={
-                        "invalid_values": list(invalid),
-                        "sample_invalid_values": sample,
+                        "invalid_values": invalid_values,
+                        "sample_invalid_values": invalid_values[:SAMPLE_LIMIT],
                         "invalid_value_count": len(invalid),
                         "violating_rows": violating,
                         "violating_rate": rate(violating, total),
@@ -182,7 +182,7 @@ class PolarsEngine(Engine):
             non_null = series.drop_nulls()
             duplicated_mask = non_null.is_duplicated()
             duplicate_count = int(duplicated_mask.sum())
-            sample = sample_values(non_null.filter(duplicated_mask).to_list())
+            sample = sorted_values(non_null.filter(duplicated_mask).to_list(), limit=SAMPLE_LIMIT)
 
             checks.append(
                 CheckResult(
@@ -205,7 +205,7 @@ class PolarsEngine(Engine):
             non_null = series.drop_nulls().cast(pl.String)
             mismatch_mask = ~non_null.str.contains(col_def.pattern)
             invalid_count = int(mismatch_mask.sum())
-            sample = sample_values(non_null.filter(mismatch_mask).to_list())
+            sample = sorted_values(non_null.filter(mismatch_mask).to_list(), limit=SAMPLE_LIMIT)
 
             checks.append(
                 CheckResult(

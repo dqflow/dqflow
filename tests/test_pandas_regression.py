@@ -235,6 +235,8 @@ def test_failing_checks_carry_samples_and_rates() -> None:
     assert checks["min:amount"].details["violating_rate"] == 0.5
     assert checks["min:amount"].message == "Column 'amount' has 2 values below the minimum 0"
     assert checks["allowed:currency"].details["sample_invalid_values"] == ["GBP", "JPY"]
+    # invalid_values is sorted, so pandas and Polars agree regardless of hash seed.
+    assert checks["allowed:currency"].details["invalid_values"] == ["GBP", "JPY"]
     assert checks["allowed:currency"].details["violating_rows"] == 2
     assert checks["unique:order_id"].details["sample_duplicate_values"] == ["A1"]
 
