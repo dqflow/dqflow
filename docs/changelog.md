@@ -1,47 +1,33 @@
 # Changelog
 
-All notable changes to dqflow are documented here.
+The complete release history lives in
+[`CHANGELOG.md`](https://github.com/dqflow/dqflow/blob/main/CHANGELOG.md).
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
+## Unreleased
 
 ### Added
-- `unique` constraint on `Column` to enforce no duplicate values
-- `pattern` constraint on `Column` for regex-based string format validation
 
-## [0.1.3] - 2025-01-31
-
-### Added
-- GitHub Actions CI/CD pipeline
-- Automated PyPI publishing on release
-- README badges (PyPI, CI, Python versions, License)
-- RELEASING.md guide
-- Pre-commit hooks
-- Documentation site with MkDocs
+- Generated API reference for contracts, columns, results, engines, and inference
+- Task-oriented workflow guides and four runnable example projects
+- Strict documentation builds in CI and a contributor setup script
+- Optional `parquet` extra for CLI Parquet input
 
 ### Fixed
-- JSON serialization for numpy boolean types in `to_dict()`
 
-## [0.1.2] - 2025-01-31
+- Documentation now distinguishes the enforced `pattern` check from descriptive
+  `dtype`, `freshness_minutes`, and `custom` fields
+- Rule syntax, evaluator safety, and `--fail-fast` behavior are documented
+  according to the current implementation
 
-### Changed
-- Updated GitHub repository URLs
+## 0.2.1 — 2026-08-28
 
-## [0.1.1] - 2025-01-31
+- Fixed README and docs rendering on PyPI.
+- Replaced diagrams that did not render consistently.
+- Corrected project links and the PyPI badge.
 
-### Changed
-- Updated GitHub repository URLs
+## 0.2.0 — 2026-08-28
 
-## [0.1.0] - 2025-01-31
-
-### Added
-- Initial release
-- Contract-as-code with Python API
-- YAML contract support
-- Column-level validations: not_null, min, max, allowed values, freshness
-- Table-level rules: row_count, null_rate, unique_count, duplicate_rate
-- Pandas validation engine
-- CLI commands: `dq validate`, `dq show`, `dq infer`
-- Structured validation results with JSON output
+- Added the experimental Polars engine and cross-column rules.
+- Added `unique`, `pattern`, `unique_count()`, contract inference improvements,
+  benchmarks, the roadmap, and the redesigned project documentation.
+- Standardized the engine interface and structured output parity.

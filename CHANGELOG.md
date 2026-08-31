@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Generated API reference for contracts, columns, results, engines, and inference
+- Task-oriented guides and four self-contained runnable example projects
+- Strict MkDocs build in CI and a contributor setup script
+- Optional `parquet` extra for CLI Parquet input
+
+### Fixed
+- README and docs now distinguish enforced `pattern` checks from the currently
+  descriptive `dtype`, `freshness_minutes`, and `custom` fields
+- Documented the current table-rule evaluator safety boundary and exact
+  `--fail-fast` behavior
+- Removed stale rule examples and corrected table-rule column syntax
+
 ## [0.2.1] - 2026-08-28
 
 ### Fixed
@@ -41,8 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pinned CI `ruff` to match `.pre-commit-config.yaml`
 
 ### Notes
-- `Column` accepts `dtype`, `freshness_minutes`, `pattern`, and `custom`, but the
-  engines do not yet validate data against them
+- `Column` accepts `dtype`, `freshness_minutes`, and `custom`, but the engines do
+  not yet validate data against them; `pattern` is enforced
 
 ## [0.1.3] - 2025-01-31
 

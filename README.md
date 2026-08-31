@@ -72,9 +72,15 @@ pip install dqflow
 
 # optional, experimental Polars engine
 pip install "dqflow[polars]"
+
+# optional, required for Parquet files in the CLI
+pip install "dqflow[parquet]"
 ```
 
 Requires Python 3.9+.
+
+> `dtype`, `freshness_minutes`, and `custom` can be declared on a `Column`, but
+> are not enforced by the validation engines yet. `pattern` **is** enforced.
 
 ## 30-second Quick Start
 
@@ -167,9 +173,11 @@ Failed checks:
   - cross_column:shipped_after_created: shipped_at must not precede created_at
 ```
 
-Rule expressions run in a restricted evaluator. The available names are
+Rule expressions expose the names
 `row_count`, `null_rate('column')`, and `unique_count('column')` — column names are
-passed as strings; arbitrary Python is not allowed.
+passed as strings. The current engines evaluate these expressions with Python
+`eval` after removing builtins; do not load contracts from untrusted sources. A
+dedicated evaluator is tracked in [#18](https://github.com/dqflow/dqflow/issues/18).
 
 ## YAML contract
 
@@ -227,6 +235,10 @@ dq show contracts/orders.yaml
 dq infer data/orders.csv contracts/orders.yaml --sample 100000
 ```
 
+`--fail-fast` evaluates the complete contract, prints all failed checks, and then
+returns exit code `1` when validation fails. It does not stop after the first
+failed check. Parquet input requires `dqflow[parquet]`.
+
 Given `data/orders.csv` where `order_id` has a duplicate and a null, `amount` has a
 negative value, and `currency` contains `GBP`:
 
@@ -264,7 +276,8 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 
 > A `Column` accepts `dtype`, `freshness_minutes`, and `custom` today, and
 > `dq show` / `dq infer` use the declared dtype — but the engines do **not** yet check
-> data against them. Treat those fields as documentation until the roadmap catches up.
+> data against them. Regex `pattern` constraints are enforced. Treat the other
+> fields as documentation until the roadmap catches up.
 
 ## Architecture
 
@@ -305,6 +318,46 @@ from dqflow.engines.polars import PolarsEngine
 result = contract.validate(polars_df, engine=PolarsEngine())
 ```
 
+## Runnable examples
+
+The [`examples/`](https://github.com/dqflow/dqflow/tree/main/examples) directory
+contains four self-contained projects. Each one includes sample data, a contract,
+a runnable script, and its own README.
+
+| Example | What it demonstrates | Install |
+| --- | --- | --- |
+| [pandas ETL](https://github.com/dqflow/dqflow/tree/main/examples/pandas-etl) | Validate transformed orders before publishing downstream | `pip install dqflow` |
+| [Polars pipeline](https://github.com/dqflow/dqflow/tree/main/examples/polars-pipeline) | Validate a Polars `LazyFrame` with the experimental engine | `pip install "dqflow[polars]"` |
+| [CI validation](https://github.com/dqflow/dqflow/tree/main/examples/ci-validation) | Turn a failed YAML contract into a non-zero CI exit code | `pip install dqflow` |
+| [Infer and refine](https://github.com/dqflow/dqflow/tree/main/examples/infer-refine) | Infer a draft, replace observed bounds with business rules, and validate it | `pip install dqflow` |
+
+Run them from the repository root:
+
+```bash
+python examples/pandas-etl/pipeline.py
+python examples/polars-pipeline/pipeline.py
+python examples/ci-validation/validate.py
+python examples/infer-refine/infer_and_validate.py
+```
+
+Expected output:
+
+```text
+Contract 'orders': 9/9 checks passed
+published 3 valid orders
+
+Contract 'events': 9/9 checks passed
+validated 3 Polars rows
+
+Contract 'users': 11/11 checks passed
+
+Contract 'customers': 12/12 checks passed
+reviewed the inferred draft and validated the curated contract
+```
+
+All four scripts are also exercised by
+[`tests/test_examples.py`](https://github.com/dqflow/dqflow/blob/main/tests/test_examples.py).
+
 ## When to use dqflow
 
 - You have Python data pipelines — Airflow, Dagster, Prefect, dbt-adjacent scripts,
@@ -322,10 +375,11 @@ result = contract.validate(polars_df, engine=PolarsEngine())
 - You need to push checks down to a warehouse table without loading it (SQL engine is
   planned, not available).
 - You need Spark-scale distributed validation (PySpark engine is planned).
-- You need dtype conformance, regex, or freshness enforced *today* — those fields are
-  declared but not yet checked.
-- Your checks need arbitrary Python at validation time — rule expressions are
-  deliberately sandboxed.
+- You need dtype conformance, freshness, or `custom` column functions enforced
+  *today* — those fields are declared but not yet checked. Regex `pattern` checks
+  are enforced.
+- You need to execute contracts from untrusted sources — the current rule evaluator
+  removes builtins but still relies on Python `eval`.
 
 > **dqflow is not a full data observability platform.** It is a small, opinionated
 > library meant to be embedded directly into pipelines. Where richer tooling is

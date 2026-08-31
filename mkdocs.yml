@@ -36,13 +36,21 @@ nav:
       - Defining Contracts: guide/contracts.md
       - Column Validations: guide/columns.md
       - Table Rules: guide/rules.md
+      - Cross-column & Custom Checks: guide/custom-checks.md
       - YAML Contracts: guide/yaml.md
       - CLI Usage: guide/cli.md
       - Inferring Contracts: guide/inference.md
+      - Choosing an Engine: guide/engines.md
+  - Workflows:
+      - Validate in an ETL Pipeline: workflows/etl-pipeline.md
+      - Gate a Pull Request: workflows/ci-pull-request.md
+      - Infer and Refine a Contract: workflows/infer-refine.md
   - API Reference:
       - Contract: api/contract.md
-      - Column: api/column.md
-      - ValidationResult: api/result.md
+      - Column & CrossColumnRule: api/column.md
+      - Results: api/result.md
+      - Engines: api/engines.md
+      - Inference: api/inference.md
   - Changelog: changelog.md
   - Contributing: contributing.md
 
@@ -61,6 +69,15 @@ markdown_extensions:
 
 plugins:
   - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            members_order: source
+            show_root_heading: true
+            show_source: false
+            signature_crossrefs: true
 
 extra:
   social:

@@ -1,0 +1,4 @@
+event_id,event_type,duration_ms
+E001,click,18
+E002,view,42
+E003,click,7

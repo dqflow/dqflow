@@ -41,7 +41,18 @@ def _ensure_column(col_def: Any) -> Column:
 
 @dataclass
 class Contract:
-    """Data quality contract defining expectations for a dataset."""
+    """Define and execute data-quality expectations for a dataset.
+
+    Attributes:
+        name: Contract name included in validation results.
+        columns: Mapping of required column names to column definitions. Plain
+            types and dictionaries are normalized to :class:`Column` objects.
+        rules: Table-rule expressions using ``row_count``, ``null_rate()``, and
+            ``unique_count()``.
+        cross_column_rules: Structured or callable row-wise rules.
+        description: Human-readable contract description.
+        metadata: User-defined metadata stored with the Python contract.
+    """
 
     name: str
     columns: dict[str, Column] = field(default_factory=dict)
@@ -55,7 +66,16 @@ class Contract:
         self.columns = {name: _ensure_column(col) for name, col in self.columns.items()}
 
     def validate(self, df: Any, engine: Any | None = None) -> ValidationResult:
-        """Validate dataset using an engine (defaults to PandasEngine)."""
+        """Validate a DataFrame and return every generated check.
+
+        Args:
+            df: DataFrame supported by the selected engine.
+            engine: Engine instance. Defaults to :class:`PandasEngine`.
+
+        Returns:
+            A structured result whose ``ok`` property is true only when every
+            check passes.
+        """
         if engine is None:
             from dqflow.engines.pandas import PandasEngine
 
@@ -65,7 +85,14 @@ class Contract:
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> Contract:
-        """Load contract from YAML file."""
+        """Load a contract from a YAML file.
+
+        Args:
+            path: Path to the YAML contract.
+
+        Returns:
+            The parsed and normalized contract.
+        """
         path = Path(path)
 
         with path.open() as f:
@@ -96,7 +123,15 @@ class Contract:
         )
 
     def to_yaml(self, path: str | Path, *, header: str | None = None) -> None:
-        """Save contract to YAML file, optionally preceded by comment lines."""
+        """Write the serializable portion of this contract as YAML.
+
+        Callable cross-column rules and arbitrary metadata on ``Column`` are not
+        serialized. Each line in ``header`` is written as a YAML comment.
+
+        Args:
+            path: Destination path.
+            header: Optional provenance text to place above the YAML document.
+        """
         path = Path(path)
 
         columns_data: dict[str, Any] = {}

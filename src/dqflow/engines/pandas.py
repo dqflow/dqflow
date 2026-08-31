@@ -25,7 +25,7 @@ _OPS: dict[str, Callable[[Any, Any], Any]] = {
 
 
 class PandasEngine(Engine):
-    """Validation engine for pandas DataFrames."""
+    """Execute contracts against in-memory pandas DataFrames."""
 
     def validate(
         self,

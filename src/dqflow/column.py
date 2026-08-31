@@ -11,7 +11,26 @@ SUPPORTED_OPS: frozenset[str] = frozenset({">=", "<=", ">", "<", "==", "!="})
 
 @dataclass
 class CrossColumnRule:
-    """Row-level validation rule that compares two columns or a column against a literal."""
+    """Validate a row-wise relationship between columns or values.
+
+    Supply either ``check`` or all three structured fields ``left``, ``op``, and
+    ``right``. A callable receives the complete DataFrame and must return a
+    boolean mask with one value per row. Structured rules can be serialized to
+    YAML; callable rules are Python-only.
+
+    Attributes:
+        name: Stable name used in the resulting check identifier.
+        error_message: Message returned when at least one row fails.
+        check: Callable accepting a pandas or Polars DataFrame and returning a
+            boolean mask.
+        left: Name of the left-hand column for a structured rule.
+        op: Comparison operator: ``>=``, ``<=``, ``>``, ``<``, ``==``, or ``!=``.
+        right: Right-hand column name or literal value.
+
+    Raises:
+        ValueError: If the callable and structured forms are mixed, required
+            structured fields are missing, or the operator is unsupported.
+    """
 
     name: str
     error_message: str = ""
@@ -43,7 +62,28 @@ class CrossColumnRule:
 
 @dataclass
 class Column:
-    """Define expectations for a single column."""
+    """Declare constraints and metadata for one required column.
+
+    The current pandas and Polars engines enforce ``not_null``, ``min``,
+    ``max``, ``allowed``, ``unique``, and ``pattern``. They preserve but do not
+    yet enforce ``dtype``, ``freshness_minutes``, or ``custom``.
+
+    Attributes:
+        dtype: Declared Python type or string type name. Currently descriptive.
+        not_null: Fail when the column contains null values.
+        min: Inclusive minimum value.
+        max: Inclusive maximum value.
+        allowed: Sequence of permitted non-null values.
+        freshness_minutes: Declared maximum timestamp age. Not yet enforced.
+        unique: Require non-null values to be distinct.
+        pattern: Regular expression applied to every non-null string value.
+        description: Human-readable description.
+        metadata: User-defined metadata preserved on the contract.
+        custom: Declared custom column callable. Not yet invoked by engines.
+
+    Raises:
+        ValueError: If ``min`` is greater than ``max``.
+    """
 
     dtype: type | str
     not_null: bool = False

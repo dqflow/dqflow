@@ -1,177 +1,24 @@
-# Column
+# Column and CrossColumnRule
 
-The `Column` class defines expectations for a single column.
+## Column
 
-## Class Definition
+`Column` describes a required column and its constraints.
 
-```python
-from dqflow import Column
+::: dqflow.column.Column
 
-column = Column(
-    dtype: type | str,
-    not_null: bool = False,
-    min: Any | None = None,
-    max: Any | None = None,
-    allowed: Sequence[Any] | None = None,
-    freshness_minutes: int | None = None,
-    unique: bool = False,
-    pattern: str | None = None,
-    description: str = "",
-    metadata: dict[str, Any] = {},
-    custom: Callable[[Any], bool] | None = None,
-)
-```
+!!! warning "Declared but not enforced"
+    `dtype`, `freshness_minutes`, and `custom` are stored and serialized, but the
+    current engines do not validate them. Use the enforced `pattern` constraint
+    or a callable `CrossColumnRule` where appropriate.
 
-## Parameters
+## CrossColumnRule
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `dtype` | `type \| str` | required | Expected data type |
-| `not_null` | `bool` | `False` | Reject null values |
-| `min` | `Any \| None` | `None` | Minimum value (numeric or datetime) |
-| `max` | `Any \| None` | `None` | Maximum value (numeric or datetime) |
-| `allowed` | `Sequence[Any] \| None` | `None` | Allowed values |
-| `freshness_minutes` | `int \| None` | `None` | Max age for timestamps |
-| `unique` | `bool` | `False` | Require distinct non-null values |
-| `pattern` | `str \| None` | `None` | Full-match regex for non-null values |
-| `description` | `str` | `""` | Human-readable description |
-| `metadata` | `dict[str, Any]` | `{}` | Custom metadata |
-| `custom` | `Callable[[Any], bool] \| None` | `None` | Custom validation function |
+`CrossColumnRule` performs a row-wise comparison between columns, between a
+column and a literal, or through a Python callable.
 
-## Supported Types
+::: dqflow.column.CrossColumnRule
 
-| Type | Description |
-|------|-------------|
-| `str` | String/text |
-| `int` | Integer |
-| `float` | Floating point |
-| `bool` | Boolean |
-| `"timestamp"` | Datetime |
+Structured rules support `>=`, `<=`, `>`, `<`, `==`, and `!=`. Callable rules
+are available only in Python contracts; they cannot be represented in YAML.
 
-## Examples
-
-### Basic Column
-
-```python
-Column(str)
-Column(int)
-Column(float)
-```
-
-### Not Null
-
-```python
-Column(str, not_null=True)
-```
-
-### Numeric Bounds
-
-```python
-Column(float, min=0)
-Column(float, max=100)
-Column(float, min=0, max=100)
-```
-
-### Allowed Values
-
-```python
-Column(str, allowed=["USD", "EUR", "GBP"])
-Column(int, allowed=[1, 2, 3, 4, 5])
-```
-
-### Unique Values and Patterns
-
-```python
-Column(str, unique=True)
-Column(str, pattern=r"^[A-Z]{3}$")
-```
-
-### Freshness Check
-
-```python
-Column("timestamp", freshness_minutes=60)      # Within 1 hour
-Column("timestamp", freshness_minutes=1440)    # Within 24 hours
-```
-
-### With Metadata
-
-```python
-Column(
-    dtype=str,
-    not_null=True,
-    description="Unique customer identifier",
-    metadata={"pii": True, "source": "crm"},
-)
-```
-
-### Custom Validation
-
-Define custom validation logic with a function that takes a value and returns `True` if valid:
-
-```python
-def is_email(value: str) -> bool:
-    """Check if value is a valid email."""
-    return "@" in str(value) and "." in str(value)
-
-Column(str, custom=is_email)
-```
-
-Using lambda functions:
-
-```python
-Column(int, custom=lambda x: x > 0)  # Positive numbers only
-Column(int, custom=lambda x: x % 2 == 0)  # Even numbers only
-Column(float, custom=lambda x: 0 <= x <= 1)  # Between 0 and 1
-```
-
-More complex validation:
-
-```python
-def is_valid_phone(value: str) -> bool:
-    """Check if value is a valid phone number."""
-    import re
-    return bool(re.match(r'^\+?1?\d{9,15}$', str(value)))
-
-Column(str, custom=is_valid_phone)
-```
-
-Combining with other constraints:
-
-```python
-Column(
-    dtype=float,
-    not_null=True,
-    min=0,
-    max=100,
-    custom=lambda x: x % 5 == 0,  # Must be divisible by 5
-    description="Score (0-100, increments of 5)"
-)
-```
-
-### Full Example
-
-```python
-from dqflow import Column
-
-columns = {
-    "order_id": Column(str, not_null=True),
-    "customer_id": Column(str, not_null=True),
-    "amount": Column(float, min=0, max=100000),
-    "currency": Column(str, allowed=["USD", "EUR", "GBP"]),
-    "status": Column(str, allowed=["pending", "shipped", "delivered"]),
-    "created_at": Column("timestamp", freshness_minutes=1440),
-}
-```
-
-## Validation Behavior
-
-| Constraint | Check |
-|------------|-------|
-| `not_null=True` | Fails if any null/NaN values |
-| `min=X` | Fails if any value < X |
-| `max=X` | Fails if any value > X |
-| `allowed=[...]` | Fails if any value not in list |
-| `unique=True` | Fails if any non-null value is duplicated |
-| `pattern=...` | Fails if any non-null value does not fully match the regex |
-| `freshness_minutes=X` | Fails if max timestamp > X minutes old |
-| `custom=func` | Fails if func(value) returns False for any value |
+See [Cross-column and custom checks](../guide/custom-checks.md) for examples.

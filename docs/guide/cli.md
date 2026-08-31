@@ -1,133 +1,72 @@
-# CLI Usage
+# CLI usage
 
-dqflow provides a command-line interface for validating data.
+The `dq` command validates files, inspects contracts, and infers draft contracts.
 
-## Commands
+## Install file-format support
 
-### dq validate
-
-Validate data against a contract:
+CSV and JSON work with the base installation. Parquet requires a pandas Parquet
+backend:
 
 ```bash
-dq validate CONTRACT DATA
+pip install dqflow
+pip install "dqflow[parquet]"  # adds pyarrow
 ```
 
-**Arguments:**
-
-- `CONTRACT` - Path to YAML contract file
-- `DATA` - Path to data file (parquet, csv, json)
-
-**Options:**
-
-- `--output`, `-o` - Output format: `text` (default) or `json`
-- `--fail-fast` - Exit with error code 1 on validation failure
-
-**Examples:**
+## `dq validate`
 
 ```bash
-# Basic validation
-dq validate contracts/orders.yaml data/orders.parquet
+dq validate CONTRACT DATA [--output text|json] [--fail-fast]
+```
 
-# JSON output
+Supported extensions are `.csv`, `.json`, and—after installing the extra—
+`.parquet`.
+
+```bash
+dq validate contracts/orders.yaml data/orders.csv
 dq validate contracts/orders.yaml data/orders.csv --output json
-
-# Fail fast (for CI/CD)
 dq validate contracts/orders.yaml data/orders.parquet --fail-fast
 ```
 
-### dq show
+Without `--fail-fast`, a completed validation command exits `0` even when checks
+fail; inspect the text or JSON result. With `--fail-fast`, the command still
+evaluates and prints **all** checks, then exits `1` when the result is not OK. The
+option does not short-circuit at the first failure.
 
-Display contract details:
-
-```bash
-dq show CONTRACT
-```
-
-**Example:**
+## `dq show`
 
 ```bash
 dq show contracts/orders.yaml
 ```
 
-**Output:**
+This prints the contract description, declared columns and constraints, and table
+rules. Declared dtype and freshness values may appear even though the engines do
+not enforce them yet.
 
-```
-Contract: orders
-Description: E-commerce order data contract
-
-Columns:
-  order_id: string (NOT NULL)
-  amount: float (min=0, max=100000)
-  currency: string (allowed=['USD', 'EUR', 'GBP'])
-  created_at: timestamp (freshness=1440m)
-
-Rules:
-  - row_count > 0
-  - null_rate(amount) < 0.01
-```
-
-### dq infer
-
-Infer a contract from existing data:
+## `dq infer`
 
 ```bash
-dq infer DATA OUTPUT [--sample N] [--no-ranges]
-                     [--max-allowed-cardinality N] [--strict]
+dq infer DATA OUTPUT \
+  --sample 100000 \
+  --max-allowed-cardinality 20
 ```
 
-**Arguments:**
+Useful options:
 
-- `DATA` - Path to data file
-- `OUTPUT` - Path to write contract YAML
+- `--sample N` reads at most `N` rows.
+- `--no-ranges` omits observed min/max bounds.
+- `--max-allowed-cardinality N` controls enum inference; zero disables it.
+- `--strict` rejects malformed CSV rows instead of skipping them.
 
-**Example:**
+Inference creates a draft, not a production specification. See
+[Infer and refine a contract](../workflows/infer-refine.md).
 
-```bash
-dq infer data/orders.csv contracts/orders.yaml
-```
+## CI
 
-The generated YAML contains inferred nullability, allowed values, ranges,
-uniqueness, and common string patterns. See [Inferring Contracts](inference.md)
-for every heuristic, its caveats, and flag details.
-
-## Supported File Formats
-
-| Format | Extension |
-|--------|-----------|
-| Parquet | `.parquet` |
-| CSV | `.csv` |
-| JSON | `.json` |
-
-## CI/CD Integration
-
-Use `--fail-fast` in CI pipelines:
+Use `--fail-fast` to turn a failed contract into a failed job:
 
 ```yaml
-# GitHub Actions example
-- name: Validate data quality
-  run: dq validate contracts/orders.yaml data/orders.parquet --fail-fast
+- name: Validate orders
+  run: dq validate contracts/orders.yaml data/orders.csv --fail-fast
 ```
 
-```bash
-# Shell script
-dq validate contracts/orders.yaml data/orders.parquet --fail-fast || exit 1
-```
-
-## JSON Output
-
-Use `-o json` for machine-readable output:
-
-```bash
-dq validate contracts/orders.yaml data/orders.parquet -o json
-```
-
-```json
-{
-  "contract_name": "orders",
-  "ok": true,
-  "total_checks": 7,
-  "passed": 7,
-  "failed": 0,
-  "checks": [...]
-}
-```
+For a complete workflow, see [Gate a pull request](../workflows/ci-pull-request.md).

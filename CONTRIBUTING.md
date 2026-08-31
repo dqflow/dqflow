@@ -78,13 +78,23 @@ cd dqflow
 
 ### 2. Set Up Development Environment
 
+On macOS or Linux, the setup script creates `.venv`, installs the development,
+documentation, and Polars dependencies, and installs pre-commit hooks:
+
+```bash
+./scripts/setup-dev.sh
+source .venv/bin/activate
+```
+
+For a manual setup (including Windows):
+
 ```bash
 # Create virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dev dependencies
-pip install -e ".[dev]"
+pip install -e ".[dev,docs,polars]"
 
 # Install pre-commit hooks
 pre-commit install
@@ -101,6 +111,9 @@ ruff check .
 
 # Run type checking
 mypy src/dqflow
+
+# Build documentation and fail on warnings/broken links
+mkdocs build --strict
 ```
 
 ## Development Workflow
@@ -135,6 +148,9 @@ mypy src/dqflow
 
    # Run tests
    pytest
+
+   # Build docs strictly
+   mkdocs build --strict
    ```
 
 5. **Commit your changes**
@@ -219,6 +235,7 @@ Bad:
 - [ ] Code is formatted (`ruff format .`)
 - [ ] Linting passes (`ruff check .`)
 - [ ] Type checking passes (`mypy src/dqflow`)
+- [ ] Documentation builds strictly (`mkdocs build --strict`)
 - [ ] Documentation is updated (if needed)
 - [ ] Commit messages are clear
 
@@ -248,10 +265,12 @@ dqflow/
 │   ├── cli.py           # CLI commands
 │   └── engines/         # Validation engines
 │       ├── base.py      # Abstract base
-│       └── pandas.py    # Pandas engine
+│       ├── pandas.py    # pandas engine
+│       └── polars.py    # Experimental Polars engine
 ├── tests/               # Test files
 ├── docs/                # Documentation
-└── examples/            # Example contracts
+├── examples/            # Runnable example projects
+└── scripts/             # Contributor setup helpers
 ```
 
 ## Feature Ideas

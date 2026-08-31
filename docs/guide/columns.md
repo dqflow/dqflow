@@ -1,181 +1,68 @@
-# Column Validations
+# Column validations
 
-Column definitions specify expected data types and constraints.
-
-## Basic Column
+Every entry in `Contract.columns` is required. The engine first emits a
+`column_exists:<name>` check and then evaluates the configured constraints when
+the column exists.
 
 ```python
 from dqflow import Column
 
-# Just type
-Column(str)
-
-# Type with constraints
-Column(str, not_null=True)
+Column(str, not_null=True, unique=True, pattern=r"^[A-Z]\d{4}$")
+Column(float, min=0, max=100_000)
+Column(str, allowed=["USD", "EUR"])
 ```
 
-## Available Constraints
+## Enforced constraints
 
-### not_null
+| Constraint | Behavior |
+| --- | --- |
+| `not_null=True` | Fails when any value is null/NaN |
+| `min=value` | Requires the observed minimum to be at least `value` |
+| `max=value` | Requires the observed maximum to be at most `value` |
+| `allowed=[...]` | Rejects non-null values outside the sequence |
+| `unique=True` | Rejects duplicated non-null values; nulls are ignored |
+| `pattern=...` | Requires every non-null string to match the regex |
 
-Ensure no null/NaN values:
-
-```python
-Column(str, not_null=True)
-```
-
-### min / max
-
-Numeric bounds:
-
-```python
-Column(float, min=0)
-Column(float, max=100)
-Column(float, min=0, max=100)
-```
-
-### allowed
-
-Restrict to specific values:
+Combine `unique=True` with `not_null=True` when null values must also fail.
 
 ```python
-Column(str, allowed=["USD", "EUR", "GBP"])
-Column(int, allowed=[1, 2, 3])
-```
-
-### unique
-
-Require non-null values to be distinct. Multiple nulls are ignored by this
-constraint; combine it with `not_null=True` when nulls should also fail.
-
-```python
-Column(str, unique=True)
-```
-
-### pattern
-
-Require each non-null value to fully match a regular expression:
-
-```python
-Column(str, pattern=r"^[A-Z]{3}$")
-```
-
-### freshness_minutes
-
-Ensure timestamp data is recent:
-
-```python
-Column("timestamp", freshness_minutes=60)      # Within last hour
-Column("timestamp", freshness_minutes=1440)    # Within last 24 hours
-```
-
-### custom
-
-Apply custom validation logic:
-
-```python
-def is_email(value: str) -> bool:
-    return "@" in str(value) and "." in str(value)
-
-Column(str, custom=is_email)
-```
-
-Use lambda for simple checks:
-
-```python
-Column(int, custom=lambda x: x > 0)  # Positive only
-Column(int, custom=lambda x: x % 2 == 0)  # Even numbers
-```
-
-## Supported Types
-
-| Python Type | Description |
-|-------------|-------------|
-| `str` | String/text |
-| `int` | Integer |
-| `float` | Floating point |
-| `bool` | Boolean |
-| `"timestamp"` | Datetime |
-
-## Full Example
-
-```python
-from dqflow import Contract, Column
+from dqflow import Column, Contract
 
 contract = Contract(
     name="orders",
     columns={
-        "order_id": Column(str, not_null=True),
-        "customer_id": Column(str, not_null=True),
-        "amount": Column(float, min=0, max=100000),
-        "currency": Column(str, allowed=["USD", "EUR", "GBP"]),
-        "status": Column(str, allowed=["pending", "shipped", "delivered"]),
-        "created_at": Column("timestamp", freshness_minutes=1440),
+        "order_id": Column(str, not_null=True, unique=True, pattern=r"^A\d{3}$"),
+        "amount": Column(float, min=0, max=100_000),
+        "currency": Column(str, allowed=["USD", "EUR"]),
     },
 )
 ```
 
-## Column Metadata
+## Declared but not enforced
 
-Add descriptions and custom metadata:
+`dtype`, `freshness_minutes`, and `custom` are currently descriptive fields.
+They are retained on `Column`; dtype and freshness can be written to YAML and
+displayed by the CLI, but neither validation engine checks them yet.
+
+```python
+Column("timestamp", freshness_minutes=60)  # declaration only today
+Column(str, custom=lambda value: bool(value))  # declaration only today
+```
+
+For custom logic that runs today, use a callable
+[`CrossColumnRule`](custom-checks.md). Track future enforcement in
+[#51](https://github.com/dqflow/dqflow/issues/51).
+
+## Metadata
+
+Descriptions and metadata help document ownership or classification without
+changing validation behavior:
 
 ```python
 Column(
     dtype=str,
     not_null=True,
-    description="Unique order identifier",
-    metadata={"pii": False},
-)
-```
-
-## Custom Validation Examples
-
-### Email Validation
-
-```python
-import re
-
-def is_valid_email(value: str) -> bool:
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return bool(re.match(pattern, str(value)))
-
-Column(str, custom=is_valid_email)
-```
-
-### Phone Number Validation
-
-```python
-def is_valid_phone(value: str) -> bool:
-    import re
-    return bool(re.match(r'^\+?1?\d{9,15}$', str(value)))
-
-Column(str, custom=is_valid_phone)
-```
-
-### Business Rules
-
-```python
-# Must be divisible by 5
-Column(int, custom=lambda x: x % 5 == 0)
-
-# Must be in valid age range
-Column(int, custom=lambda x: 0 <= x <= 120)
-
-# Must be a percentage (0-100)
-Column(float, custom=lambda x: 0 <= x <= 100)
-```
-
-### Combining with Other Constraints
-
-You can combine custom checks with built-in constraints:
-
-```python
-Column(
-    dtype=float,
-    not_null=True,
-    min=0,
-    max=100,
-    custom=lambda x: x % 5 == 0,  # Scores in increments of 5
-    description="Test score (0-100, increments of 5)"
+    description="Unique customer identifier",
+    metadata={"pii": False, "owner": "checkout"},
 )
 ```
