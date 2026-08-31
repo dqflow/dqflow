@@ -49,6 +49,7 @@ nav:
   - API Reference:
       - Contract: api/contract.md
       - Column & CrossColumnRule: api/column.md
+      - ValidationSpec: api/spec.md
       - Results: api/result.md
       - Contract Diff: api/diff.md
       - Engines: api/engines.md

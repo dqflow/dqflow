@@ -5,6 +5,10 @@ The complete release history lives in
 
 ## Unreleased
 
+- `dqflow.spec.ValidationSpec` — contracts compile to an engine-agnostic
+  intermediate representation, and the pandas and Polars engines execute that
+  spec rather than reading `Column` objects
+  ([#16](https://github.com/dqflow/dqflow/issues/16)).
 - Engine registry (`dqflow.engines.get_engine` / `register_engine`).
   `Contract.validate(df, engine=...)` accepts an engine name or instance,
   `dq validate --engine pandas|polars` selects it from the CLI, and `Contract`
