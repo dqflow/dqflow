@@ -134,30 +134,9 @@ class Contract:
         """
         path = Path(path)
 
-        columns_data: dict[str, Any] = {}
-
-        for col_name, col in self.columns.items():
-            col_dict: dict[str, Any] = {
-                # STANDARDIZED OUTPUT FORMAT
-                "dtype": _dtype_to_str(col.dtype)
-            }
-
-            if col.not_null:
-                col_dict["not_null"] = True
-            if col.min is not None:
-                col_dict["min"] = col.min
-            if col.max is not None:
-                col_dict["max"] = col.max
-            if col.allowed is not None:
-                col_dict["allowed"] = list(col.allowed)
-            if col.freshness_minutes is not None:
-                col_dict["freshness_minutes"] = col.freshness_minutes
-            if col.unique:
-                col_dict["unique"] = True
-            if col.pattern is not None:
-                col_dict["pattern"] = col.pattern
-
-            columns_data[col_name] = col_dict
+        columns_data: dict[str, Any] = {
+            col_name: column_to_dict(col) for col_name, col in self.columns.items()
+        }
 
         data: dict[str, Any] = {
             "name": self.name,
@@ -205,3 +184,31 @@ def _dtype_to_str(dtype: type | str) -> str:
     if dtype is bool:
         return "boolean"
     return str(dtype)
+
+
+def column_to_dict(col: Column) -> dict[str, Any]:
+    """Return the serializable, validation-affecting fields of a column.
+
+    Only fields the engines act on are included: ``dtype`` plus any set
+    constraint. ``description``, ``metadata``, and callable ``custom`` are
+    omitted, matching :meth:`Contract.to_yaml`. Used for YAML output and by
+    :func:`dqflow.diff.diff_contracts`.
+    """
+    col_dict: dict[str, Any] = {"dtype": _dtype_to_str(col.dtype)}
+
+    if col.not_null:
+        col_dict["not_null"] = True
+    if col.min is not None:
+        col_dict["min"] = col.min
+    if col.max is not None:
+        col_dict["max"] = col.max
+    if col.allowed is not None:
+        col_dict["allowed"] = list(col.allowed)
+    if col.freshness_minutes is not None:
+        col_dict["freshness_minutes"] = col.freshness_minutes
+    if col.unique:
+        col_dict["unique"] = True
+    if col.pattern is not None:
+        col_dict["pattern"] = col.pattern
+
+    return col_dict

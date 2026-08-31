@@ -32,6 +32,24 @@ fail; inspect the text or JSON result. With `--fail-fast`, the command still
 evaluates and prints **all** checks, then exits `1` when the result is not OK. The
 option does not short-circuit at the first failure.
 
+## `dq diff`
+
+```bash
+dq diff OLD NEW [--output text|json] [--allow-breaking]
+```
+
+Compares two contract YAML files and classifies each difference as breaking or
+non-breaking for data producers. Exits `1` when a breaking change is present;
+`--allow-breaking` forces exit `0`.
+
+```bash
+dq diff contracts/orders@v1.yaml contracts/orders@v2.yaml
+dq diff old.yaml new.yaml --output json
+```
+
+See [Diffing contracts](diff.md) for the full classification table and the JSON
+schema.
+
 ## `dq show`
 
 ```bash

@@ -1,5 +1,6 @@
 """Tests for CLI commands."""
 
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -7,6 +8,34 @@ import pandas as pd
 from click.testing import CliRunner
 
 from dqflow.cli import main
+
+_CONTRACT_V1 = """
+name: orders
+columns:
+  order_id:
+    type: string
+    not_null: true
+  amount:
+    type: float
+    min: 0
+  currency:
+    type: string
+    allowed: ["USD", "EUR"]
+"""
+
+_CONTRACT_V2_BREAKING = """
+name: orders
+columns:
+  order_id:
+    type: string
+    not_null: true
+  amount:
+    type: float
+    min: 10
+  currency:
+    type: string
+    allowed: ["USD", "EUR", "JPY"]
+"""
 
 
 class TestCLI:
@@ -184,6 +213,67 @@ rules:
             assert "max:" not in content
             assert "allowed:" not in content
             assert "inferred from 2 rows" in result.output
+
+    def test_diff_no_changes_exits_zero(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "c.yaml"
+            path.write_text(_CONTRACT_V1)
+
+            result = runner.invoke(main, ["diff", str(path), str(path)])
+            assert result.exit_code == 0
+            assert "no changes" in result.output
+
+    def test_diff_breaking_changes_exit_one(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            old = tmpdir / "v1.yaml"
+            new = tmpdir / "v2.yaml"
+            old.write_text(_CONTRACT_V1)
+            new.write_text(_CONTRACT_V2_BREAKING)
+
+            result = runner.invoke(main, ["diff", str(old), str(new)])
+            assert result.exit_code == 1
+            assert "BREAKING" in result.output
+            assert "stricter lower bound" in result.output
+
+    def test_diff_allow_breaking_forces_exit_zero(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            old = tmpdir / "v1.yaml"
+            new = tmpdir / "v2.yaml"
+            old.write_text(_CONTRACT_V1)
+            new.write_text(_CONTRACT_V2_BREAKING)
+
+            result = runner.invoke(main, ["diff", str(old), str(new), "--allow-breaking"])
+            assert result.exit_code == 0
+            assert "BREAKING" in result.output
+
+    def test_diff_json_output(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            old = tmpdir / "v1.yaml"
+            new = tmpdir / "v2.yaml"
+            old.write_text(_CONTRACT_V1)
+            new.write_text(_CONTRACT_V2_BREAKING)
+
+            result = runner.invoke(main, ["diff", str(old), str(new), "-o", "json"])
+            assert result.exit_code == 1
+            payload = json.loads(result.output)
+            assert payload["has_breaking"] is True
+            assert payload["summary"]["breaking"] >= 1
+
+    def test_diff_missing_file_exits_two(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "c.yaml"
+            path.write_text(_CONTRACT_V1)
+
+            result = runner.invoke(main, ["diff", str(path), str(Path(tmpdir) / "missing.yaml")])
+            assert result.exit_code == 2
 
     def test_infer_command_strict_rejects_malformed_csv(self) -> None:
         runner = CliRunner()

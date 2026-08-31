@@ -21,6 +21,7 @@ ROOT = Path(__file__).parents[1]
             "infer-refine/infer_and_validate.py",
             "reviewed the inferred draft and validated the curated contract",
         ),
+        ("contract-diff/diff.py", "blocked: 1 breaking change(s) for data producers"),
     ],
 )
 def test_runnable_example(script: str, expected: str) -> None:

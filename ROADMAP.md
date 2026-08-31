@@ -46,7 +46,9 @@ Already shipped:
 - Structured results: `ValidationResult.ok`, `.summary()`, `.to_dict()`
 - Engine base class + **pandas** engine (default) and an **experimental Polars**
   engine (`dqflow[polars]`); output-parity tests
-- CLI: `dq validate`, `dq show`, `dq infer`
+- CLI: `dq validate`, `dq show`, `dq infer`, `dq diff`
+- `dq diff` / `diff_contracts()` — contract comparison with breaking-change
+  classification (#37)
 - Benchmark scripts in `benchmarks/` (#24, closed) — not yet wired into CI
 - Docs site (MkDocs), CI (test matrix, ruff, mypy), PyPI release workflow
 

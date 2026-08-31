@@ -233,6 +233,9 @@ dq show contracts/orders.yaml
 
 # Infer a draft contract (dtypes and observed constraints) from existing data
 dq infer data/orders.csv contracts/orders.yaml --sample 100000
+
+# Diff two contract versions; exits 1 when a change is breaking for producers
+dq diff contracts/orders@v1.yaml contracts/orders@v2.yaml
 ```
 
 `--fail-fast` evaluates the complete contract, prints all failed checks, and then
@@ -266,12 +269,13 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 | Table rules — `row_count`, `null_rate('col')`, `unique_count('col')` | ✅ Implemented |
 | Cross-column rules — `left`/`op`/`right` or a callable | ✅ Implemented |
 | Structured results — `.ok`, `.failed_checks`, `.summary()`, `.to_dict()` | ✅ Implemented |
-| CLI — `dq validate` / `dq show` / `dq infer` | ✅ Implemented |
+| CLI — `dq validate` / `dq show` / `dq infer` / `dq diff` | ✅ Implemented |
 | Contract inference from data (dtypes and observed constraints) | ✅ Implemented |
+| Contract diff — breaking / non-breaking classification, JSON, CI exit code | ✅ Implemented |
 | pandas engine | ✅ Implemented |
 | Polars engine (`dqflow[polars]`) | 🧪 Experimental |
 | Declared type / `freshness_minutes` / `custom` enforcement | 🔜 Declared in the contract, not yet enforced |
-| `dq diff`, GitHub Action, HTML reports, severity levels | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
+| GitHub Action, HTML reports, severity levels | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
 | PySpark & SQL engines | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
 
 > A `Column` accepts `dtype`, `freshness_minutes`, and `custom` today, and
@@ -321,7 +325,7 @@ result = contract.validate(polars_df, engine=PolarsEngine())
 ## Runnable examples
 
 The [`examples/`](https://github.com/dqflow/dqflow/tree/main/examples) directory
-contains four self-contained projects. Each one includes sample data, a contract,
+contains five self-contained projects. Each one includes sample data or contracts,
 a runnable script, and its own README.
 
 | Example | What it demonstrates | Install |
@@ -330,6 +334,7 @@ a runnable script, and its own README.
 | [Polars pipeline](https://github.com/dqflow/dqflow/tree/main/examples/polars-pipeline) | Validate a Polars `LazyFrame` with the experimental engine | `pip install "dqflow[polars]"` |
 | [CI validation](https://github.com/dqflow/dqflow/tree/main/examples/ci-validation) | Turn a failed YAML contract into a non-zero CI exit code | `pip install dqflow` |
 | [Infer and refine](https://github.com/dqflow/dqflow/tree/main/examples/infer-refine) | Infer a draft, replace observed bounds with business rules, and validate it | `pip install dqflow` |
+| [Contract diff](https://github.com/dqflow/dqflow/tree/main/examples/contract-diff) | Compare two contract versions and block breaking changes | `pip install dqflow` |
 
 Run them from the repository root:
 
@@ -338,6 +343,7 @@ python examples/pandas-etl/pipeline.py
 python examples/polars-pipeline/pipeline.py
 python examples/ci-validation/validate.py
 python examples/infer-refine/infer_and_validate.py
+python examples/contract-diff/diff.py
 ```
 
 Expected output:
@@ -353,9 +359,12 @@ Contract 'users': 11/11 checks passed
 
 Contract 'customers': 12/12 checks passed
 reviewed the inferred draft and validated the curated contract
+
+orders: 3 changes (1 breaking)
+blocked: 1 breaking change(s) for data producers
 ```
 
-All four scripts are also exercised by
+All five scripts are also exercised by
 [`tests/test_examples.py`](https://github.com/dqflow/dqflow/blob/main/tests/test_examples.py).
 
 ## When to use dqflow
@@ -387,8 +396,8 @@ All four scripts are also exercised by
 
 ## Roadmap
 
-Contract diffing, a GitHub Action, HTML reports, severity levels, Polars parity, and
-PySpark / SQL engines are all planned. See **[ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md)** for the full
+A GitHub Action, HTML reports, severity levels, Polars parity, and PySpark / SQL
+engines are all planned. See **[ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md)** for the full
 plan, priorities, and non-goals.
 
 ## Contributing
