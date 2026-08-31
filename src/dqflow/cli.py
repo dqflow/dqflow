@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import click
 import pandas as pd
@@ -29,6 +30,13 @@ def main() -> None:
 @click.argument("contract", type=click.Path(exists=True, path_type=Path))
 @click.argument("data", type=click.Path(exists=True, path_type=Path))
 @click.option("--output", "-o", type=click.Choice(["text", "json"]), default="text")
+@click.option(
+    "--engine",
+    type=click.Choice(["pandas", "polars"]),
+    default="pandas",
+    show_default=True,
+    help="Validation engine to run the contract with.",
+)
 @click.option("--fail-fast", is_flag=True, help="Exit with error code on validation failure")
 @click.option("-q", "--quiet", is_flag=True, help="Print only failing checks.")
 @click.option("-v", "--verbose", is_flag=True, help="Print every check with its samples.")
@@ -42,6 +50,7 @@ def validate(
     contract: Path,
     data: Path,
     output: str,
+    engine: str,
     fail_fast: bool,
     quiet: bool,
     verbose: bool,
@@ -56,8 +65,8 @@ def validate(
         raise click.UsageError("Pass at most one of --quiet and --verbose.")
 
     c = Contract.from_yaml(contract)
-    df = _load_dataframe(data)
-    result = c.validate(df)
+    df = _load_polars_dataframe(data) if engine == "polars" else _load_dataframe(data)
+    result = c.validate(df, engine=engine)
 
     if output == "json":
         click.echo(json.dumps(result.to_dict(), indent=2))
@@ -188,6 +197,26 @@ def infer(
     header = inference_header(str(data), len(df))
     contract.to_yaml(output, header=header)
     click.echo(f"Wrote {output} ({len(contract.columns)} columns, inferred from {len(df):,} rows)")
+
+
+def _load_polars_dataframe(path: Path) -> Any:
+    """Load ``path`` with Polars' native readers for ``--engine polars``."""
+    try:
+        import polars as pl
+    except ImportError as exc:
+        raise click.ClickException(
+            "The --engine polars option requires Polars. "
+            'Install it with: pip install "dqflow[polars]"'
+        ) from exc
+
+    suffix = path.suffix.lower()
+    if suffix == ".parquet":
+        return pl.read_parquet(path)
+    if suffix == ".csv":
+        return pl.read_csv(path)
+    if suffix == ".json":
+        return pl.read_json(path)
+    raise click.ClickException(f"Unsupported file format: {suffix}")
 
 
 def _load_dataframe(

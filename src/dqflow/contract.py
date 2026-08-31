@@ -9,10 +9,11 @@ from typing import TYPE_CHECKING, Any
 import yaml
 
 from dqflow.column import Column, CrossColumnRule
+from dqflow.engines.registry import get_engine
 from dqflow.result import ValidationResult
 
 if TYPE_CHECKING:
-    pass
+    from dqflow.engines.base import Engine
 
 
 def _ensure_column(col_def: Any) -> Column:
@@ -65,21 +66,21 @@ class Contract:
         """Ensure all columns are normalized into Column objects."""
         self.columns = {name: _ensure_column(col) for name, col in self.columns.items()}
 
-    def validate(self, df: Any, engine: Any | None = None) -> ValidationResult:
+    def validate(self, df: Any, engine: Engine | str | None = None) -> ValidationResult:
         """Validate a DataFrame and return every generated check.
 
         Args:
             df: DataFrame supported by the selected engine.
-            engine: Engine instance. Defaults to :class:`PandasEngine`.
+            engine: An :class:`~dqflow.engines.base.Engine` instance, a
+                registered engine name (``"pandas"`` or ``"polars"``), or
+                ``None`` to use the default pandas engine.
 
         Returns:
             A structured result whose ``ok`` property is true only when every
             check passes.
         """
-        if engine is None:
-            from dqflow.engines.pandas import PandasEngine
-
-            engine = PandasEngine()
+        if engine is None or isinstance(engine, str):
+            engine = get_engine(engine)
 
         return engine.validate(df, self)
 

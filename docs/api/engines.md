@@ -7,6 +7,17 @@ the shared `ValidationResult` format.
 
 ::: dqflow.engines.base.Engine
 
+## Engine registry
+
+Resolve an engine by name, or register your own. Importing this module does not
+import pandas or Polars.
+
+::: dqflow.engines.registry.get_engine
+
+::: dqflow.engines.registry.register_engine
+
+::: dqflow.engines.registry.available_engines
+
 ## PandasEngine
 
 ::: dqflow.engines.pandas.PandasEngine
