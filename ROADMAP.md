@@ -46,9 +46,10 @@ Already shipped:
 - Structured results: `ValidationResult.ok`, `.summary()`, `.to_dict()`
 - Engine base class + **pandas** engine (default) and an **experimental Polars**
   engine (`dqflow[polars]`); output-parity tests
-- CLI: `dq validate`, `dq show`, `dq infer`, `dq diff`
-- `dq diff` / `diff_contracts()` — contract comparison with breaking-change
-  classification (#37)
+- CLI: `dq validate`, `dq show`, `dq infer`, and `dq diff`
+  ([#37](https://github.com/dqflow/dqflow/issues/37), shipped in 0.3.0) —
+  contract comparison with breaking / non-breaking change classification, text
+  and JSON output, and a CI exit code
 - Benchmark scripts in `benchmarks/` (#24, closed) — not yet wired into CI
 - Docs site (MkDocs), CI (test matrix, ruff, mypy), PyPI release workflow
 
@@ -112,13 +113,13 @@ down, in order.
 **Priority: P0.** The everyday loop — write a contract, run it, read the
 failure, fix it — is the product. Make it fast and pleasant.
 
-| Issue | Title | Priority | Depends on |
-|-------|-------|----------|------------|
-| [#37](https://github.com/dqflow/dqflow/issues/37) | Implement `dq diff` for contract comparison | P0 | — |
-| [#38](https://github.com/dqflow/dqflow/issues/38) | Improve CLI validation output and error messages | P0 | — (benefits from #16) |
-| [#39](https://github.com/dqflow/dqflow/issues/39) | Improve `dq infer` contract generation | P0 | — |
-| [#40](https://github.com/dqflow/dqflow/issues/40) | Redesign README and project positioning | P0 | — |
-| [#41](https://github.com/dqflow/dqflow/issues/41) | Add contract versioning and breaking-change detection | P1 | #37 |
+| Issue | Title | Priority | Depends on | Status |
+|-------|-------|----------|------------|--------|
+| [#37](https://github.com/dqflow/dqflow/issues/37) | Implement `dq diff` for contract comparison | P0 | — | ✅ Shipped in 0.3.0 |
+| [#38](https://github.com/dqflow/dqflow/issues/38) | Improve CLI validation output and error messages | P0 | — (benefits from #16) | Planned |
+| [#39](https://github.com/dqflow/dqflow/issues/39) | Improve `dq infer` contract generation | P0 | — | ✅ Shipped in 0.2.1 |
+| [#40](https://github.com/dqflow/dqflow/issues/40) | Redesign README and project positioning | P0 | — | ✅ Shipped |
+| [#41](https://github.com/dqflow/dqflow/issues/41) | Add contract versioning and breaking-change detection | P1 | #37 | Planned |
 
 Covers: `dq diff` + breaking/non-breaking classification, better CLI output and
 error messages, smarter `dq infer` (constraints, not just dtypes), README
@@ -171,7 +172,7 @@ the shared RuleEngine (#18).
 
 | Issue | Title | Priority | Depends on |
 |-------|-------|----------|------------|
-| [#46](https://github.com/dqflow/dqflow/issues/46) | Improve documentation and examples | P1 | — |
+| [#46](https://github.com/dqflow/dqflow/issues/46) | Improve documentation and examples | P1 | — (✅ shipped; ongoing) |
 | [#47](https://github.com/dqflow/dqflow/issues/47) | Add Airflow, Dagster and Prefect integrations | P1 | #17, #15, #44 |
 | [#48](https://github.com/dqflow/dqflow/issues/48) | Add dbt integration | P2 | — |
 | [#49](https://github.com/dqflow/dqflow/issues/49) | Add PySpark engine | P2 | #16, #18, #15 |
