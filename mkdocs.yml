@@ -50,6 +50,7 @@ nav:
       - Contract: api/contract.md
       - Column & CrossColumnRule: api/column.md
       - ValidationSpec: api/spec.md
+      - Table-rule evaluator: api/rules.md
       - Results: api/result.md
       - Contract Diff: api/diff.md
       - Engines: api/engines.md

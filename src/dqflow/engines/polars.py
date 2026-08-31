@@ -26,6 +26,7 @@ from dqflow.engines.base import (
     unique_message,
 )
 from dqflow.result import CheckResult, ValidationResult
+from dqflow.rules import evaluate_rule
 from dqflow.spec import CheckSpec, ValidationSpec
 
 _OPS: dict[str, Callable[[Any, Any], Any]] = {
@@ -243,12 +244,12 @@ class PolarsEngine(Engine):
         expression = check.params["expression"]
         cache = run.stats
         try:
-            context = {
-                "row_count": len(run.df),
-                "null_rate": lambda c: cache.get(c, {}).get("null_rate", 0),
-                "unique_count": lambda c: cache.get(c, {}).get("unique_count", 0),
-            }
-            passed = bool(eval(expression, {"__builtins__": {}}, context))
+            passed = evaluate_rule(
+                expression,
+                row_count=len(run.df),
+                null_rate=lambda c: float(cache.get(c, {}).get("null_rate", 0.0)),
+                unique_count=lambda c: cache.get(c, {}).get("unique_count", 0),
+            )
         except Exception as exc:  # noqa: BLE001 - evaluation errors become failed checks
             return CheckResult(name=check.name, passed=False, message=rule_error_message(exc))
 
