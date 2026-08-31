@@ -95,6 +95,97 @@ columns:
             )
             assert result.exit_code == 1
 
+    def test_validate_text_output_is_grouped_with_samples(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            contract_path = tmpdir / "contract.yaml"
+            contract_path.write_text(_CONTRACT_V1)
+
+            data_path = tmpdir / "data.csv"
+            pd.DataFrame(
+                {
+                    "order_id": ["A1", None, "A3"],
+                    "amount": [10.0, -5.0, 20.0],
+                    "currency": ["USD", "GBP", "EUR"],
+                }
+            ).to_csv(data_path, index=False)
+
+            result = runner.invoke(main, ["validate", str(contract_path), str(data_path)])
+            assert result.exit_code == 0
+            assert "checks failed" in result.output
+            assert "Columns" in result.output
+            assert "on 3 rows" in result.output
+            assert "'GBP'" in result.output  # offending value sampled
+
+    def test_validate_quiet_hides_passing_checks(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            contract_path = tmpdir / "contract.yaml"
+            contract_path.write_text(_CONTRACT_V1)
+            data_path = tmpdir / "data.csv"
+            pd.DataFrame(
+                {"order_id": ["A1", "A2"], "amount": [1.0, -9.0], "currency": ["USD", "EUR"]}
+            ).to_csv(data_path, index=False)
+
+            result = runner.invoke(
+                main, ["validate", str(contract_path), str(data_path), "--quiet"]
+            )
+            assert result.exit_code == 0
+            assert "below the minimum" in result.output
+            assert "checks passed" not in result.output
+
+    def test_validate_verbose_lists_passing_checks(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            contract_path = tmpdir / "contract.yaml"
+            contract_path.write_text(_CONTRACT_V1)
+            data_path = tmpdir / "data.csv"
+            pd.DataFrame(
+                {"order_id": ["A1", "A2"], "amount": [1.0, 2.0], "currency": ["USD", "EUR"]}
+            ).to_csv(data_path, index=False)
+
+            result = runner.invoke(main, ["validate", str(contract_path), str(data_path), "-v"])
+            assert result.exit_code == 0
+            assert result.output.count("✔") >= 5
+
+    def test_validate_quiet_and_verbose_conflict(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            contract_path = tmpdir / "contract.yaml"
+            contract_path.write_text(_CONTRACT_V1)
+            data_path = tmpdir / "data.csv"
+            pd.DataFrame({"order_id": ["A1"], "amount": [1.0], "currency": ["USD"]}).to_csv(
+                data_path, index=False
+            )
+
+            result = runner.invoke(
+                main, ["validate", str(contract_path), str(data_path), "-q", "-v"]
+            )
+            assert result.exit_code != 0
+            assert "at most one" in result.output
+
+    def test_validate_color_flag_forces_ansi(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            contract_path = tmpdir / "contract.yaml"
+            contract_path.write_text(_CONTRACT_V1)
+            data_path = tmpdir / "data.csv"
+            pd.DataFrame({"order_id": ["A1"], "amount": [-1.0], "currency": ["USD"]}).to_csv(
+                data_path, index=False
+            )
+
+            plain = runner.invoke(main, ["validate", str(contract_path), str(data_path)])
+            colored = runner.invoke(
+                main, ["validate", str(contract_path), str(data_path), "--color"]
+            )
+            assert "\x1b[" not in plain.output
+            assert "\x1b[" in colored.output
+
     def test_validate_json_output(self) -> None:
         runner = CliRunner()
         with TemporaryDirectory() as tmpdir:

@@ -78,6 +78,27 @@ def test_engine_output_match_with_rules():
     assert normalize(pandas_result) == normalize(polars_result)
 
 
+def test_engine_output_match_with_violations_and_samples():
+    contract = Contract(
+        name="violations",
+        columns={
+            "amount": {"dtype": float, "min": 0, "max": 100},
+            "currency": {"dtype": str, "allowed": ["USD", "EUR"]},
+            "order_id": {"dtype": str, "unique": True},
+        },
+    )
+    data = {
+        "amount": [-5.0, 50.0, 250.0],
+        "currency": ["USD", "GBP", "JPY"],
+        "order_id": ["A", "A", "B"],
+    }
+
+    pandas_result = PandasEngine().validate(pd.DataFrame(data), contract)
+    polars_result = PolarsEngine().validate(pl.DataFrame(data), contract)
+
+    assert normalize(pandas_result) == normalize(polars_result)
+
+
 def test_engine_output_match_with_pattern_and_nullable_unique():
     contract = Contract(
         name="string_constraints",

@@ -50,6 +50,10 @@ Already shipped:
   ([#37](https://github.com/dqflow/dqflow/issues/37), shipped in 0.3.0) —
   contract comparison with breaking / non-breaking change classification, text
   and JSON output, and a CI exit code
+- `dq validate` output ([#38](https://github.com/dqflow/dqflow/issues/38)) —
+  grouped by schema / columns / rules, per-check failure rates and value
+  samples, `--quiet` / `--verbose` / `--color`, a standalone text renderer, and
+  an unchanged `--output json` schema
 - Benchmark scripts in `benchmarks/` (#24, closed) — not yet wired into CI
 - Docs site (MkDocs), CI (test matrix, ruff, mypy), PyPI release workflow
 
@@ -116,7 +120,7 @@ failure, fix it — is the product. Make it fast and pleasant.
 | Issue | Title | Priority | Depends on | Status |
 |-------|-------|----------|------------|--------|
 | [#37](https://github.com/dqflow/dqflow/issues/37) | Implement `dq diff` for contract comparison | P0 | — | ✅ Shipped in 0.3.0 |
-| [#38](https://github.com/dqflow/dqflow/issues/38) | Improve CLI validation output and error messages | P0 | — (benefits from #16) | Planned |
+| [#38](https://github.com/dqflow/dqflow/issues/38) | Improve CLI validation output and error messages | P0 | — (benefits from #16) | ✅ Done |
 | [#39](https://github.com/dqflow/dqflow/issues/39) | Improve `dq infer` contract generation | P0 | — | ✅ Shipped in 0.2.1 |
 | [#40](https://github.com/dqflow/dqflow/issues/40) | Redesign README and project positioning | P0 | — | ✅ Shipped |
 | [#41](https://github.com/dqflow/dqflow/issues/41) | Add contract versioning and breaking-change detection | P1 | #37 | Planned |

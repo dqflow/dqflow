@@ -112,9 +112,9 @@ if not result.ok:
 ```text
 Contract 'orders': 5/8 checks passed
 Failed checks:
-  - not_null:order_id: Found 1 null values
-  - min:amount: Minimum value -5.0 is below 0
-  - allowed:currency: Found invalid values: {'GBP'}
+  - not_null:order_id: Column 'order_id' has 1 null value
+  - min:amount: Column 'amount' has 1 value below the minimum 0
+  - allowed:currency: Column 'currency' has 1 value outside the allowed set
 ```
 
 ## Python contract
@@ -223,6 +223,9 @@ dq validate contracts/orders.yaml data/orders.csv
 # Non-zero exit code on failure — drop this into CI
 dq validate contracts/orders.yaml data/orders.csv --fail-fast
 
+# Only the failures (-q), or every check with its samples (-v)
+dq validate contracts/orders.yaml data/orders.csv --quiet
+
 # Machine-readable output
 dq validate contracts/orders.yaml data/orders.csv --output json
 
@@ -236,6 +239,11 @@ dq infer data/orders.csv contracts/orders.yaml --sample 100000
 dq diff contracts/orders@v1.yaml contracts/orders@v2.yaml
 ```
 
+Text output is grouped by schema / columns / table rules / cross-column rules,
+with per-check failure rates and a bounded sample of the offending values. Colour
+is used on a TTY and disabled when piped or when `NO_COLOR` is set; `-q/--quiet`
+prints only the failures, `-v/--verbose` prints every check.
+
 `--fail-fast` evaluates the complete contract, prints all failed checks, and then
 returns exit code `1` when validation fails. It does not stop after the first
 failed check. Parquet input requires `dqflow[parquet]`.
@@ -245,13 +253,20 @@ negative value, and `currency` contains `GBP`:
 
 ```console
 $ dq validate contracts/orders.yaml data/orders.csv --fail-fast
-Contract 'orders': 4/9 checks passed
-Failed checks:
-  - not_null:order_id: Found 1 null values
-  - unique:order_id: Found 2 duplicate values
-  - min:amount: Minimum value -5.0 is below 0
-  - allowed:currency: Found invalid values: {'GBP'}
-  - rule:null_rate('order_id') == 0: Rule 'null_rate('order_id') == 0' failed
+orders · 5 of 8 checks failed on 4 rows
+
+  Schema  3/3 passed
+
+  Columns  4/4 failed
+    order_id  ✘ not_null  has 1 null value (25.0%)
+              ✘ unique    has 2 non-unique values (50.0%)  ·  e.g. 'A001'
+    amount    ✘ min       has 1 value below the minimum 0 (25.0%)
+    currency  ✘ allowed   has 1 value outside the allowed set (25.0%)  ·  e.g. 'GBP'
+
+  Table rules  1/1 failed
+    ✘ null_rate('order_id') == 0
+
+  3 passed · 5 failed
 $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 1
 ```
