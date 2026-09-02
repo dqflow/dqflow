@@ -316,12 +316,12 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
   .ok · .summary() · .to_dict()        raise · non-zero exit · JSON logs
 ```
 
-Today the flow is `Contract → engine (pandas / Polars) → ValidationResult`.
 `Contract.validate()` compiles the contract to a shared `ValidationSpec`, rule
 expressions run through the shared `dqflow.rules` evaluator (no `eval`), and
-table-rule statistics come from a shared lazy `StatsCache`. An `ExecutionContext`
-for runtime knobs is the layer still being extracted — see
-[ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) (issues #15–#21).
+table-rule statistics come from a shared lazy `StatsCache` (all shipped in
+0.4.0). An `ExecutionContext` for runtime knobs is the last layer being
+extracted — see
+[ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) (issue #15).
 
 ## Supported engines
 

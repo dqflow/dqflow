@@ -7,28 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-02
+
+The Architecture Foundation refactor: a contract now compiles once to an
+engine-agnostic `ValidationSpec`, table rules run through one shared evaluator
+(no `eval`), and their statistics come from one shared cache. Engines are
+selected through a registry. Behaviour and the `--output json` schema are
+unchanged apart from the one fix noted below.
+
 ### Added
-- `dqflow.cache.StatsCache` — one shared, lazy, memoized cache for the
-  `row_count` / `null_rate` / `unique_count` statistics table rules use. The
-  pandas and Polars engines each supply three primitives; a column referenced by
-  several rules is now scanned once, and columns no rule mentions are never
-  scanned ([#21](https://github.com/dqflow/dqflow/issues/21))
+- Engine registry — `dqflow.engines.get_engine()`, `register_engine()`, and
+  `available_engines()`. `Contract.validate(df, engine=...)` accepts an engine
+  name (`"pandas"` / `"polars"`), an `Engine` instance, or `None`;
+  `dq validate --engine pandas|polars` selects the engine from the CLI; and
+  `Contract` no longer imports any engine
+  ([#17](https://github.com/dqflow/dqflow/issues/17))
+- `dqflow.spec.ValidationSpec` — the engine-agnostic intermediate representation
+  a contract compiles to. `Contract.validate()` compiles once via
+  `ValidationSpec.from_contract()`; the pandas and Polars engines execute the
+  spec's flat, ordered `CheckSpec` list instead of interpreting `Column` objects.
+  `Engine.validate()` accepts a `Contract` or a prebuilt `ValidationSpec`
+  ([#16](https://github.com/dqflow/dqflow/issues/16))
 - `dqflow.rules.evaluate_rule` — one shared table-rule evaluator for every
   engine. Expressions are parsed with `ast` and run through a strict node
   whitelist (`row_count`, `null_rate()`, `unique_count()`, literals, boolean and
   arithmetic operators, comparisons); **`eval` is gone** from the pandas and
   Polars engines ([#18](https://github.com/dqflow/dqflow/issues/18))
-- `dqflow.spec.ValidationSpec` — the engine-agnostic intermediate representation
-  a contract compiles to. `Contract.validate()` compiles once via
-  `ValidationSpec.from_contract()`; the pandas and Polars engines now execute the
-  spec's flat, ordered `CheckSpec` list instead of interpreting `Column` objects.
-  `Engine.validate()` accepts a `Contract` or a prebuilt `ValidationSpec`
-  ([#16](https://github.com/dqflow/dqflow/issues/16))
-- Engine registry: `dqflow.engines.get_engine()`, `register_engine()`, and
-  `available_engines()`. `Contract.validate(df, engine=...)` now accepts an
-  engine name (`"pandas"` / `"polars"`), an `Engine` instance, or `None`, and
-  `dq validate --engine pandas|polars` selects the engine from the CLI. `Contract`
-  no longer imports any engine ([#17](https://github.com/dqflow/dqflow/issues/17))
+- `dqflow.cache.StatsCache` — one shared, lazy, memoized cache for the
+  `row_count` / `null_rate` / `unique_count` statistics table rules use. Each
+  engine supplies three primitives; a column referenced by several rules is
+  scanned once, and columns no rule mentions are never scanned
+  ([#21](https://github.com/dqflow/dqflow/issues/21))
 - `dq validate` text output is now grouped (schema / columns / table rules /
   cross-column rules) with per-group pass/fail counts, a failure rate per check,
   and a bounded sample of the offending values. Colour is used on a TTY and

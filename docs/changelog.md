@@ -5,26 +5,32 @@ The complete release history lives in
 
 ## Unreleased
 
-- `dqflow.cache.StatsCache` — a shared, lazy, memoized cache for the statistics
-  table rules use; each engine supplies three primitives and a column is scanned
-  at most once ([#21](https://github.com/dqflow/dqflow/issues/21)).
-- `dqflow.rules.evaluate_rule` — a single whitelisted-AST evaluator for table
-  rules shared by every engine; the pandas and Polars engines no longer call
-  `eval` ([#18](https://github.com/dqflow/dqflow/issues/18)).
-- `dqflow.spec.ValidationSpec` — contracts compile to an engine-agnostic
-  intermediate representation, and the pandas and Polars engines execute that
-  spec rather than reading `Column` objects
-  ([#16](https://github.com/dqflow/dqflow/issues/16)).
+## 0.4.0 — 2026-09-02
+
+The Architecture Foundation refactor. Behaviour and the `--output json` schema
+are unchanged (apart from the empty-frame `null_rate` fix below).
+
 - Engine registry (`dqflow.engines.get_engine` / `register_engine`).
   `Contract.validate(df, engine=...)` accepts an engine name or instance,
   `dq validate --engine pandas|polars` selects it from the CLI, and `Contract`
   no longer imports an engine ([#17](https://github.com/dqflow/dqflow/issues/17)).
+- `dqflow.spec.ValidationSpec` — contracts compile to an engine-agnostic
+  intermediate representation, and the pandas and Polars engines execute that
+  spec rather than reading `Column` objects
+  ([#16](https://github.com/dqflow/dqflow/issues/16)).
+- `dqflow.rules.evaluate_rule` — a single whitelisted-AST evaluator for table
+  rules shared by every engine; the pandas and Polars engines no longer call
+  `eval` ([#18](https://github.com/dqflow/dqflow/issues/18)).
+- `dqflow.cache.StatsCache` — a shared, lazy, memoized cache for the statistics
+  table rules use; each engine supplies three primitives and a column is scanned
+  at most once ([#21](https://github.com/dqflow/dqflow/issues/21)).
 - Grouped, colourised `dq validate` text output with per-check failure rates and
   a bounded sample of the offending values, plus `--quiet` / `--verbose` /
-  `--color` flags and a standalone `dqflow.report.render_result()` renderer.
+  `--color` flags and a standalone `dqflow.report.render_result()` renderer
+  ([#38](https://github.com/dqflow/dqflow/issues/38)).
 - Engine `message` strings now always name the column and the expectation;
-  failing `CheckResult.details` gained rate and sample fields. The top-level
-  `--output json` schema is unchanged.
+  failing `CheckResult.details` gained rate and sample fields. `null_rate()` on
+  an empty DataFrame is now `0.0` (not `NaN`) in the pandas engine.
 
 ## 0.3.0 — 2026-08-31
 
