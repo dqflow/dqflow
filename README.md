@@ -229,6 +229,9 @@ dq validate contracts/orders.yaml data/orders.csv --quiet
 # Machine-readable output
 dq validate contracts/orders.yaml data/orders.csv --output json
 
+# Check a contract for schema/structural problems (no data needed)
+dq lint contracts/orders.yaml
+
 # Inspect a contract
 dq show contracts/orders.yaml
 
@@ -282,9 +285,10 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 | Table rules — `row_count`, `null_rate('col')`, `unique_count('col')` | ✅ Implemented |
 | Cross-column rules — `left`/`op`/`right` or a callable | ✅ Implemented |
 | Structured results — `.ok`, `.failed_checks`, `.summary()`, `.to_dict()` | ✅ Implemented |
-| CLI — `dq validate` / `dq show` / `dq infer` / `dq diff` | ✅ Implemented |
+| CLI — `dq validate` / `dq lint` / `dq show` / `dq infer` / `dq diff` / `dq schema` | ✅ Implemented |
 | Contract inference from data (dtypes and observed constraints) | ✅ Implemented |
 | Contract diff — breaking / non-breaking classification, JSON, CI exit code | ✅ Implemented |
+| Versioned schema — `schema_version`, `dq lint` diagnostics, published JSON Schema for editors | ✅ Implemented |
 | pandas engine | ✅ Implemented |
 | Polars engine (`dqflow[polars]`) | 🧪 Experimental |
 | Declared type / `freshness_minutes` / `custom` enforcement | 🔜 Declared in the contract, not yet enforced |

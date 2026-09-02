@@ -42,6 +42,10 @@ you can branch on; the `message` is not.
 (all subclasses of `ContractError`); `dq validate`, `dq show` and `dq diff`
 surface those as a one-line error and point you at `dq lint`.
 
+For the editing loop, dqflow also publishes a [JSON Schema](editor-integration.md)
+— `dq schema` prints it — that a YAML language server can check as you type. It
+is a subset of the linter (no cross-field checks), so keep `dq lint` in CI.
+
 ## Diagnostic codes
 
 ### Errors — the contract will not load

@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Diagnostic` record, and typed exceptions `ContractError`,
   `ContractParseError`, `ContractSchemaError` (carries `.diagnostics`),
   `ContractVersionError`
+- A JSON Schema for the contract format is published at
+  `https://dqflow.github.io/dqflow/schema/contract-1.0.json` (and printed by
+  `dq schema`; `dqflow.schema.contract_json_schema()`) for editor autocompletion
+  via a `$schema` key or a `# yaml-language-server:` modeline. It is a subset of
+  `dq lint` — no cross-field checks — see the *Editor integration* guide
+  ([#61](https://github.com/dqflow/dqflow/issues/61))
 - `dqflow.execution.ExecutionContext` — a frozen dataclass that carries the
   runtime configuration for one `Contract.validate()` call: `engine`, `cache`,
   and the reserved `parallel` / `max_workers` / `strict` / `fail_fast` flags.

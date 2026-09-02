@@ -23,6 +23,7 @@ from dqflow.schema import (
     ContractParseError,
     ContractSchemaError,
     Diagnostic,
+    contract_json_schema,
     format_diagnostics,
     lint_contract_file,
 )
@@ -145,6 +146,17 @@ def lint(contract: Path, output: str, strict: bool) -> None:
 
     if errors or (strict and warnings):
         sys.exit(1)
+
+
+@main.command(name="schema")
+def schema_cmd() -> None:
+    """Print the contract-format JSON Schema.
+
+    The same document is published for editor tooling (see the editor-integration
+    guide). `dq lint` is the authoritative validator; the schema cannot express
+    cross-field checks.
+    """
+    click.echo(json.dumps(contract_json_schema(), indent=2))
 
 
 @main.command()

@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dqflow.github.io/dqflow/schema/contract-1.0.json",
+  "title": "dqflow contract",
+  "description": "A dqflow data contract (schema_version 1.0). dq lint is the authoritative validator; this schema is a close approximation for editor tooling and cannot express cross-field checks such as min <= max, regex validity, or table-rule syntax.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "URL of this JSON Schema, for editor autocompletion."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Contract format version as MAJOR.MINOR. Omitted means the reader's current version."
+    },
+    "name": {
+      "type": "string",
+      "description": "Contract name, included in validation results."
+    },
+    "description": {
+      "type": "string"
+    },
+    "columns": {
+      "type": "object",
+      "description": "Required columns, keyed by name.",
+      "additionalProperties": {
+        "$ref": "#/$defs/column"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "description": "Table-rule expressions over row_count, null_rate('col') and unique_count('col').",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cross_column_rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/crossColumnRule"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Free-form data preserved on the contract; not validated."
+    }
+  },
+  "$defs": {
+    "column": {
+      "description": "A column constraint set, or a bare dtype name.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dtype": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "description": "Legacy alias for dtype."
+            },
+            "not_null": {
+              "type": "boolean"
+            },
+            "unique": {
+              "type": "boolean"
+            },
+            "min": {
+              "$ref": "#/$defs/scalar"
+            },
+            "max": {
+              "$ref": "#/$defs/scalar"
+            },
+            "allowed": {
+              "type": "array"
+            },
+            "freshness_minutes": {
+              "type": "integer"
+            },
+            "pattern": {
+              "type": "string",
+              "format": "regex"
+            },
+            "description": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "object"
+            }
+          }
+        }
+      ]
+    },
+    "crossColumnRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "left", "op", "right"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "left": {
+          "type": "string"
+        },
+        "op": {
+          "enum": [">=", "<=", ">", "<", "==", "!="]
+        },
+        "right": {
+          "type": ["string", "number", "boolean"]
+        },
+        "error_message": {
+          "type": "string"
+        }
+      }
+    },
+    "scalar": {
+      "type": ["string", "number", "boolean"],
+      "description": "A bare constraint value. Dates and timestamps are written as ISO 8601 strings."
+    }
+  }
+}

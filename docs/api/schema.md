@@ -33,3 +33,13 @@ Raised by `Contract.from_yaml()`; all derive from `ContractError`.
 ::: dqflow.schema.SCHEMA_VERSION
 
 ::: dqflow.schema.SUPPORTED_SCHEMA_VERSIONS
+
+## Published JSON Schema
+
+A JSON Schema for the serialisable contract format is published for
+[editor tooling](../guide/editor-integration.md) and shipped inside the package.
+It is a subset of the linter — it cannot express cross-field checks.
+
+::: dqflow.schema.contract_json_schema
+
+::: dqflow.schema.CONTRACT_SCHEMA_URI

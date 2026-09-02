@@ -91,10 +91,14 @@ Already shipped:
 - Engine base class + **pandas** engine (default) and an **experimental Polars**
   engine (`dqflow[polars]`), selectable via `dq validate --engine` or
   `Contract.validate(df, engine=...)`; output-parity tests
-- CLI: `dq validate`, `dq show`, `dq infer`, and `dq diff`
+- CLI: `dq validate`, `dq show`, `dq infer`, `dq diff`
   ([#37](https://github.com/dqflow/dqflow/issues/37), shipped in 0.3.0) —
   contract comparison with breaking / non-breaking change classification, text
-  and JSON output, and a CI exit code
+  and JSON output, and a CI exit code — plus `dq lint` and `dq schema`
+  ([#61](https://github.com/dqflow/dqflow/issues/61)): a versioned contract
+  schema (`schema_version`), a published JSON Schema for editors, and
+  structural validation with path-aware diagnostics and typed
+  `dqflow.schema` exceptions
 - `dq validate` output ([#38](https://github.com/dqflow/dqflow/issues/38)) —
   grouped by schema / columns / rules, per-check failure rates and value
   samples, `--quiet` / `--verbose` / `--color`, a standalone text renderer, and
@@ -197,7 +201,7 @@ failure, fix it — is the product. Make it fast and pleasant.
 | [#38](https://github.com/dqflow/dqflow/issues/38) | Improve CLI validation output and error messages | P0 | — (benefits from #16) | ✅ Done |
 | [#39](https://github.com/dqflow/dqflow/issues/39) | Improve `dq infer` contract generation | P0 | — | ✅ Shipped in 0.2.1 |
 | [#40](https://github.com/dqflow/dqflow/issues/40) | Redesign README and project positioning | P0 | — | ✅ Shipped |
-| [#61](https://github.com/dqflow/dqflow/issues/61) | Add a versioned contract schema and `dq lint` | P0 | — (align with #16, #41) | Planned |
+| [#61](https://github.com/dqflow/dqflow/issues/61) | Add a versioned contract schema and `dq lint` | P0 | — (align with #16, #41) | ✅ Unreleased |
 | [#41](https://github.com/dqflow/dqflow/issues/41) | Add contract versioning and breaking-change detection | P1 | #37 | Planned |
 | [#64](https://github.com/dqflow/dqflow/issues/64) | Add a first-class pytest integration | P1 | #38 | Planned |
 

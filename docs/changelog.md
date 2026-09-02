@@ -18,6 +18,10 @@ The complete release history lives in
   `ContractVersionError`) instead of a traceback; unknown fields are rejected.
 - `dqflow.schema` — `lint_contract_file` / `lint_contract_data`, `Diagnostic`,
   and the error classes.
+- A published JSON Schema for the contract format
+  (`https://dqflow.github.io/dqflow/schema/contract-1.0.json`, `dq schema`,
+  `dqflow.schema.contract_json_schema()`) for editor autocompletion — see
+  [Editor integration](guide/editor-integration.md). A subset of `dq lint`.
 - `dqflow.execution.ExecutionContext` — a frozen dataclass carrying a run's
   engine, cache toggle, and reserved execution flags
   (`parallel` / `max_workers` / `strict` / `fail_fast`).
