@@ -125,8 +125,9 @@ Failed checks:
   available).
 - You need dtype / freshness / `custom` enforcement *today*. Regex `pattern`
   constraints are supported.
-- You need to execute contracts from untrusted sources; table-rule expressions
-  currently rely on Python `eval` with builtins removed.
+- You need to execute contracts from untrusted sources. Table-rule expressions
+  are evaluated by a whitelisted AST walker (no `eval`), but that is still not a
+  security boundary — run only contracts you trust.
 
 !!! quote
     dqflow is **not** a full data observability platform. It is a small, opinionated

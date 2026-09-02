@@ -75,12 +75,20 @@ Already shipped:
 - Column fields defined but **not yet enforced** by engines: `dtype`,
   `freshness_minutes`, `custom`; `pattern` is enforced
   (→ [#51](https://github.com/dqflow/dqflow/issues/51))
-- Table rules (`row_count`, `null_rate`, `unique_count`) via a restricted
-  expression evaluator (still uses `eval` internally → [#18](https://github.com/dqflow/dqflow/issues/18))
+- Table rules (`row_count`, `null_rate`, `unique_count`) via a shared
+  whitelisted-AST evaluator, `dqflow.rules.evaluate_rule` — no `eval`
+  ([#18](https://github.com/dqflow/dqflow/issues/18), 0.4.0)
 - Cross-column rules (`left`/`op`/`right` or a callable), no `eval` (#28, #29)
 - Structured results: `ValidationResult.ok`, `.summary()`, `.to_dict()`
+- Architecture Foundation shipped in 0.4.0: `Contract` decoupled from engines
+  with an engine registry ([#17](https://github.com/dqflow/dqflow/issues/17)), a
+  contract compiles once to an engine-agnostic `ValidationSpec`
+  ([#16](https://github.com/dqflow/dqflow/issues/16)), and table-rule statistics
+  come from a shared lazy `StatsCache`
+  ([#21](https://github.com/dqflow/dqflow/issues/21))
 - Engine base class + **pandas** engine (default) and an **experimental Polars**
-  engine (`dqflow[polars]`); output-parity tests
+  engine (`dqflow[polars]`), selectable via `dq validate --engine` or
+  `Contract.validate(df, engine=...)`; output-parity tests
 - CLI: `dq validate`, `dq show`, `dq infer`, and `dq diff`
   ([#37](https://github.com/dqflow/dqflow/issues/37), shipped in 0.3.0) —
   contract comparison with breaking / non-breaking change classification, text
@@ -132,11 +140,11 @@ blocks a breaking contract change in CI.
 
 ## Architecture Foundation
 
-**Priority: P0.** Start this early, in parallel with activation. The engines currently interpret `Column`
-objects directly and each carries its own copy of rule evaluation (including
-`eval`). That duplication makes every later feature — new engines, severity,
-advanced rules, a shared cache — more expensive. These five issues pay that debt
-down, in order.
+**Priority: P0.** Started early, in parallel with activation. The engines used to
+interpret `Column` objects directly and each carried its own copy of rule
+evaluation (including `eval`). That duplication made every later feature — new
+engines, severity, advanced rules, a shared cache — more expensive. Four of the
+five issues shipped in **0.4.0**; only `ExecutionContext` (#15) remains.
 
 **Execution order:** [#17](https://github.com/dqflow/dqflow/issues/17) →
 [#16](https://github.com/dqflow/dqflow/issues/16) →
@@ -145,25 +153,28 @@ down, in order.
 [#21](https://github.com/dqflow/dqflow/issues/21)
 
 ```
-#17 Decouple Contract from Engine
+#17 Decouple Contract from Engine        ✅ 0.4.0
       │
-      ├──> #16 ValidationSpec (engine-agnostic IR)
+      ├──> #16 ValidationSpec (IR)        ✅ 0.4.0
       │        │
-      │        ├──> #18 Central RuleEngine (one safe evaluator)
-      │        └──> #21 Shared Computation Cache ─┐
+      │        ├──> #18 Central rule evaluator, no eval   ✅ 0.4.0
+      │        └──> #21 Shared computation cache ─┐        ✅ 0.4.0
       │                                           │
-      └──> #15 ExecutionContext ──────────────────┘
+      └──> #15 ExecutionContext ──────────────────┘        ⬜ next
                  │
                  └──> Performance & Execution, Ecosystem engines
 ```
 
-| Issue | Title | Depends on | Blocks |
-|-------|-------|------------|--------|
-| [#17](https://github.com/dqflow/dqflow/issues/17) | Decouple Contract from Engine Execution | — | #16, #15 |
-| [#16](https://github.com/dqflow/dqflow/issues/16) | Introduce ValidationSpec (IR layer) | #17 | #18, #21, #25, #49, #50 |
-| [#18](https://github.com/dqflow/dqflow/issues/18) | Extract Central RuleEngine | #16 | #44, #51 |
-| [#15](https://github.com/dqflow/dqflow/issues/15) | Introduce ExecutionContext | #17 | #21, #22, #23, #47 |
-| [#21](https://github.com/dqflow/dqflow/issues/21) | Shared Computation Cache abstraction | #16, #15 | #23 |
+| Issue | Title | Depends on | Blocks | Status |
+|-------|-------|------------|--------|--------|
+| [#17](https://github.com/dqflow/dqflow/issues/17) | Decouple Contract from Engine Execution | — | #16, #15 | ✅ 0.4.0 |
+| [#16](https://github.com/dqflow/dqflow/issues/16) | Introduce ValidationSpec (IR layer) | #17 | #18, #21, #25, #49, #50 | ✅ 0.4.0 |
+| [#18](https://github.com/dqflow/dqflow/issues/18) | Extract central rule evaluator | #16 | #44, #51 | ✅ 0.4.0 |
+| [#15](https://github.com/dqflow/dqflow/issues/15) | Introduce ExecutionContext | #17 | #21, #22, #23, #47 | Planned |
+| [#21](https://github.com/dqflow/dqflow/issues/21) | Shared Computation Cache abstraction | #16, #15 | #23 | ✅ 0.4.0 |
+
+> #21 shipped without waiting on #15: the cache is always on. Cache
+> *configuration* (enable/disable, limits) will be added with #15.
 
 ---
 
@@ -251,8 +262,9 @@ summaries and per-check detail.
 ## Ecosystem & Integrations
 
 **Priority: P1 / P2.** Meet data where it lives, with thin adapters rather than
-frameworks. New engines only implement `ValidationSpec` execution (#16) and use
-the shared RuleEngine (#18).
+frameworks. New engines only implement `ValidationSpec` execution (#16), reuse
+the shared rule evaluator (#18) and `StatsCache` (#21), and register through
+`dqflow.engines.register_engine` (#17).
 
 | Issue | Title | Priority | Depends on |
 |-------|-------|----------|------------|

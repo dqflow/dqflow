@@ -6,7 +6,7 @@ import pandas as pd
 
 from dqflow.column import Column, CrossColumnRule
 from dqflow.contract import Contract
-from dqflow.engines.pandas import PandasEngine
+from dqflow.engines.pandas import PandasEngine, PandasStatsCache
 
 
 def test_not_null_validation_regression() -> None:
@@ -171,11 +171,11 @@ def test_stats_cache_regression() -> None:
         }
     )
 
-    cache = PandasEngine()._build_stats_cache(df)
+    cache = PandasStatsCache(df)
 
-    assert cache["value"]["row_count"] == 4
-    assert cache["value"]["unique_count"] == 4
-    assert cache["value"]["null_rate"] == 0.25
+    assert cache.row_count == 4
+    assert cache.unique_count("value") == 4  # NaN counts as a distinct value
+    assert cache.null_rate("value") == 0.25
 
 
 def test_custom_rule_regression() -> None:

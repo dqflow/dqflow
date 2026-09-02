@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dqflow"
-version = "0.3.0"
+version = "0.4.0"
 description = "Data contracts for Python data pipelines. Define, validate, fail fast."
 readme = "README.md"
 license = "MIT"

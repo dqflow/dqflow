@@ -173,9 +173,9 @@ Failed checks:
 
 Rule expressions expose the names
 `row_count`, `null_rate('column')`, and `unique_count('column')` — column names are
-passed as strings. The current engines evaluate these expressions with Python
-`eval` after removing builtins; do not load contracts from untrusted sources. A
-dedicated evaluator is tracked in [#18](https://github.com/dqflow/dqflow/issues/18).
+passed as strings. Expressions are evaluated by a shared, whitelisted AST walker
+(`dqflow.rules.evaluate_rule`), not `eval` — but that is still not a security
+boundary, so do not load contracts from untrusted sources.
 
 ## YAML contract
 
@@ -303,10 +303,11 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
   columns · rules · cross-column rules
       │
       ▼
-  ValidationSpec    ┐                  shared layers being extracted
-  RuleEngine        ├── (in progress)  (P0 refactor, issues #15–#21).
-  ExecutionContext  ┘                  today Contract.validate() calls
-      │                                an engine directly.
+  ValidationSpec    ✓                  contract compiled to a shared IR
+  dqflow.rules      ✓                  one AST rule evaluator, no eval
+  StatsCache        ✓                  shared lazy column-stats cache
+  ExecutionContext  … (in progress)    runtime knobs, issue #15
+      │
       ▼
   Engine  ───────────────────────▶     pandas   default, stable
       │                                Polars   experimental
@@ -315,10 +316,12 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
   .ok · .summary() · .to_dict()        raise · non-zero exit · JSON logs
 ```
 
-Today the flow is `Contract → engine (pandas / Polars) → ValidationResult`, and each
-engine carries its own `eval`-based rule evaluator and stats cache. `ValidationSpec`,
-`RuleEngine`, and `ExecutionContext` are the shared layers being extracted — see
-[ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) (issues #15–#21).
+`Contract.validate()` compiles the contract to a shared `ValidationSpec`, rule
+expressions run through the shared `dqflow.rules` evaluator (no `eval`), and
+table-rule statistics come from a shared lazy `StatsCache` (all shipped in
+0.4.0). An `ExecutionContext` for runtime knobs is the last layer being
+extracted — see
+[ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) (issue #15).
 
 ## Supported engines
 
@@ -400,8 +403,8 @@ All five scripts are also exercised by
 - You need dtype conformance, freshness, or `custom` column functions enforced
   *today* — those fields are declared but not yet checked. Regex `pattern` checks
   are enforced.
-- You need to execute contracts from untrusted sources — the current rule evaluator
-  removes builtins but still relies on Python `eval`.
+- You need to execute contracts from untrusted sources — rule expressions use a
+  whitelisted AST evaluator (no `eval`), which is still not a security boundary.
 
 > **dqflow is not a full data observability platform.** It is a small, opinionated
 > library meant to be embedded directly into pipelines. Where richer tooling is
