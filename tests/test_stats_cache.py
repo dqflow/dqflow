@@ -48,8 +48,8 @@ def test_pandas_and_polars_caches_agree() -> None:
 
 
 class _CountingCache(StatsCache):
-    def __init__(self) -> None:
-        super().__init__({"a", "b"})
+    def __init__(self, *, memoize: bool = True) -> None:
+        super().__init__({"a", "b"}, memoize=memoize)
         self.calls: dict[str, int] = {"row_count": 0, "null_count": 0, "unique_count": 0}
 
     def _compute_row_count(self) -> int:
@@ -86,6 +86,19 @@ class TestLazinessAndMemoization:
         cache = _CountingCache()
         cache.unique_count("missing")
         assert cache.calls["unique_count"] == 0
+
+    def test_memoize_false_recomputes_every_access(self) -> None:
+        cache = _CountingCache(memoize=False)
+        for _ in range(3):
+            cache.null_rate("a")  # touches row_count + null_count("a") each time
+            cache.unique_count("a")
+        assert cache.calls == {"row_count": 3, "null_count": 3, "unique_count": 3}
+
+    def test_memoize_false_still_short_circuits_missing_columns(self) -> None:
+        cache = _CountingCache(memoize=False)
+        assert cache.null_rate("missing") == 0.0
+        assert cache.unique_count("missing") == 0
+        assert cache.calls == {"row_count": 1, "null_count": 0, "unique_count": 0}
 
 
 class TestEmptyFrame:

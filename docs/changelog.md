@@ -5,6 +5,21 @@ The complete release history lives in
 
 ## Unreleased
 
+- `dqflow.execution.ExecutionContext` — a frozen dataclass carrying a run's
+  engine, cache toggle, and reserved execution flags
+  (`parallel` / `max_workers` / `strict` / `fail_fast`).
+  `Contract.validate(df, context=ExecutionContext(...))` is the full form;
+  `engine=` remains a shortcut, and `dq validate --engine` builds the context
+  ([#15](https://github.com/dqflow/dqflow/issues/15)).
+- `ExecutionContext(cache=False)` disables memoisation of table-rule statistics
+  (the `StatsCache` on/off switch deferred to #15).
+- `ExecutionContext`, `Engine`, `ValidationSpec`, `StatsCache`, `evaluate_rule`,
+  `get_engine`, `register_engine` and `available_engines` are now importable
+  straight from `dqflow`.
+- `Engine.validate()` now takes a keyword-only `context` argument instead of
+  `**kwargs`; the old no-op `parallel` / `max_workers` keywords are gone (pass an
+  `ExecutionContext` instead).
+
 ## 0.4.0 — 2026-09-02
 
 The Architecture Foundation refactor. Behaviour and the `--output json` schema

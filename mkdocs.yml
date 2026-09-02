@@ -55,6 +55,7 @@ nav:
       - Results: api/result.md
       - Contract Diff: api/diff.md
       - Engines: api/engines.md
+      - Execution context: api/context.md
       - Inference: api/inference.md
   - Changelog: changelog.md
   - Contributing: contributing.md

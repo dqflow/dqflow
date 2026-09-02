@@ -5,6 +5,10 @@ the shared `ValidationResult` format.
 
 ## Engine interface
 
+`Engine.validate()` takes the DataFrame, a `Contract` or prebuilt
+`ValidationSpec`, and an optional keyword-only
+[`ExecutionContext`](context.md) (`None` means engine defaults).
+
 ::: dqflow.engines.base.Engine
 
 ## Engine registry
