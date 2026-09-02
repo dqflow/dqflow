@@ -1,0 +1,5 @@
+schema_version: "9.0"
+name: fromfuture
+columns:
+  a:
+    dtype: string

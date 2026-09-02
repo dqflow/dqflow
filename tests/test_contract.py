@@ -1,8 +1,17 @@
 """Tests for Contract class."""
 
+from pathlib import Path
+
 import pandas as pd
+import pytest
 
 from dqflow import Contract
+from dqflow.schema import (
+    SCHEMA_VERSION,
+    ContractParseError,
+    ContractSchemaError,
+    ContractVersionError,
+)
 
 
 class TestContract:
@@ -94,3 +103,74 @@ class TestParallelValidation:
         par_map = {c.name: c.passed for c in result_par.checks}
 
         assert seq_map == par_map
+
+
+class TestFromYamlValidation:
+    """``Contract.from_yaml`` validates against the schema before construction."""
+
+    def _write(self, tmp_path: Path, text: str) -> Path:
+        path = tmp_path / "contract.yaml"
+        path.write_text(text)
+        return path
+
+    def test_valid_contract_loads(self, tmp_path: Path) -> None:
+        path = self._write(
+            tmp_path,
+            'schema_version: "1.0"\nname: orders\ncolumns:\n  id: {dtype: string}\n',
+        )
+        contract = Contract.from_yaml(path)
+        assert contract.name == "orders"
+        assert "id" in contract.columns
+
+    def test_contract_without_schema_version_still_loads(self, tmp_path: Path) -> None:
+        path = self._write(tmp_path, "name: orders\ncolumns:\n  id: {dtype: string}\n")
+        assert Contract.from_yaml(path).name == "orders"
+
+    def test_malformed_yaml_raises_parse_error(self, tmp_path: Path) -> None:
+        path = self._write(tmp_path, "name: orders\ncolumns: {a: [1, 2\n")
+        with pytest.raises(ContractParseError):
+            Contract.from_yaml(path)
+
+    def test_structural_error_raises_schema_error_with_diagnostics(self, tmp_path: Path) -> None:
+        path = self._write(
+            tmp_path,
+            'schema_version: "1.0"\nname: orders\ncolumns:\n'
+            "  amount: {dtype: float, min: 10, max: 1, bogus: 1}\n",
+        )
+        with pytest.raises(ContractSchemaError) as excinfo:
+            Contract.from_yaml(path)
+        codes = {d.code for d in excinfo.value.diagnostics}
+        assert {"min-greater-than-max", "unknown-field"} <= codes
+        assert all(d.is_error for d in excinfo.value.diagnostics)
+
+    def test_unsupported_version_raises_version_error(self, tmp_path: Path) -> None:
+        path = self._write(
+            tmp_path, 'schema_version: "2.0"\nname: orders\ncolumns:\n  a: {dtype: string}\n'
+        )
+        with pytest.raises(ContractVersionError):
+            Contract.from_yaml(path)
+
+
+class TestToYamlSchemaVersion:
+    def test_to_yaml_declares_schema_version(self, tmp_path: Path) -> None:
+        from dqflow import Column
+
+        path = tmp_path / "out.yaml"
+        Contract(name="orders", columns={"a": Column(str)}).to_yaml(path)
+        text = path.read_text()
+        assert text.splitlines()[0] == f"schema_version: '{SCHEMA_VERSION}'"
+
+    def test_round_trip_through_yaml(self, tmp_path: Path) -> None:
+        from dqflow import Column
+
+        original = Contract(
+            name="orders",
+            columns={"a": Column(str, not_null=True)},
+            rules=["row_count > 0"],
+        )
+        path = tmp_path / "rt.yaml"
+        original.to_yaml(path)
+        reloaded = Contract.from_yaml(path)
+        assert reloaded.name == original.name
+        assert list(reloaded.columns) == list(original.columns)
+        assert reloaded.rules == original.rules

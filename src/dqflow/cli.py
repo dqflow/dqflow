@@ -18,6 +18,25 @@ from dqflow.diff import diff_contracts
 from dqflow.execution.context import ExecutionContext
 from dqflow.inference import infer_contract, inference_header
 from dqflow.report import Verbosity, render_result, resolve_color
+from dqflow.schema import (
+    ContractError,
+    ContractParseError,
+    ContractSchemaError,
+    Diagnostic,
+    format_diagnostics,
+    lint_contract_file,
+)
+from dqflow.schema.errors import ERROR
+
+
+def _load_contract(path: Path) -> Contract:
+    """Load a contract for a CLI command, turning load errors into clean messages."""
+    try:
+        return Contract.from_yaml(path)
+    except ContractSchemaError as exc:
+        raise click.ClickException(f"{exc}\nrun 'dq lint {path}' for details") from exc
+    except ContractError as exc:
+        raise click.ClickException(str(exc)) from exc
 
 
 @click.group()
@@ -65,7 +84,7 @@ def validate(
     if quiet and verbose:
         raise click.UsageError("Pass at most one of --quiet and --verbose.")
 
-    c = Contract.from_yaml(contract)
+    c = _load_contract(contract)
     df = _load_polars_dataframe(data) if engine == "polars" else _load_dataframe(data)
     result = c.validate(df, context=ExecutionContext(engine=engine))
 
@@ -89,6 +108,46 @@ def validate(
 
 
 @main.command()
+@click.argument("contract", type=click.Path(exists=True, path_type=Path))
+@click.option("--output", "-o", type=click.Choice(["text", "json"]), default="text")
+@click.option("--strict", is_flag=True, help="Exit 1 on warnings as well as errors.")
+def lint(contract: Path, output: str, strict: bool) -> None:
+    """Check a CONTRACT file for schema and structural problems.
+
+    Validates the contract document without reading any data: unknown fields,
+    wrong types, bad regexes, contradictory bounds, unparseable rules, and an
+    unsupported schema version. Exits 1 when errors are found (or, with
+    --strict, when there are warnings).
+    """
+    try:
+        diagnostics = lint_contract_file(contract)
+    except ContractParseError as exc:
+        diagnostics = [Diagnostic(ERROR, "invalid-yaml", str(exc), path="")]
+
+    errors = [d for d in diagnostics if d.severity == ERROR]
+    warnings = [d for d in diagnostics if d.severity != ERROR]
+
+    if output == "json":
+        click.echo(
+            json.dumps(
+                {
+                    "contract": str(contract),
+                    "ok": not errors,
+                    "error_count": len(errors),
+                    "warning_count": len(warnings),
+                    "diagnostics": [d.to_dict() for d in diagnostics],
+                },
+                indent=2,
+            )
+        )
+    else:
+        click.echo(format_diagnostics(str(contract), diagnostics))
+
+    if errors or (strict and warnings):
+        sys.exit(1)
+
+
+@main.command()
 @click.argument("old", type=click.Path(exists=True, path_type=Path))
 @click.argument("new", type=click.Path(exists=True, path_type=Path))
 @click.option("--output", "-o", type=click.Choice(["text", "json"]), default="text")
@@ -108,7 +167,7 @@ def diff(old: Path, new: Path, output: str, allow_breaking: bool) -> None:
     used to pass) or non-breaking (looser or additive) for data producers.
     Exits 1 when breaking changes are present unless --allow-breaking is given.
     """
-    result = diff_contracts(Contract.from_yaml(old), Contract.from_yaml(new))
+    result = diff_contracts(_load_contract(old), _load_contract(new))
 
     if output == "json":
         click.echo(json.dumps(result.to_dict(), indent=2))
@@ -123,7 +182,7 @@ def diff(old: Path, new: Path, output: str, allow_breaking: bool) -> None:
 @click.argument("contract", type=click.Path(exists=True, path_type=Path))
 def show(contract: Path) -> None:
     """Show details of a CONTRACT."""
-    c = Contract.from_yaml(contract)
+    c = _load_contract(contract)
 
     click.echo(f"Contract: {c.name}")
     if c.description:

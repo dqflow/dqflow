@@ -3,6 +3,7 @@
 YAML contracts are declarative files suited to code review and version control.
 
 ```yaml
+schema_version: "1.0"
 name: orders
 description: Orders emitted by checkout
 
@@ -33,6 +34,24 @@ cross_column_rules:
 
 Both `dtype` and the legacy key `type` are accepted when reading YAML. `to_yaml()`
 writes `dtype`. Declared dtype and freshness are not currently enforced.
+
+`schema_version` declares the contract *format* version. It is optional when
+reading (the current version is assumed, with a warning) and always written by
+`to_yaml()` and `dq infer`. See [Schema versioning](schema-versioning.md).
+
+Unknown keys — at the top level or on a column — are an error. Use `metadata:`
+for arbitrary data.
+
+## Check before you run
+
+```bash
+dq lint contracts/orders.yaml
+```
+
+`dq lint` validates the file's structure without reading any data and reports the
+exact path of any problem. `Contract.from_yaml()` runs the same checks and raises
+a typed [`ContractError`](../api/schema.md) instead of a traceback. See
+[Linting contracts](lint.md).
 
 ## Load and save
 

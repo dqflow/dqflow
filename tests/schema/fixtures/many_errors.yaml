@@ -1,0 +1,30 @@
+schema_version: "1.0"
+name: broken
+surprise: 1
+columns:
+  amount:
+    dtype: float
+    min: 100
+    max: 1
+    bogus: true
+  code:
+    dtype: string
+    pattern: "([a-z"
+  flag:
+    not_null: "yes"
+rules:
+  - "import os"
+  - row_count > 0
+  - row_count > 0
+cross_column_rules:
+  - name: r1
+    left: a
+    op: "~="
+    right: b
+  - name: r1
+    left: a
+    op: ">"
+    right: b
+  - left: x
+    op: ">"
+    right: y

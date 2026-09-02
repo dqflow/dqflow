@@ -72,6 +72,27 @@ checks now carry extra `details` keys (`null_rate`, `violating_rows`,
 `violating_rate`, `sample_invalid_values`, `sample_duplicate_values`,
 `failing_rate`).
 
+## `dq lint`
+
+```bash
+dq lint CONTRACT [--output text|json] [--strict]
+```
+
+Checks a contract file for schema and structural problems — unknown fields, wrong
+types, bad regexes, contradictory bounds, unparseable rules, an unsupported
+schema version — **without reading any data**. Every diagnostic carries a
+document path and, where possible, a line number.
+
+```bash
+dq lint contracts/orders.yaml
+dq lint contracts/orders.yaml --output json
+dq lint contracts/orders.yaml --strict   # exit 1 on warnings too
+```
+
+Exits `0` when there are no errors, `1` when there are (or, with `--strict`, when
+there are warnings). See [Linting contracts](lint.md) for the full diagnostic
+list.
+
 ## `dq diff`
 
 ```bash

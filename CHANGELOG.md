@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `dq lint CONTRACT` — validate a contract file's structure without reading any
+  data. Reports unknown fields, wrong types, invalid regexes, contradictory
+  bounds, unparseable table rules, bad cross-column operators, and an unsupported
+  schema version, each with a document path (`columns.amount.min`) and a line
+  number. `--output json` for machine-readable diagnostics; `--strict` to fail on
+  warnings; exit `1` on errors ([#61](https://github.com/dqflow/dqflow/issues/61))
+- Contracts declare a `schema_version` (`"1.0"`). `Contract.to_yaml()` and
+  `dq infer` always write it; reading a file without one assumes the current
+  version with a warning. A `MAJOR.MINOR` compatibility policy governs what older
+  and newer files this release will load — see the *Schema versioning* guide
+  ([#61](https://github.com/dqflow/dqflow/issues/61))
+- `dqflow.schema` — `lint_contract_file()` / `lint_contract_data()`, the
+  `Diagnostic` record, and typed exceptions `ContractError`,
+  `ContractParseError`, `ContractSchemaError` (carries `.diagnostics`),
+  `ContractVersionError`
 - `dqflow.execution.ExecutionContext` — a frozen dataclass that carries the
   runtime configuration for one `Contract.validate()` call: `engine`, `cache`,
   and the reserved `parallel` / `max_workers` / `strict` / `fail_fast` flags.
@@ -23,6 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now importable directly from `dqflow`
 
 ### Changed
+- `Contract.from_yaml()` validates the document against the contract schema
+  before construction. A malformed or structurally invalid contract now raises a
+  typed `ContractError` with an actionable message instead of a raw
+  `TypeError` / `AttributeError` / `yaml` traceback; `dq validate`, `dq show` and
+  `dq diff` print that message and point at `dq lint`. Unknown fields — at the
+  top level or on a column — are now rejected (`metadata:` remains the escape
+  hatch) ([#61](https://github.com/dqflow/dqflow/issues/61))
 - `Engine.validate()` takes a keyword-only `context: ExecutionContext | None`
   instead of `**kwargs`. The previously accepted no-op `parallel` /
   `max_workers` keyword arguments are removed — pass them through an
