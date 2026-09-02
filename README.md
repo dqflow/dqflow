@@ -300,6 +300,16 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 > data against them. Regex `pattern` constraints are enforced. Treat the other
 > fields as documentation until the roadmap catches up.
 
+## Stability
+
+dqflow is `0.x` and still moving. A small set of surfaces — the `dqflow` /
+`dqflow.schema` public API, the `dq` CLI and its exit codes, and the
+`--output json` payloads — is treated as a compatibility contract: changes are
+listed in the [changelog](https://github.com/dqflow/dqflow/blob/main/CHANGELOG.md)
+with a migration note, and a CI snapshot test blocks accidental breakage. See
+[Stability & compatibility](https://dqflow.github.io/dqflow/reference/stability/)
+and the [1.0 readiness checklist](https://dqflow.github.io/dqflow/reference/v1-readiness/).
+
 ## Architecture
 
 ```text

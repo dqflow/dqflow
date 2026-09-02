@@ -211,6 +211,26 @@ def test_column_not_null_validation():
 - Update user docs in `docs/` for user-facing changes
 - Add examples where helpful
 
+### Public API & compatibility
+
+A small set of surfaces is a compatibility contract: the names exported from
+`dqflow` and `dqflow.schema`, the `dq` CLI (commands, options, exit codes), and
+the `--output json` payloads. See
+[Stability & compatibility](https://dqflow.github.io/dqflow/reference/stability/).
+
+`tests/test_public_api.py` compares those surfaces to a committed snapshot and
+fails on any drift. If your change touches one **on purpose**:
+
+1. Add a `CHANGELOG.md` entry (under **Changed** / **Removed** for a break, with
+   a migration note).
+2. Regenerate the snapshot and include the diff in your PR:
+   ```bash
+   python -m tests.api_surface.collect
+   ```
+
+An unexpected snapshot diff means something leaked into the public surface —
+prefer a private (`_`-prefixed) name or keep it out of `__all__`.
+
 ### Commit Messages
 
 Write clear, concise commit messages:

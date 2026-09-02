@@ -1,0 +1,608 @@
+{
+  "cli": {
+    "commands": {
+      "diff": {
+        "help": true,
+        "params": [
+          {
+            "kind": "argument",
+            "name": "old",
+            "required": true,
+            "type": "path"
+          },
+          {
+            "kind": "argument",
+            "name": "new",
+            "required": true,
+            "type": "path"
+          },
+          {
+            "default": "text",
+            "is_flag": false,
+            "kind": "option",
+            "name": "output",
+            "opts": [
+              "--output",
+              "-o"
+            ],
+            "required": false,
+            "type": "choice[text,json]"
+          },
+          {
+            "default": false,
+            "is_flag": true,
+            "kind": "option",
+            "name": "allow_breaking",
+            "opts": [
+              "--allow-breaking"
+            ],
+            "required": false,
+            "type": "boolean"
+          }
+        ]
+      },
+      "infer": {
+        "help": true,
+        "params": [
+          {
+            "kind": "argument",
+            "name": "data",
+            "required": true,
+            "type": "path"
+          },
+          {
+            "kind": "argument",
+            "name": "output",
+            "required": true,
+            "type": "path"
+          },
+          {
+            "is_flag": false,
+            "kind": "option",
+            "name": "sample",
+            "opts": [
+              "--sample"
+            ],
+            "required": false,
+            "type": "integer range(min=1,max=None)"
+          },
+          {
+            "default": false,
+            "is_flag": true,
+            "kind": "option",
+            "name": "no_ranges",
+            "opts": [
+              "--no-ranges"
+            ],
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "default": 20,
+            "is_flag": false,
+            "kind": "option",
+            "name": "max_allowed_cardinality",
+            "opts": [
+              "--max-allowed-cardinality"
+            ],
+            "required": false,
+            "type": "integer range(min=0,max=None)"
+          },
+          {
+            "default": false,
+            "is_flag": true,
+            "kind": "option",
+            "name": "strict",
+            "opts": [
+              "--strict"
+            ],
+            "required": false,
+            "type": "boolean"
+          }
+        ]
+      },
+      "lint": {
+        "help": true,
+        "params": [
+          {
+            "kind": "argument",
+            "name": "contract",
+            "required": true,
+            "type": "path"
+          },
+          {
+            "default": "text",
+            "is_flag": false,
+            "kind": "option",
+            "name": "output",
+            "opts": [
+              "--output",
+              "-o"
+            ],
+            "required": false,
+            "type": "choice[text,json]"
+          },
+          {
+            "default": false,
+            "is_flag": true,
+            "kind": "option",
+            "name": "strict",
+            "opts": [
+              "--strict"
+            ],
+            "required": false,
+            "type": "boolean"
+          }
+        ]
+      },
+      "schema": {
+        "help": true,
+        "params": []
+      },
+      "show": {
+        "help": true,
+        "params": [
+          {
+            "kind": "argument",
+            "name": "contract",
+            "required": true,
+            "type": "path"
+          }
+        ]
+      },
+      "validate": {
+        "help": true,
+        "params": [
+          {
+            "kind": "argument",
+            "name": "contract",
+            "required": true,
+            "type": "path"
+          },
+          {
+            "kind": "argument",
+            "name": "data",
+            "required": true,
+            "type": "path"
+          },
+          {
+            "default": "text",
+            "is_flag": false,
+            "kind": "option",
+            "name": "output",
+            "opts": [
+              "--output",
+              "-o"
+            ],
+            "required": false,
+            "type": "choice[text,json]"
+          },
+          {
+            "default": "pandas",
+            "is_flag": false,
+            "kind": "option",
+            "name": "engine",
+            "opts": [
+              "--engine"
+            ],
+            "required": false,
+            "type": "choice[pandas,polars]"
+          },
+          {
+            "default": false,
+            "is_flag": true,
+            "kind": "option",
+            "name": "fail_fast",
+            "opts": [
+              "--fail-fast"
+            ],
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "default": false,
+            "is_flag": true,
+            "kind": "option",
+            "name": "quiet",
+            "opts": [
+              "--quiet",
+              "-q"
+            ],
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "default": false,
+            "is_flag": true,
+            "kind": "option",
+            "name": "verbose",
+            "opts": [
+              "--verbose",
+              "-v"
+            ],
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "is_flag": true,
+            "kind": "option",
+            "name": "color",
+            "opts": [
+              "--color",
+              "--no-color"
+            ],
+            "required": false,
+            "type": "boolean"
+          }
+        ]
+      }
+    },
+    "params": [
+      {
+        "default": false,
+        "is_flag": true,
+        "kind": "option",
+        "name": "version",
+        "opts": [
+          "--version"
+        ],
+        "required": false,
+        "type": "boolean"
+      }
+    ]
+  },
+  "json_payloads": {
+    "diff": {
+      "changes": [
+        {
+          "attribute": "NoneType",
+          "classification": "str",
+          "column": "str",
+          "kind": "str",
+          "new": {
+            "dtype": "str",
+            "min": "int"
+          },
+          "old": "NoneType",
+          "reason": "str"
+        }
+      ],
+      "has_breaking": "bool",
+      "new_contract": "str",
+      "old_contract": "str",
+      "summary": {
+        "breaking": "int",
+        "non_breaking": "int",
+        "total": "int"
+      }
+    },
+    "lint": {
+      "contract": "str",
+      "diagnostics": [
+        {
+          "code": "str",
+          "line": "NoneType",
+          "message": "str",
+          "path": "str",
+          "severity": "str"
+        }
+      ],
+      "error_count": "int",
+      "ok": "bool",
+      "warning_count": "int"
+    },
+    "validate": {
+      "checks": [
+        {
+          "details": {},
+          "message": "str",
+          "name": "str",
+          "passed": "bool"
+        }
+      ],
+      "contract_name": "str",
+      "failed": "int",
+      "ok": "bool",
+      "passed": "int",
+      "total_checks": "int"
+    }
+  },
+  "python_api": {
+    "dqflow": {
+      "__all__": [
+        "Column",
+        "Contract",
+        "ContractChange",
+        "ContractDiff",
+        "CrossColumnRule",
+        "Engine",
+        "ExecutionContext",
+        "StatsCache",
+        "ValidationResult",
+        "ValidationSpec",
+        "available_engines",
+        "diff_contracts",
+        "evaluate_rule",
+        "get_engine",
+        "infer_contract",
+        "register_engine"
+      ],
+      "members": {
+        "Column": {
+          "kind": "class",
+          "members": {},
+          "signature": "(dtype: 'type | str', not_null: 'bool' = False, min: 'Any | None' = None, max: 'Any | None' = None, allowed: 'Sequence[Any] | None' = None, freshness_minutes: 'int | None' = None, unique: 'bool' = False, pattern: 'str | None' = None, description: 'str' = '', metadata: 'dict[str, Any]' = <factory>, custom: 'Callable[[Any], bool] | None' = None) -> None"
+        },
+        "Contract": {
+          "kind": "class",
+          "members": {
+            "from_yaml": "classmethod (path: 'str | Path') -> 'Contract'",
+            "to_yaml": "method (self, path: 'str | Path', *, header: 'str | None' = None) -> 'None'",
+            "validate": "method (self, df: 'Any', engine: 'Engine | str | None' = None, *, context: 'ExecutionContext | None' = None) -> 'ValidationResult'"
+          },
+          "signature": "(name: 'str', columns: 'dict[str, Column]' = <factory>, rules: 'list[str]' = <factory>, cross_column_rules: 'list[CrossColumnRule]' = <factory>, description: 'str' = '', metadata: 'dict[str, Any]' = <factory>) -> None"
+        },
+        "ContractChange": {
+          "kind": "class",
+          "members": {
+            "breaking": "property",
+            "to_dict": "method (self) -> 'dict[str, Any]'"
+          },
+          "signature": "(kind: 'str', classification: 'str', reason: 'str', column: 'str | None' = None, attribute: 'str | None' = None, old: 'Any' = None, new: 'Any' = None) -> None"
+        },
+        "ContractDiff": {
+          "kind": "class",
+          "members": {
+            "breaking_changes": "property",
+            "has_breaking": "property",
+            "is_empty": "property",
+            "non_breaking_changes": "property",
+            "render_text": "method (self) -> 'str'",
+            "to_dict": "method (self) -> 'dict[str, Any]'"
+          },
+          "signature": "(old_name: 'str', new_name: 'str', changes: 'list[ContractChange]' = <factory>) -> None"
+        },
+        "CrossColumnRule": {
+          "kind": "class",
+          "members": {},
+          "signature": "(name: 'str', error_message: 'str' = '', check: 'Callable[[Any], Any] | None' = None, left: 'str | None' = None, op: 'str | None' = None, right: 'str | int | float | None' = None) -> None"
+        },
+        "Engine": {
+          "kind": "class",
+          "members": {
+            "validate": "method (self, data: 'Any', contract: 'Contract | ValidationSpec', *, context: 'ExecutionContext | None' = None) -> 'ValidationResult'"
+          },
+          "signature": null
+        },
+        "ExecutionContext": {
+          "kind": "class",
+          "members": {
+            "resolve_engine": "method (self) -> 'Engine'"
+          },
+          "signature": "(engine: 'str' = 'pandas', parallel: 'bool' = False, max_workers: 'int | None' = None, cache: 'bool' = True, strict: 'bool' = False, fail_fast: 'bool' = False) -> None"
+        },
+        "StatsCache": {
+          "kind": "class",
+          "members": {
+            "null_count": "method (self, column: 'str') -> 'int'",
+            "null_rate": "method (self, column: 'str') -> 'float'",
+            "row_count": "property",
+            "unique_count": "method (self, column: 'str') -> 'int'"
+          },
+          "signature": "(columns: 'Iterable[str]', *, memoize: 'bool' = True) -> 'None'"
+        },
+        "ValidationResult": {
+          "kind": "class",
+          "members": {
+            "failed_checks": "property",
+            "ok": "property",
+            "summary": "method (self) -> 'str'",
+            "to_dict": "method (self) -> 'dict[str, Any]'"
+          },
+          "signature": "(contract_name: 'str', checks: 'list[CheckResult]' = <factory>) -> None"
+        },
+        "ValidationSpec": {
+          "kind": "class",
+          "members": {
+            "from_contract": "classmethod (contract: 'Contract') -> 'ValidationSpec'"
+          },
+          "signature": "(contract_name: 'str', checks: 'tuple[CheckSpec, ...]' = ()) -> None"
+        },
+        "available_engines": {
+          "kind": "function",
+          "signature": "() -> 'list[str]'"
+        },
+        "diff_contracts": {
+          "kind": "function",
+          "signature": "(old: 'Contract | str | Path', new: 'Contract | str | Path') -> 'ContractDiff'"
+        },
+        "evaluate_rule": {
+          "kind": "function",
+          "signature": "(expression: 'str', *, row_count: 'int', null_rate: 'Callable[[str], float]', unique_count: 'Callable[[str], float]') -> 'bool'"
+        },
+        "get_engine": {
+          "kind": "function",
+          "signature": "(name: 'str | None' = None) -> 'Engine'"
+        },
+        "infer_contract": {
+          "kind": "function",
+          "signature": "(df: 'pd.DataFrame', name: 'str' = 'inferred', *, infer_ranges: 'bool' = True, max_allowed_cardinality: 'int' = 20) -> 'Contract'"
+        },
+        "register_engine": {
+          "kind": "function",
+          "signature": "(name: 'str', factory: 'EngineFactory') -> 'None'"
+        }
+      }
+    },
+    "dqflow.schema": {
+      "__all__": [
+        "CONTRACT_SCHEMA_FILENAME",
+        "CONTRACT_SCHEMA_URI",
+        "ContractError",
+        "ContractParseError",
+        "ContractSchemaError",
+        "ContractVersionError",
+        "DEFAULT_SCHEMA_VERSION",
+        "Diagnostic",
+        "KNOWN_COLUMN_FIELDS",
+        "KNOWN_CROSS_COLUMN_FIELDS",
+        "KNOWN_TOP_LEVEL",
+        "SCHEMA_VERSION",
+        "SUPPORTED_SCHEMA_VERSIONS",
+        "check_version",
+        "contract_json_schema",
+        "format_diagnostics",
+        "lint_contract_data",
+        "lint_contract_file",
+        "parse_contract_yaml"
+      ],
+      "members": {
+        "CONTRACT_SCHEMA_FILENAME": {
+          "kind": "constant",
+          "value": "contract-1.0.json"
+        },
+        "CONTRACT_SCHEMA_URI": {
+          "kind": "constant",
+          "value": "https://dqflow.github.io/dqflow/schema/contract-1.0.json"
+        },
+        "ContractError": {
+          "exception_bases": [
+            "Exception",
+            "BaseException"
+          ],
+          "kind": "class",
+          "members": {},
+          "signature": null
+        },
+        "ContractParseError": {
+          "exception_bases": [
+            "ContractError",
+            "Exception",
+            "BaseException"
+          ],
+          "kind": "class",
+          "members": {},
+          "signature": null
+        },
+        "ContractSchemaError": {
+          "exception_bases": [
+            "ContractError",
+            "Exception",
+            "BaseException"
+          ],
+          "kind": "class",
+          "members": {},
+          "signature": "(diagnostics: 'list[Diagnostic]', *, source: 'str | None' = None) -> 'None'"
+        },
+        "ContractVersionError": {
+          "exception_bases": [
+            "ContractError",
+            "Exception",
+            "BaseException"
+          ],
+          "kind": "class",
+          "members": {},
+          "signature": null
+        },
+        "DEFAULT_SCHEMA_VERSION": {
+          "kind": "constant",
+          "value": "1.0"
+        },
+        "Diagnostic": {
+          "kind": "class",
+          "members": {
+            "is_error": "property",
+            "to_dict": "method (self) -> 'dict[str, Any]'"
+          },
+          "signature": "(severity: 'str', code: 'str', message: 'str', path: 'str' = '', line: 'int | None' = None) -> None"
+        },
+        "KNOWN_COLUMN_FIELDS": {
+          "kind": "constant",
+          "value": {
+            "items": [
+              "'allowed'",
+              "'description'",
+              "'dtype'",
+              "'freshness_minutes'",
+              "'max'",
+              "'metadata'",
+              "'min'",
+              "'not_null'",
+              "'pattern'",
+              "'type'",
+              "'unique'"
+            ],
+            "type": "frozenset"
+          }
+        },
+        "KNOWN_CROSS_COLUMN_FIELDS": {
+          "kind": "constant",
+          "value": {
+            "items": [
+              "'error_message'",
+              "'left'",
+              "'name'",
+              "'op'",
+              "'right'"
+            ],
+            "type": "frozenset"
+          }
+        },
+        "KNOWN_TOP_LEVEL": {
+          "kind": "constant",
+          "value": {
+            "items": [
+              "'$schema'",
+              "'columns'",
+              "'cross_column_rules'",
+              "'description'",
+              "'metadata'",
+              "'name'",
+              "'rules'",
+              "'schema_version'"
+            ],
+            "type": "frozenset"
+          }
+        },
+        "SCHEMA_VERSION": {
+          "kind": "constant",
+          "value": "1.0"
+        },
+        "SUPPORTED_SCHEMA_VERSIONS": {
+          "kind": "constant",
+          "value": {
+            "items": [
+              "'1.0'"
+            ],
+            "type": "tuple"
+          }
+        },
+        "check_version": {
+          "kind": "function",
+          "signature": "(value: 'object', *, path: 'str' = 'schema_version') -> 'list[Diagnostic]'"
+        },
+        "contract_json_schema": {
+          "kind": "function",
+          "signature": "() -> 'dict[str, Any]'"
+        },
+        "format_diagnostics": {
+          "kind": "function",
+          "signature": "(source: 'str', diagnostics: 'list[Diagnostic]') -> 'str'"
+        },
+        "lint_contract_data": {
+          "kind": "function",
+          "signature": "(data: 'Any') -> 'list[Diagnostic]'"
+        },
+        "lint_contract_file": {
+          "kind": "function",
+          "signature": "(path: 'str | Path') -> 'list[Diagnostic]'"
+        },
+        "parse_contract_yaml": {
+          "kind": "function",
+          "signature": "(text: 'str', *, source: 'str | None' = None) -> 'Any'"
+        }
+      }
+    }
+  },
+  "version": "0.4.0"
+}
