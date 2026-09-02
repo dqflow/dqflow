@@ -80,12 +80,14 @@ Already shipped:
   ([#18](https://github.com/dqflow/dqflow/issues/18), 0.4.0)
 - Cross-column rules (`left`/`op`/`right` or a callable), no `eval` (#28, #29)
 - Structured results: `ValidationResult.ok`, `.summary()`, `.to_dict()`
-- Architecture Foundation shipped in 0.4.0: `Contract` decoupled from engines
+- Architecture Foundation: `Contract` decoupled from engines
   with an engine registry ([#17](https://github.com/dqflow/dqflow/issues/17)), a
   contract compiles once to an engine-agnostic `ValidationSpec`
-  ([#16](https://github.com/dqflow/dqflow/issues/16)), and table-rule statistics
+  ([#16](https://github.com/dqflow/dqflow/issues/16)), table-rule statistics
   come from a shared lazy `StatsCache`
-  ([#21](https://github.com/dqflow/dqflow/issues/21))
+  ([#21](https://github.com/dqflow/dqflow/issues/21)) (all 0.4.0), and a run's
+  engine / cache / execution flags are carried in one `ExecutionContext`
+  ([#15](https://github.com/dqflow/dqflow/issues/15))
 - Engine base class + **pandas** engine (default) and an **experimental Polars**
   engine (`dqflow[polars]`), selectable via `dq validate --engine` or
   `Contract.validate(df, engine=...)`; output-parity tests
@@ -144,7 +146,8 @@ blocks a breaking contract change in CI.
 interpret `Column` objects directly and each carried its own copy of rule
 evaluation (including `eval`). That duplication made every later feature — new
 engines, severity, advanced rules, a shared cache — more expensive. Four of the
-five issues shipped in **0.4.0**; only `ExecutionContext` (#15) remains.
+five issues shipped in **0.4.0**; `ExecutionContext` (#15) followed and the
+category is now complete.
 
 **Execution order:** [#17](https://github.com/dqflow/dqflow/issues/17) →
 [#16](https://github.com/dqflow/dqflow/issues/16) →
@@ -160,7 +163,7 @@ five issues shipped in **0.4.0**; only `ExecutionContext` (#15) remains.
       │        ├──> #18 Central rule evaluator, no eval   ✅ 0.4.0
       │        └──> #21 Shared computation cache ─┐        ✅ 0.4.0
       │                                           │
-      └──> #15 ExecutionContext ──────────────────┘        ⬜ next
+      └──> #15 ExecutionContext ──────────────────┘        ✅ Unreleased
                  │
                  └──> Performance & Execution, Ecosystem engines
 ```
@@ -170,11 +173,11 @@ five issues shipped in **0.4.0**; only `ExecutionContext` (#15) remains.
 | [#17](https://github.com/dqflow/dqflow/issues/17) | Decouple Contract from Engine Execution | — | #16, #15 | ✅ 0.4.0 |
 | [#16](https://github.com/dqflow/dqflow/issues/16) | Introduce ValidationSpec (IR layer) | #17 | #18, #21, #25, #49, #50 | ✅ 0.4.0 |
 | [#18](https://github.com/dqflow/dqflow/issues/18) | Extract central rule evaluator | #16 | #44, #51 | ✅ 0.4.0 |
-| [#15](https://github.com/dqflow/dqflow/issues/15) | Introduce ExecutionContext | #17 | #21, #22, #23, #47 | Planned |
+| [#15](https://github.com/dqflow/dqflow/issues/15) | Introduce ExecutionContext | #17 | #21, #22, #23, #47 | ✅ Unreleased |
 | [#21](https://github.com/dqflow/dqflow/issues/21) | Shared Computation Cache abstraction | #16, #15 | #23 | ✅ 0.4.0 |
 
-> #21 shipped without waiting on #15: the cache is always on. Cache
-> *configuration* (enable/disable, limits) will be added with #15.
+> #21 shipped before #15 with the cache always on. #15 adds the on/off switch
+> (`ExecutionContext(cache=...)`); cache size limits remain future work.
 
 ---
 

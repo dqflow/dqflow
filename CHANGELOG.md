@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `dqflow.execution.ExecutionContext` — a frozen dataclass that carries the
+  runtime configuration for one `Contract.validate()` call: `engine`, `cache`,
+  and the reserved `parallel` / `max_workers` / `strict` / `fail_fast` flags.
+  `Contract.validate(df, context=ExecutionContext(...))` is the full form;
+  `engine=` stays as a shortcut (the two are mutually exclusive). `dq validate`
+  builds the context from `--engine`
+  ([#15](https://github.com/dqflow/dqflow/issues/15))
+- `ExecutionContext(cache=False)` / `StatsCache(..., memoize=False)` disables
+  memoisation of table-rule statistics — the cache on/off switch the shared
+  `StatsCache` deferred to #15. Cache size limits remain future work
+- Public API: `ExecutionContext`, `Engine`, `ValidationSpec`, `StatsCache`,
+  `evaluate_rule`, `get_engine`, `register_engine`, and `available_engines` are
+  now importable directly from `dqflow`
+
+### Changed
+- `Engine.validate()` takes a keyword-only `context: ExecutionContext | None`
+  instead of `**kwargs`. The previously accepted no-op `parallel` /
+  `max_workers` keyword arguments are removed — pass them through an
+  `ExecutionContext`. Only affects code calling an engine's `validate()`
+  directly
+
 ## [0.4.0] - 2026-09-02
 
 The Architecture Foundation refactor: a contract now compiles once to an

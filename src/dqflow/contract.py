@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, Any
 import yaml
 
 from dqflow.column import Column, CrossColumnRule
-from dqflow.engines.registry import get_engine
+from dqflow.engines.registry import DEFAULT_ENGINE
+from dqflow.execution.context import ExecutionContext
 from dqflow.result import ValidationResult
 from dqflow.spec import ValidationSpec
 
@@ -67,23 +68,43 @@ class Contract:
         """Ensure all columns are normalized into Column objects."""
         self.columns = {name: _ensure_column(col) for name, col in self.columns.items()}
 
-    def validate(self, df: Any, engine: Engine | str | None = None) -> ValidationResult:
+    def validate(
+        self,
+        df: Any,
+        engine: Engine | str | None = None,
+        *,
+        context: ExecutionContext | None = None,
+    ) -> ValidationResult:
         """Validate a DataFrame and return every generated check.
 
         Args:
             df: DataFrame supported by the selected engine.
             engine: An :class:`~dqflow.engines.base.Engine` instance, a
                 registered engine name (``"pandas"`` or ``"polars"``), or
-                ``None`` to use the default pandas engine.
+                ``None`` to use the default pandas engine. A shortcut for the
+                common case; mutually exclusive with ``context``.
+            context: An :class:`~dqflow.execution.ExecutionContext` carrying the
+                full runtime configuration (engine, cache, execution flags). When
+                given, ``engine`` must be omitted. When an ``Engine`` *instance*
+                is passed as ``engine`` a default context is used and its
+                ``engine`` field is ignored.
 
         Returns:
             A structured result whose ``ok`` property is true only when every
             check passes.
         """
-        if engine is None or isinstance(engine, str):
-            engine = get_engine(engine)
+        if context is not None:
+            if engine is not None:
+                raise TypeError("Contract.validate() accepts 'engine' or 'context', not both")
+            resolved = context.resolve_engine()
+        elif engine is None or isinstance(engine, str):
+            context = ExecutionContext(engine=engine or DEFAULT_ENGINE)
+            resolved = context.resolve_engine()
+        else:
+            resolved = engine
+            context = ExecutionContext()
 
-        return engine.validate(df, ValidationSpec.from_contract(self))
+        return resolved.validate(df, ValidationSpec.from_contract(self), context=context)
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> Contract:

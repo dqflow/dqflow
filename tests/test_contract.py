@@ -55,7 +55,7 @@ class TestContract:
 
 
 class TestParallelValidation:
-    """Ensure sequential vs parallel execution produces identical results."""
+    """The ``parallel`` context flag must not change results (real parallelism is #22)."""
 
     def test_parallel_vs_sequential_consistency(
         self,
@@ -63,19 +63,20 @@ class TestParallelValidation:
         sample_df: pd.DataFrame,
     ) -> None:
         from dqflow.engines.pandas import PandasEngine
+        from dqflow.execution.context import ExecutionContext
 
         engine = PandasEngine()
 
         result_seq = engine.validate(
             sample_df,
             sample_contract,
-            parallel=False,
+            context=ExecutionContext(parallel=False),
         )
 
         result_par = engine.validate(
             sample_df,
             sample_contract,
-            parallel=True,
+            context=ExecutionContext(parallel=True),
         )
 
         assert result_seq.ok == result_par.ok

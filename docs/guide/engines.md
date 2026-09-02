@@ -39,6 +39,31 @@ an experimental API. Passing a `LazyFrame` does not keep execution lazy today;
 the engine calls `collect()` first. Track lazy execution in
 [#25](https://github.com/dqflow/dqflow/issues/25).
 
+## Runtime configuration with `ExecutionContext`
+
+`engine=` is a shortcut. The full runtime configuration for a run lives in an
+[`ExecutionContext`](../api/context.md) — a frozen dataclass you pass as
+`context=`:
+
+```python
+from dqflow import ExecutionContext
+
+context = ExecutionContext(engine="polars", cache=False)
+result = contract.validate(polars_df, context=context)
+```
+
+`engine=` and `context=` are mutually exclusive.
+
+| Field | Effect today |
+| --- | --- |
+| `engine` | Registered engine name; resolved through the registry. |
+| `cache` | `True` (default) memoises table-rule statistics so a column used by several rules is scanned once. `False` recomputes every statistic on access. |
+| `parallel`, `max_workers` | Carried, no effect yet — reserved for [#22](https://github.com/dqflow/dqflow/issues/22). |
+| `strict`, `fail_fast` | Carried, no effect yet — reserved for [#44](https://github.com/dqflow/dqflow/issues/44). `fail_fast` here is unrelated to the `dq validate --fail-fast` exit-code flag. |
+
+The CLI builds the context for you: `dq validate --engine polars` runs with
+`ExecutionContext(engine="polars")`.
+
 ## Registering a custom engine
 
 ```python

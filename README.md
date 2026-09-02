@@ -306,7 +306,7 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
   ValidationSpec    ✓                  contract compiled to a shared IR
   dqflow.rules      ✓                  one AST rule evaluator, no eval
   StatsCache        ✓                  shared lazy column-stats cache
-  ExecutionContext  … (in progress)    runtime knobs, issue #15
+  ExecutionContext  ✓                  runtime knobs — engine, cache
       │
       ▼
   Engine  ───────────────────────▶     pandas   default, stable
@@ -319,9 +319,11 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 `Contract.validate()` compiles the contract to a shared `ValidationSpec`, rule
 expressions run through the shared `dqflow.rules` evaluator (no `eval`), and
 table-rule statistics come from a shared lazy `StatsCache` (all shipped in
-0.4.0). An `ExecutionContext` for runtime knobs is the last layer being
-extracted — see
-[ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) (issue #15).
+0.4.0). The run's engine, cache toggle, and (reserved) execution flags are
+carried in one `ExecutionContext` — passed as
+`contract.validate(df, context=ExecutionContext(...))` or built from the
+`engine=` shortcut and `dq validate --engine`
+([issue #15](https://github.com/dqflow/dqflow/issues/15)).
 
 ## Supported engines
 

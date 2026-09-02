@@ -8,6 +8,7 @@ from dqflow.result import ValidationResult
 
 if TYPE_CHECKING:
     from dqflow.contract import Contract
+    from dqflow.execution.context import ExecutionContext
     from dqflow.spec import ValidationSpec
 
 #: Maximum number of offending values attached to a failing ``CheckResult``.
@@ -22,7 +23,8 @@ class Engine(ABC):
         self,
         data: Any,
         contract: Contract | ValidationSpec,
-        **kwargs: Any,
+        *,
+        context: ExecutionContext | None = None,
     ) -> ValidationResult:
         """Validate data against a contract.
 
@@ -31,7 +33,8 @@ class Engine(ABC):
             contract: A :class:`~dqflow.contract.Contract` or an already-compiled
                 :class:`~dqflow.spec.ValidationSpec`. A contract is compiled once
                 on entry; engines execute the spec.
-            **kwargs: Optional engine-specific execution settings.
+            context: The run's :class:`~dqflow.execution.ExecutionContext`.
+                ``None`` means engine defaults.
 
         Returns:
             Engine-independent validation result.

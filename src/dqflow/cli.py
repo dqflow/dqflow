@@ -15,6 +15,7 @@ import pandas as pd
 from dqflow import __version__
 from dqflow.contract import Contract
 from dqflow.diff import diff_contracts
+from dqflow.execution.context import ExecutionContext
 from dqflow.inference import infer_contract, inference_header
 from dqflow.report import Verbosity, render_result, resolve_color
 
@@ -66,7 +67,7 @@ def validate(
 
     c = Contract.from_yaml(contract)
     df = _load_polars_dataframe(data) if engine == "polars" else _load_dataframe(data)
-    result = c.validate(df, engine=engine)
+    result = c.validate(df, context=ExecutionContext(engine=engine))
 
     if output == "json":
         click.echo(json.dumps(result.to_dict(), indent=2))

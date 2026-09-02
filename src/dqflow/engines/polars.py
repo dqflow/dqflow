@@ -26,6 +26,7 @@ from dqflow.engines.base import (
     sorted_values,
     unique_message,
 )
+from dqflow.execution.context import ExecutionContext
 from dqflow.result import CheckResult, ValidationResult
 from dqflow.rules import evaluate_rule
 from dqflow.spec import CheckSpec, ValidationSpec
@@ -43,8 +44,8 @@ _OPS: dict[str, Callable[[Any, Any], Any]] = {
 class PolarsStatsCache(StatsCache):
     """:class:`~dqflow.cache.StatsCache` backed by a Polars DataFrame."""
 
-    def __init__(self, df: pl.DataFrame) -> None:
-        super().__init__(df.columns)
+    def __init__(self, df: pl.DataFrame, *, memoize: bool = True) -> None:
+        super().__init__(df.columns, memoize=memoize)
         self._df = df
 
     def _compute_row_count(self) -> int:
@@ -60,15 +61,16 @@ class PolarsStatsCache(StatsCache):
 class _Run:
     """Per-``validate`` state: the frame plus a lazily built stats cache."""
 
-    def __init__(self, df: pl.DataFrame) -> None:
+    def __init__(self, df: pl.DataFrame, *, cache: bool = True) -> None:
         self.df = df
         self.columns = set(df.columns)
+        self._cache = cache
         self._stats: StatsCache | None = None
 
     @property
     def stats(self) -> StatsCache:
         if self._stats is None:
-            self._stats = PolarsStatsCache(self.df)
+            self._stats = PolarsStatsCache(self.df, memoize=self._cache)
         return self._stats
 
 
@@ -83,8 +85,12 @@ class PolarsEngine(Engine):
         self,
         data: pl.DataFrame | pl.LazyFrame,
         contract: Contract | ValidationSpec,
-        **kwargs: Any,
+        *,
+        context: ExecutionContext | None = None,
     ) -> ValidationResult:
+        if context is None:
+            context = ExecutionContext()
+
         if isinstance(data, pl.LazyFrame):
             data = data.collect()
 
@@ -94,7 +100,7 @@ class PolarsEngine(Engine):
             else ValidationSpec.from_contract(contract)
         )
 
-        run = _Run(data)
+        run = _Run(data, cache=context.cache)
         handlers: dict[str, Callable[[_Run, CheckSpec], CheckResult | None]] = {
             "column_exists": self._check_column_exists,
             "not_null": self._check_not_null,
