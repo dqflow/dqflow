@@ -210,6 +210,62 @@ columns:
             assert '"contract_name"' in result.output
             assert '"ok"' in result.output
 
+    def test_validate_engine_polars_matches_pandas(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            contract_path = tmpdir / "contract.yaml"
+            contract_path.write_text(_CONTRACT_V1)
+
+            data_path = tmpdir / "data.csv"
+            pd.DataFrame(
+                {
+                    "order_id": ["A1", "A2", "A3"],
+                    "amount": [10.0, 5.0, 20.0],
+                    "currency": ["USD", "EUR", "USD"],
+                }
+            ).to_csv(data_path, index=False)
+
+            args = ["validate", str(contract_path), str(data_path), "-o", "json"]
+            pandas_out = runner.invoke(main, [*args, "--engine", "pandas"])
+            polars_out = runner.invoke(main, [*args, "--engine", "polars"])
+
+            assert pandas_out.exit_code == 0
+            assert polars_out.exit_code == 0
+            assert json.loads(pandas_out.output) == json.loads(polars_out.output)
+
+    def test_validate_engine_polars_fail_fast(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            contract_path = tmpdir / "contract.yaml"
+            contract_path.write_text(_CONTRACT_V1)
+
+            data_path = tmpdir / "data.csv"
+            pd.DataFrame(
+                {"order_id": ["A1", None], "amount": [10.0, -5.0], "currency": ["USD", "GBP"]}
+            ).to_csv(data_path, index=False)
+
+            args = ["validate", str(contract_path), str(data_path), "--engine", "polars"]
+            result = runner.invoke(main, [*args, "--fail-fast"])
+            assert result.exit_code == 1
+
+    def test_validate_rejects_unknown_engine(self) -> None:
+        runner = CliRunner()
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            contract_path = tmpdir / "contract.yaml"
+            contract_path.write_text(_CONTRACT_V1)
+            data_path = tmpdir / "data.csv"
+            pd.DataFrame({"order_id": ["A1"], "amount": [1.0], "currency": ["USD"]}).to_csv(
+                data_path, index=False
+            )
+
+            result = runner.invoke(
+                main, ["validate", str(contract_path), str(data_path), "--engine", "spark"]
+            )
+            assert result.exit_code == 2
+
     def test_show_command(self) -> None:
         runner = CliRunner()
         with TemporaryDirectory() as tmpdir:

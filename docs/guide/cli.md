@@ -15,8 +15,8 @@ pip install "dqflow[parquet]"  # adds pyarrow
 ## `dq validate`
 
 ```bash
-dq validate CONTRACT DATA [--output text|json] [--fail-fast]
-             [--quiet | --verbose] [--color | --no-color]
+dq validate CONTRACT DATA [--output text|json] [--engine pandas|polars]
+             [--fail-fast] [--quiet | --verbose] [--color | --no-color]
 ```
 
 Supported extensions are `.csv`, `.json`, and—after installing the extra—
@@ -27,6 +27,10 @@ dq validate contracts/orders.yaml data/orders.csv
 dq validate contracts/orders.yaml data/orders.csv --output json
 dq validate contracts/orders.yaml data/orders.parquet --fail-fast
 ```
+
+`--engine` selects the validation engine (default `pandas`). `--engine polars`
+reads the data file with Polars' native readers and runs the Polars engine, which
+needs `pip install "dqflow[polars]"`. Both engines produce the same result shape.
 
 Without `--fail-fast`, a completed validation command exits `0` even when checks
 fail; inspect the text or JSON result. With `--fail-fast`, the command still

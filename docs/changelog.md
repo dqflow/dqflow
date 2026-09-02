@@ -5,6 +5,10 @@ The complete release history lives in
 
 ## Unreleased
 
+- Engine registry (`dqflow.engines.get_engine` / `register_engine`).
+  `Contract.validate(df, engine=...)` accepts an engine name or instance,
+  `dq validate --engine pandas|polars` selects it from the CLI, and `Contract`
+  no longer imports an engine ([#17](https://github.com/dqflow/dqflow/issues/17)).
 - Grouped, colourised `dq validate` text output with per-check failure rates and
   a bounded sample of the offending values, plus `--quiet` / `--verbose` /
   `--color` flags and a standalone `dqflow.report.render_result()` renderer.

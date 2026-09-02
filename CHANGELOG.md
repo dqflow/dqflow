@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Engine registry: `dqflow.engines.get_engine()`, `register_engine()`, and
+  `available_engines()`. `Contract.validate(df, engine=...)` now accepts an
+  engine name (`"pandas"` / `"polars"`), an `Engine` instance, or `None`, and
+  `dq validate --engine pandas|polars` selects the engine from the CLI. `Contract`
+  no longer imports any engine ([#17](https://github.com/dqflow/dqflow/issues/17))
 - `dq validate` text output is now grouped (schema / columns / table rules /
   cross-column rules) with per-group pass/fail counts, a failure rate per check,
   and a bounded sample of the offending values. Colour is used on a TTY and
