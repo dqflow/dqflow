@@ -5,6 +5,19 @@ The complete release history lives in
 
 ## Unreleased
 
+- `dq lint CONTRACT` — validate a contract file without reading data. Path- and
+  line-aware diagnostics for unknown fields, wrong types, bad regexes,
+  contradictory bounds, unparseable rules, and an unsupported schema version;
+  `--output json`, `--strict`, exit `1` on errors
+  ([#61](https://github.com/dqflow/dqflow/issues/61)).
+- Contracts carry a `schema_version` (`"1.0"`), always written by `to_yaml()` /
+  `dq infer`; a `MAJOR.MINOR` compatibility policy governs cross-version loading.
+  See [Schema versioning](guide/schema-versioning.md).
+- `Contract.from_yaml()` validates before construction and raises a typed
+  `dqflow.schema.ContractError` (`ContractParseError` / `ContractSchemaError` /
+  `ContractVersionError`) instead of a traceback; unknown fields are rejected.
+- `dqflow.schema` — `lint_contract_file` / `lint_contract_data`, `Diagnostic`,
+  and the error classes.
 - `dqflow.execution.ExecutionContext` — a frozen dataclass carrying a run's
   engine, cache toggle, and reserved execution flags
   (`parallel` / `max_workers` / `strict` / `fail_fast`).

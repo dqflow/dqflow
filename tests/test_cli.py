@@ -438,3 +438,88 @@ rules:
             assert result.exit_code != 0
             assert "Could not read" in result.output
             assert not output_path.exists()
+
+
+_BROKEN_CONTRACT = """
+schema_version: "1.0"
+name: orders
+columns:
+  amount:
+    type: float
+    min: 100
+    max: 1
+    bogus: true
+rules:
+  - "import os"
+"""
+
+
+class TestLint:
+    """Tests for `dq lint`."""
+
+    def _runner(self) -> CliRunner:
+        return CliRunner()
+
+    def test_clean_contract_exits_zero(self) -> None:
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "c.yaml"
+            path.write_text(_CONTRACT_V1)
+            result = self._runner().invoke(main, ["lint", str(path)])
+            assert result.exit_code == 0
+            assert "OK" in result.output or "warning" in result.output
+
+    def test_broken_contract_exits_one_with_paths(self) -> None:
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "c.yaml"
+            path.write_text(_BROKEN_CONTRACT)
+            result = self._runner().invoke(main, ["lint", str(path)])
+            assert result.exit_code == 1
+            assert "min-greater-than-max" in result.output
+            assert "unknown-field" in result.output
+            assert "invalid-rule" in result.output
+            assert "columns.amount.min" in result.output
+            assert "Traceback" not in result.output
+
+    def test_json_output(self) -> None:
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "c.yaml"
+            path.write_text(_BROKEN_CONTRACT)
+            result = self._runner().invoke(main, ["lint", str(path), "--output", "json"])
+            assert result.exit_code == 1
+            payload = json.loads(result.output)
+            assert payload["ok"] is False
+            assert payload["error_count"] >= 3
+            assert {d["code"] for d in payload["diagnostics"]} >= {"min-greater-than-max"}
+
+    def test_strict_fails_on_warnings(self) -> None:
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "c.yaml"
+            path.write_text("name: orders\ncolumns:\n  a: {dtype: string}\n")  # no schema_version
+            ok = self._runner().invoke(main, ["lint", str(path)])
+            strict = self._runner().invoke(main, ["lint", str(path), "--strict"])
+            assert ok.exit_code == 0
+            assert strict.exit_code == 1
+
+    def test_malformed_yaml_reports_cleanly(self) -> None:
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "c.yaml"
+            path.write_text("name: orders\ncolumns: {a: [1, 2\n")
+            result = self._runner().invoke(main, ["lint", str(path)])
+            assert result.exit_code == 1
+            assert "invalid-yaml" in result.output
+            assert "Traceback" not in result.output
+
+
+class TestValidateContractErrors:
+    """`dq validate` turns contract-load failures into clean messages."""
+
+    def test_broken_contract_is_a_clean_error(self) -> None:
+        with TemporaryDirectory() as tmp:
+            contract = Path(tmp) / "c.yaml"
+            contract.write_text(_BROKEN_CONTRACT)
+            data = Path(tmp) / "d.csv"
+            pd.DataFrame({"amount": [1.0]}).to_csv(data, index=False)
+            result = CliRunner().invoke(main, ["validate", str(contract), str(data)])
+            assert result.exit_code != 0
+            assert "Traceback" not in result.output
+            assert "dq lint" in result.output

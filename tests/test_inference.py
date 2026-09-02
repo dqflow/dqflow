@@ -97,6 +97,17 @@ def test_inferred_datetime_ranges_round_trip_through_yaml(tmp_path: Path) -> Non
     assert loaded.validate(df).ok is True
 
 
+def test_inferred_contract_yaml_declares_a_schema_version(tmp_path: Path) -> None:
+    from dqflow.schema import SCHEMA_VERSION, lint_contract_file
+
+    path = tmp_path / "c.yaml"
+    df = pd.DataFrame({"id": [1, 2, 3], "name": ["a", "b", "c"]})
+    infer_contract(df, name="c").to_yaml(path)
+
+    assert f"schema_version: '{SCHEMA_VERSION}'" in path.read_text()
+    assert lint_contract_file(path) == []
+
+
 def test_inference_header_records_provenance() -> None:
     header = inference_header(
         "data/orders.csv",

@@ -12,6 +12,13 @@ from dqflow.column import Column, CrossColumnRule
 from dqflow.engines.registry import DEFAULT_ENGINE
 from dqflow.execution.context import ExecutionContext
 from dqflow.result import ValidationResult
+from dqflow.schema import (
+    SCHEMA_VERSION,
+    ContractSchemaError,
+    ContractVersionError,
+    lint_contract_data,
+    parse_contract_yaml,
+)
 from dqflow.spec import ValidationSpec
 
 if TYPE_CHECKING:
@@ -110,16 +117,32 @@ class Contract:
     def from_yaml(cls, path: str | Path) -> Contract:
         """Load a contract from a YAML file.
 
+        The file is validated against the contract schema before construction.
+
         Args:
             path: Path to the YAML contract.
 
         Returns:
             The parsed and normalized contract.
+
+        Raises:
+            ContractParseError: If the file is not valid YAML.
+            ContractSchemaError: If the contract is structurally invalid. The
+                exception carries path-aware :class:`~dqflow.schema.Diagnostic`
+                records; ``dq lint`` prints them.
+            ContractVersionError: If ``schema_version`` is not supported.
         """
         path = Path(path)
 
-        with path.open() as f:
-            data = yaml.safe_load(f)
+        data = parse_contract_yaml(path.read_text(), source=str(path))
+
+        diagnostics = lint_contract_data(data)
+        errors = [d for d in diagnostics if d.is_error]
+        version_error = next((d for d in errors if d.code == "unsupported-schema-version"), None)
+        if version_error is not None:
+            raise ContractVersionError(version_error.message)
+        if errors:
+            raise ContractSchemaError(errors, source=str(path))
 
         columns = {
             name: _ensure_column(col_def) for name, col_def in data.get("columns", {}).items()
@@ -139,16 +162,17 @@ class Contract:
         return cls(
             name=data.get("name", path.stem),
             columns=columns,
-            rules=data.get("rules", []),
+            rules=list(data.get("rules", [])),
             cross_column_rules=cross_column_rules,
             description=data.get("description", ""),
-            metadata=data.get("metadata", {}),
+            metadata=dict(data.get("metadata", {})),
         )
 
     def to_yaml(self, path: str | Path, *, header: str | None = None) -> None:
         """Write the serializable portion of this contract as YAML.
 
-        Callable cross-column rules and arbitrary metadata on ``Column`` are not
+        The document declares the current ``schema_version``. Callable
+        cross-column rules and arbitrary metadata on ``Column`` are not
         serialized. Each line in ``header`` is written as a YAML comment.
 
         Args:
@@ -162,6 +186,7 @@ class Contract:
         }
 
         data: dict[str, Any] = {
+            "schema_version": SCHEMA_VERSION,
             "name": self.name,
             "columns": columns_data,
         }

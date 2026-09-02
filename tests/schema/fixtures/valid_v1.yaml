@@ -1,0 +1,30 @@
+schema_version: "1.0"
+name: orders
+description: A fully valid v1 contract
+columns:
+  order_id:
+    dtype: string
+    not_null: true
+    unique: true
+    pattern: "^A[0-9]{3}$"
+  amount:
+    dtype: float
+    min: 0
+    max: 100000
+  currency:
+    dtype: string
+    allowed: [USD, EUR, GBP]
+  created_at:
+    dtype: timestamp
+    freshness_minutes: 1440
+rules:
+  - row_count > 0
+  - "null_rate('amount') < 0.01"
+cross_column_rules:
+  - name: positive_after_fee
+    left: amount
+    op: ">="
+    right: 0
+    error_message: amount must be non-negative
+metadata:
+  team: checkout

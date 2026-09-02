@@ -38,6 +38,8 @@ nav:
       - Table Rules: guide/rules.md
       - Cross-column & Custom Checks: guide/custom-checks.md
       - YAML Contracts: guide/yaml.md
+      - Linting Contracts: guide/lint.md
+      - Schema Versioning: guide/schema-versioning.md
       - CLI Usage: guide/cli.md
       - Diffing Contracts: guide/diff.md
       - Inferring Contracts: guide/inference.md
@@ -50,6 +52,7 @@ nav:
       - Contract: api/contract.md
       - Column & CrossColumnRule: api/column.md
       - ValidationSpec: api/spec.md
+      - Contract schema: api/schema.md
       - Table-rule evaluator: api/rules.md
       - Statistics cache: api/cache.md
       - Results: api/result.md
