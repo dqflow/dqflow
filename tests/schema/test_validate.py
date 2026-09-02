@@ -63,6 +63,19 @@ class TestErrors:
         }
         assert "wrong-type" in _errors(data)
 
+    def test_schema_key_must_be_a_string(self) -> None:
+        data = {"$schema": ["nope"], "name": "x", "columns": {"a": {"dtype": "s"}}}
+        assert "wrong-type" in _errors(data)
+
+    def test_schema_key_is_otherwise_accepted(self) -> None:
+        data = {
+            "$schema": "https://dqflow.github.io/dqflow/schema/contract-1.0.json",
+            "schema_version": "1.0",
+            "name": "x",
+            "columns": {"a": {"dtype": "s"}},
+        }
+        assert lint_contract_data(data) == []
+
     def test_wrong_type_rules_not_a_list(self) -> None:
         data = {
             "schema_version": "1.0",

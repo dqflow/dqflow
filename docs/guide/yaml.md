@@ -42,6 +42,15 @@ reading (the current version is assumed, with a warning) and always written by
 Unknown keys — at the top level or on a column — are an error. Use `metadata:`
 for arbitrary data.
 
+A `# yaml-language-server: $schema=…` modeline or a `$schema` key wires the file
+to the published [JSON Schema](editor-integration.md) for editor autocompletion:
+
+```yaml
+# yaml-language-server: $schema=https://dqflow.github.io/dqflow/schema/contract-1.0.json
+schema_version: "1.0"
+name: orders
+```
+
 ## Check before you run
 
 ```bash

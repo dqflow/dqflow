@@ -93,6 +93,17 @@ Exits `0` when there are no errors, `1` when there are (or, with `--strict`, whe
 there are warnings). See [Linting contracts](lint.md) for the full diagnostic
 list.
 
+## `dq schema`
+
+```bash
+dq schema
+```
+
+Prints the JSON Schema for the contract format. The same document is published at
+`https://dqflow.github.io/dqflow/schema/contract-1.0.json` for
+[editor integration](editor-integration.md). It is a subset of `dq lint` — it
+cannot express cross-field checks — so keep `dq lint` in CI.
+
 ## `dq diff`
 
 ```bash

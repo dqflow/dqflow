@@ -40,6 +40,7 @@ nav:
       - YAML Contracts: guide/yaml.md
       - Linting Contracts: guide/lint.md
       - Schema Versioning: guide/schema-versioning.md
+      - Editor Integration: guide/editor-integration.md
       - CLI Usage: guide/cli.md
       - Diffing Contracts: guide/diff.md
       - Inferring Contracts: guide/inference.md
@@ -62,6 +63,9 @@ nav:
       - Inference: api/inference.md
   - Changelog: changelog.md
   - Contributing: contributing.md
+
+hooks:
+  - mkdocs_hooks.py
 
 markdown_extensions:
   - pymdownx.highlight:

@@ -262,6 +262,7 @@ def _wrong_type(
 
 def _check_top_level_types(data: dict[Any, Any]) -> list[Diagnostic]:
     specs = {
+        "$schema": "string",
         "name": "string",
         "description": "string",
         "columns": "mapping",

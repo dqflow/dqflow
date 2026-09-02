@@ -14,6 +14,10 @@ columns:
 `Contract.to_yaml()` and `dq infer` always write the current version
 (`1.0`). The value is `MAJOR.MINOR`.
 
+Each version has a published JSON Schema —
+`https://dqflow.github.io/dqflow/schema/contract-1.0.json` (also `dq schema`) —
+for [editor tooling](editor-integration.md).
+
 ## Compatibility policy
 
 When dqflow reads a contract it compares the file's `schema_version` with the

@@ -17,6 +17,11 @@ from dqflow.schema.errors import (
     ContractVersionError,
     Diagnostic,
 )
+from dqflow.schema.published import (
+    CONTRACT_SCHEMA_FILENAME,
+    CONTRACT_SCHEMA_URI,
+    contract_json_schema,
+)
 from dqflow.schema.report import format_diagnostics
 from dqflow.schema.validate import (
     KNOWN_COLUMN_FIELDS,
@@ -34,6 +39,8 @@ from dqflow.schema.version import (
 )
 
 __all__ = [
+    "CONTRACT_SCHEMA_FILENAME",
+    "CONTRACT_SCHEMA_URI",
     "DEFAULT_SCHEMA_VERSION",
     "KNOWN_COLUMN_FIELDS",
     "KNOWN_CROSS_COLUMN_FIELDS",
@@ -46,6 +53,7 @@ __all__ = [
     "ContractVersionError",
     "Diagnostic",
     "check_version",
+    "contract_json_schema",
     "format_diagnostics",
     "lint_contract_data",
     "lint_contract_file",
