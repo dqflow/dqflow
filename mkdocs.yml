@@ -61,6 +61,9 @@ nav:
       - Engines: api/engines.md
       - Execution context: api/context.md
       - Inference: api/inference.md
+  - Reference:
+      - Stability & Compatibility: reference/stability.md
+      - 1.0 Readiness: reference/v1-readiness.md
   - Changelog: changelog.md
   - Contributing: contributing.md
 

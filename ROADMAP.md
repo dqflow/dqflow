@@ -218,15 +218,20 @@ examples.
 security, and stability boundaries. These issues form the path from alpha to a
 credible 1.0.
 
-| Issue | Title | Priority | Depends on |
-|-------|-------|----------|------------|
-| [#65](https://github.com/dqflow/dqflow/issues/65) | Harden packaging and the supported compatibility matrix | P0 | — (benefits from #17) |
-| [#67](https://github.com/dqflow/dqflow/issues/67) | Define the stable public API and dqflow 1.0 readiness bar | P0 | #61 |
-| [#66](https://github.com/dqflow/dqflow/issues/66) | Add supply-chain security and verifiable release provenance | P1 | coordinates with #18, #61 |
+| Issue | Title | Priority | Depends on | Status |
+|-------|-------|----------|------------|--------|
+| [#65](https://github.com/dqflow/dqflow/issues/65) | Harden packaging and the supported compatibility matrix | P0 | — (benefits from #17) | 🔜 Planned |
+| [#67](https://github.com/dqflow/dqflow/issues/67) | Define the stable public API and dqflow 1.0 readiness bar | P0 | #61 | 🚧 Policy, public-surface CI snapshot, and 1.0 checklist landed (unreleased) |
+| [#66](https://github.com/dqflow/dqflow/issues/66) | Add supply-chain security and verifiable release provenance | P1 | coordinates with #18, #61 | 🔜 Planned |
 
 Covers: supported Python/pandas/Polars versions, cross-platform and built-wheel
 CI, backend-specific lightweight installs, API/CLI/JSON compatibility,
 deprecation policy, `SECURITY.md`, pinned Actions, attestations, and SBOMs.
+
+The compatibility half of #67 is in place: a published
+[stability policy](docs/reference/stability.md), a CI snapshot of the
+`dqflow` / `dqflow.schema` API, the `dq` CLI, and the `--output json` payloads,
+and a tracked [1.0 readiness checklist](docs/reference/v1-readiness.md).
 
 ---
 

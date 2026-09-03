@@ -42,6 +42,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Public API: `ExecutionContext`, `Engine`, `ValidationSpec`, `StatsCache`,
   `evaluate_rule`, `get_engine`, `register_engine`, and `available_engines` are
   now importable directly from `dqflow`
+- A published compatibility policy — the *Stability & compatibility* reference
+  page defines the covered surfaces (the `dqflow` / `dqflow.schema` API, the `dq`
+  CLI and its exit codes, the `--output json` payloads), a SemVer / deprecation
+  policy, and a tracked 1.0 readiness checklist. `tests/test_public_api.py`
+  snapshots those surfaces and fails CI on any accidental drift; regenerate the
+  snapshot with `python -m tests.api_surface.collect`
+  ([#67](https://github.com/dqflow/dqflow/issues/67))
 
 ### Changed
 - `Contract.from_yaml()` validates the document against the contract schema
