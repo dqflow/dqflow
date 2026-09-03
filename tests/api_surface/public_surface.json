@@ -29,7 +29,6 @@
             "type": "choice[text,json]"
           },
           {
-            "default": false,
             "is_flag": true,
             "kind": "option",
             "name": "allow_breaking",
@@ -67,7 +66,6 @@
             "type": "integer range(min=1,max=None)"
           },
           {
-            "default": false,
             "is_flag": true,
             "kind": "option",
             "name": "no_ranges",
@@ -89,7 +87,6 @@
             "type": "integer range(min=0,max=None)"
           },
           {
-            "default": false,
             "is_flag": true,
             "kind": "option",
             "name": "strict",
@@ -123,7 +120,6 @@
             "type": "choice[text,json]"
           },
           {
-            "default": false,
             "is_flag": true,
             "kind": "option",
             "name": "strict",
@@ -189,7 +185,6 @@
             "type": "choice[pandas,polars]"
           },
           {
-            "default": false,
             "is_flag": true,
             "kind": "option",
             "name": "fail_fast",
@@ -200,7 +195,6 @@
             "type": "boolean"
           },
           {
-            "default": false,
             "is_flag": true,
             "kind": "option",
             "name": "quiet",
@@ -212,7 +206,6 @@
             "type": "boolean"
           },
           {
-            "default": false,
             "is_flag": true,
             "kind": "option",
             "name": "verbose",
@@ -239,7 +232,6 @@
     },
     "params": [
       {
-        "default": false,
         "is_flag": true,
         "kind": "option",
         "name": "version",

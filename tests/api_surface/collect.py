@@ -132,8 +132,12 @@ def _describe_param(param: Any) -> dict[str, Any]:
         opts = list(getattr(param, "opts", [])) + list(getattr(param, "secondary_opts", []))
         entry["opts"] = sorted(opts)
         entry["is_flag"] = bool(getattr(param, "is_flag", False))
+    # Only a concrete string/number default is part of the CLI contract and
+    # stable across Click versions. "Not set", None, and a flag's implicit
+    # False are all reported inconsistently (Click >= 8.2 uses a sentinel), so
+    # drop them — a flag's behaviour is already captured by ``is_flag``.
     default = param.default
-    if default is not None and not callable(default):
+    if isinstance(default, (str, int, float)) and not isinstance(default, bool):
         entry["default"] = default
     return entry
 
