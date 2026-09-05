@@ -216,7 +216,8 @@ def test_column_not_null_validation():
 A small set of surfaces is a compatibility contract: the names exported from
 `dqflow` and `dqflow.schema`, the `dq` CLI (commands, options, exit codes), and
 the `--output json` payloads. See
-[Stability & compatibility](https://dqflow.github.io/dqflow/reference/stability/).
+
+[Stability & compatibility](https://dqflow.readthedocs.io/en/latest/reference/stability/).
 
 `tests/test_public_api.py` compares those surfaces to a committed snapshot and
 fails on any drift. If your change touches one **on purpose**:

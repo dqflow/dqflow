@@ -15,7 +15,7 @@ columns:
 (`1.0`). The value is `MAJOR.MINOR`.
 
 Each version has a published JSON Schema —
-`https://dqflow.github.io/dqflow/schema/contract-1.0.json` (also `dq schema`) —
+`https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json` (also `dq schema`) —
 for [editor tooling](editor-integration.md).
 
 ## Compatibility policy

@@ -3,7 +3,7 @@
 dqflow publishes a JSON Schema for the contract format at a stable URL:
 
 ```
-https://dqflow.github.io/dqflow/schema/contract-1.0.json
+https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json
 ```
 
 Point your editor's YAML tooling at it and you get autocompletion, hover docs,
@@ -20,7 +20,7 @@ and inline flags for obvious mistakes (unknown fields, wrong types) as you type.
 Add a modeline to the top of the contract:
 
 ```yaml
-# yaml-language-server: $schema=https://dqflow.github.io/dqflow/schema/contract-1.0.json
+# yaml-language-server: $schema=https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json
 schema_version: "1.0"
 name: orders
 columns:
@@ -33,7 +33,7 @@ Or use the schema's own convention — a `$schema` key, which dqflow accepts and
 ignores:
 
 ```yaml
-$schema: https://dqflow.github.io/dqflow/schema/contract-1.0.json
+$schema: https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json
 schema_version: "1.0"
 name: orders
 ```
@@ -46,7 +46,7 @@ and map your contract files in `settings.json`:
 ```json
 {
   "yaml.schemas": {
-    "https://dqflow.github.io/dqflow/schema/contract-1.0.json": [
+    "https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json": [
       "contracts/**/*.yaml",
       "**/*.contract.yaml"
     ]

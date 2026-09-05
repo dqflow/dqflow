@@ -46,7 +46,7 @@ A `# yaml-language-server: $schema=…` modeline or a `$schema` key wires the fi
 to the published [JSON Schema](editor-integration.md) for editor autocompletion:
 
 ```yaml
-# yaml-language-server: $schema=https://dqflow.github.io/dqflow/schema/contract-1.0.json
+# yaml-language-server: $schema=https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json
 schema_version: "1.0"
 name: orders
 ```

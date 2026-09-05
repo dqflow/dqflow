@@ -19,7 +19,7 @@ from dqflow.schema.version import SCHEMA_VERSION
 CONTRACT_SCHEMA_FILENAME = f"contract-{SCHEMA_VERSION}.json"
 
 #: Canonical URL of the published schema (matches its ``$id``).
-CONTRACT_SCHEMA_URI = f"https://dqflow.github.io/dqflow/schema/{CONTRACT_SCHEMA_FILENAME}"
+CONTRACT_SCHEMA_URI = f"https://dqflow.readthedocs.io/en/latest/schema/{CONTRACT_SCHEMA_FILENAME}"
 
 
 def contract_schema_text() -> str:

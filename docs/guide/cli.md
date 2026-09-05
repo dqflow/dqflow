@@ -100,7 +100,7 @@ dq schema
 ```
 
 Prints the JSON Schema for the contract format. The same document is published at
-`https://dqflow.github.io/dqflow/schema/contract-1.0.json` for
+`https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json` for
 [editor integration](editor-integration.md). It is a subset of `dq lint` — it
 cannot express cross-field checks — so keep `dq lint` in CI.
 
