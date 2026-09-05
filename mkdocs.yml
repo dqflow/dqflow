@@ -1,6 +1,6 @@
 site_name: dqflow
 site_description: Data contracts for Python data pipelines. Define, validate, fail fast.
-site_url: https://dqflow.github.io/dqflow
+site_url: https://dqflow.readthedocs.io/en/latest/
 repo_url: https://github.com/dqflow/dqflow
 repo_name: dqflow/dqflow
 

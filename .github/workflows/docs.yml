@@ -1,15 +1,13 @@
-name: Deploy Docs
+name: Build Docs
 
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,5 +20,5 @@ jobs:
       - name: Install dependencies
         run: pip install -e ".[docs,polars]"
 
-      - name: Deploy to GitHub Pages
-        run: mkdocs gh-deploy --strict --force
+      - name: Build documentation
+        run: mkdocs build --strict

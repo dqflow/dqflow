@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://dqflow.github.io/dqflow/schema/contract-1.0.json",
+  "$id": "https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json",
   "title": "dqflow contract",
   "description": "A dqflow data contract (schema_version 1.0). dq lint is the authoritative validator; this schema is a close approximation for editor tooling and cannot express cross-field checks such as min <= max, regex validity, or table-rule syntax.",
   "type": "object",

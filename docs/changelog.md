@@ -5,6 +5,9 @@ The complete release history lives in
 
 ## Unreleased
 
+- Documentation is now built and versioned by Read the Docs. Public documentation
+  links and the published contract schema URL now use
+  `https://dqflow.readthedocs.io/en/latest/` ([#76](https://github.com/dqflow/dqflow/issues/76)).
 - `dq lint CONTRACT` — validate a contract file without reading data. Path- and
   line-aware diagnostics for unknown fields, wrong types, bad regexes,
   contradictory bounds, unparseable rules, and an unsupported schema version;
@@ -19,7 +22,7 @@ The complete release history lives in
 - `dqflow.schema` — `lint_contract_file` / `lint_contract_data`, `Diagnostic`,
   and the error classes.
 - A published JSON Schema for the contract format
-  (`https://dqflow.github.io/dqflow/schema/contract-1.0.json`, `dq schema`,
+  (`https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json`, `dq schema`,
   `dqflow.schema.contract_json_schema()`) for editor autocompletion — see
   [Editor integration](guide/editor-integration.md). A subset of `dq lint`.
 - `dqflow.execution.ExecutionContext` — a frozen dataclass carrying a run's

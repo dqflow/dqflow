@@ -69,7 +69,7 @@ class TestErrors:
 
     def test_schema_key_is_otherwise_accepted(self) -> None:
         data = {
-            "$schema": "https://dqflow.github.io/dqflow/schema/contract-1.0.json",
+            "$schema": "https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json",
             "schema_version": "1.0",
             "name": "x",
             "columns": {"a": {"dtype": "s"}},

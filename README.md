@@ -20,13 +20,13 @@
 <p align="center">
   <a href="https://pypi.org/project/dqflow/"><img src="https://img.shields.io/pypi/v/dqflow.svg" alt="PyPI version"></a>
   <a href="https://github.com/dqflow/dqflow/actions/workflows/ci.yml"><img src="https://github.com/dqflow/dqflow/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://dqflow.github.io/dqflow/"><img src="https://img.shields.io/badge/docs-mkdocs-blue.svg" alt="Docs"></a>
+  <a href="https://dqflow.readthedocs.io/en/latest/"><img src="https://img.shields.io/badge/docs-read%20the%20docs-blue.svg" alt="Docs"></a>
   <a href="https://pypi.org/project/dqflow/"><img src="https://img.shields.io/pypi/pyversions/dqflow.svg" alt="Python versions"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
 </p>
 
 <p align="center">
-  <a href="https://dqflow.github.io/dqflow/">Documentation</a> ·
+  <a href="https://dqflow.readthedocs.io/en/latest/">Documentation</a> ·
   <a href="https://pypi.org/project/dqflow/">PyPI</a> ·
   <a href="https://github.com/dqflow/dqflow/blob/main/ROADMAP.md">Roadmap</a>
 </p>
@@ -307,8 +307,8 @@ dqflow is `0.x` and still moving. A small set of surfaces — the `dqflow` /
 `--output json` payloads — is treated as a compatibility contract: changes are
 listed in the [changelog](https://github.com/dqflow/dqflow/blob/main/CHANGELOG.md)
 with a migration note, and a CI snapshot test blocks accidental breakage. See
-[Stability & compatibility](https://dqflow.github.io/dqflow/reference/stability/)
-and the [1.0 readiness checklist](https://dqflow.github.io/dqflow/reference/v1-readiness/).
+[Stability & compatibility](https://dqflow.readthedocs.io/en/latest/reference/stability/)
+and the [1.0 readiness checklist](https://dqflow.readthedocs.io/en/latest/reference/v1-readiness/).
 
 ## Architecture
 

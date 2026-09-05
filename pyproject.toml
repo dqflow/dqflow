@@ -74,6 +74,7 @@ dq = "dqflow.cli:main"
 Homepage = "https://github.com/dqflow/dqflow"
 Repository = "https://github.com/dqflow/dqflow"
 Issues = "https://github.com/dqflow/dqflow/issues"
+Documentation = "https://dqflow.readthedocs.io/en/latest/"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dqflow"]

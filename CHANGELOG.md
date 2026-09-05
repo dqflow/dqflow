@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ContractParseError`, `ContractSchemaError` (carries `.diagnostics`),
   `ContractVersionError`
 - A JSON Schema for the contract format is published at
-  `https://dqflow.github.io/dqflow/schema/contract-1.0.json` (and printed by
+  `https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json` (and printed by
   `dq schema`; `dqflow.schema.contract_json_schema()`) for editor autocompletion
   via a `$schema` key or a `# yaml-language-server:` modeline. It is a subset of
   `dq lint` — no cross-field checks — see the *Editor integration* guide
@@ -51,6 +51,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#67](https://github.com/dqflow/dqflow/issues/67))
 
 ### Changed
+- Documentation is now built and versioned by Read the Docs. Public documentation
+  links, including `dqflow.schema.CONTRACT_SCHEMA_URI`, now use
+  `https://dqflow.readthedocs.io/en/latest/`; replace bookmarks to the previous
+  `https://dqflow.github.io/dqflow/` site ([#76](https://github.com/dqflow/dqflow/issues/76))
 - `Contract.from_yaml()` validates the document against the contract schema
   before construction. A malformed or structurally invalid contract now raises a
   typed `ContractError` with an actionable message instead of a raw
