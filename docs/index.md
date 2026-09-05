@@ -1,172 +1,138 @@
-# dqflow
-
-<p align="center">
-  <img
-    src="https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/dqflow-light-logo.png"
-    width="360"
-    alt="dqflow"
-  />
-</p>
-
-<p align="center"><strong>Data contracts for Python data pipelines.</strong><br/>Infer → Validate → Diff → Gate the PR</p>
-
-[![PyPI version](https://img.shields.io/pypi/v/dqflow.svg)](https://pypi.org/project/dqflow/)
-[![CI](https://github.com/dqflow/dqflow/actions/workflows/ci.yml/badge.svg)](https://github.com/dqflow/dqflow/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/pypi/pyversions/dqflow.svg)](https://pypi.org/project/dqflow/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
+---
+hide:
+  - navigation
+  - toc
 ---
 
-**dqflow** treats a data contract like a versioned API. Validate data at runtime,
-then compare contract revisions during review and block a pull request before a
-breaking requirement reaches data producers.
+<section class="dq-hero">
+  <div>
+    <div class="dq-hero__eyebrow">Data contracts for Python pipelines</div>
+    <h1>Stop bad data before it ships.</h1>
+    <p class="dq-hero__lede">
+      dqflow turns data expectations into versioned contracts. Infer a useful
+      starting point, validate every pipeline run, and block breaking contract
+      changes in pull requests—with one lightweight Python package.
+    </p>
+    <div class="dq-hero__actions">
+      <a class="md-button md-button--primary" href="getting-started/quickstart/">Validate data in 5 minutes</a>
+      <a class="md-button" href="guide/diff/">See contract diff</a>
+    </div>
+    <div class="dq-hero__proof">
+      <span>✓ No service to operate</span>
+      <span>✓ pandas + experimental Polars</span>
+      <span>✓ CI-friendly exit codes</span>
+    </div>
+  </div>
+  <div class="dq-terminal" aria-label="dqflow command line example">
+    <div class="dq-terminal__bar"><span></span><span></span><span></span></div>
+    <div><span class="prompt">$</span> dq validate contracts/orders.yaml data/orders.csv --fail-fast</div>
+    <div class="ok">✓ Schema &nbsp;3/3 passed</div>
+    <div class="fail">✘ Columns 2/4 failed</div>
+    <div class="dim">&nbsp; amount &nbsp;&nbsp;&nbsp;below minimum 0</div>
+    <div class="dim">&nbsp; currency &nbsp;outside [USD, EUR]</div>
+    <br/>
+    <div><span class="prompt">$</span> dq diff orders-v1.yaml orders-v2.yaml</div>
+    <div class="fail">BREAKING &nbsp;amount.min: 0 → 1</div>
+    <div class="dim">exit 1 · pull request blocked</div>
+  </div>
+</section>
+
+## One contract, from discovery to deployment
+
+<p class="dq-section-intro">
+Validation catches bad data now. Contract diff catches a proposed requirement
+that could break producers later. dqflow gives both checks the same reviewable,
+version-controlled source of truth.
+</p>
+
+<div class="dq-workflow">
+  <div><strong>1. Infer</strong><span>Generate a draft from real data</span></div>
+  <div><strong>2. Validate</strong><span>Check each batch or DataFrame</span></div>
+  <div><strong>3. Diff</strong><span>Classify contract changes</span></div>
+  <div><strong>4. Gate</strong><span>Block unsafe pull requests</span></div>
+</div>
+
+<div class="grid cards" markdown>
+
+-   ⏱ **Get a result in 5 minutes**
+
+    ---
+
+    Install dqflow, infer a YAML contract, and validate a CSV with commands you
+    can copy directly.
+
+    [→ Start the quickstart](getting-started/quickstart.md)
+
+-   ⎇ **Review contracts like APIs**
+
+    ---
+
+    See exactly which edits are breaking, why they are unsafe, and how the CLI
+    communicates them to reviewers.
+
+    [→ Learn contract diff](guide/diff.md)
+
+-   ◉ **Gate every pull request**
+
+    ---
+
+    Copy a complete GitHub Actions workflow that validates fixtures and rejects
+    incompatible contract changes.
+
+    [→ Add the CI gate](workflows/ci-pull-request.md)
+
+</div>
+
+## What dqflow protects
+
+| Risk | dqflow check | Where it runs |
+| --- | --- | --- |
+| Required columns disappear | Schema validation | Pipeline or CI |
+| Nulls, duplicates, invalid ranges, or unexpected values arrive | `dq validate` | Pipeline or CI |
+| A contract becomes stricter without producer coordination | `dq diff` | Pull request |
+| A malformed contract reaches production | `dq lint` | Editor or CI |
+
+```bash title="Install the stable pandas workflow"
+python -m pip install dqflow
+dq --version
+```
+
+!!! info "Deliberately lightweight"
+    dqflow produces structured results and reliable exit codes. It does not run
+    a server, store your data, or replace observability and lineage platforms.
+    Your contracts and data stay in your pipeline.
+
+## Choose your next step
+
+<div class="grid cards" markdown>
+
+-   **I am evaluating dqflow**
+
+    Run the [5-minute quickstart](getting-started/quickstart.md), then try the
+    [pandas ETL example](https://github.com/dqflow/dqflow/tree/main/examples/pandas-etl).
+
+-   **I have a dataset**
+
+    Follow [infer and refine](workflows/infer-refine.md) to turn it into a
+    reviewed contract.
+
+-   **I already have contracts**
+
+    Add the [CI/CD workflow](workflows/ci-pull-request.md) and protect contract
+    changes before merge.
+
+-   **I need the full syntax**
+
+    Browse [column checks](guide/columns.md), [table rules](guide/rules.md), or
+    the [Python API](api/contract.md).
+
+</div>
 
 !!! note "Current enforcement boundary"
-    `dtype`, `freshness_minutes`, and `custom` can be declared but are not
-    validated by the engines yet. The `pattern` regex constraint is enforced.
+    Column existence, `not_null`, `min`, `max`, `allowed`, `unique`, and
+    `pattern` are enforced. `dtype`, `freshness_minutes`, and `custom` can be
+    declared and diffed but are not yet validated by the engines. See
+    [stability and compatibility](reference/stability.md).
 
-## Workflow
-
-```text
-  1. INFER             2. VALIDATE            3. DIFF              4. GATE
-  ────────             ───────────            ────────             ────────
-  data → draft    ─▶   contract + data   ─▶   old vs new      ─▶   exit 1 blocks
-  refine in git        catch bad rows         classify changes     the pull request
-```
-
-Validation and diffing catch different failures: `dq validate` catches data that
-violates a contract at runtime; `dq diff` catches an incompatible contract edit
-before merge.
-
-## Catch breaking changes in review
-
-```console
-$ dq diff examples/contract-diff/orders-v1.yaml examples/contract-diff/orders-v2.yaml
-orders: 3 changes (1 breaking)
-
-  BREAKING
-    ~ column "amount" min: 0 -> 1  (stricter lower bound)
-
-  non-breaking
-    ~ column "currency" allowed: +[GBP]  (widened allowed set)
-    + column "discount" (float)          (new nullable column)
-
-$ echo $?
-1
-```
-
-[![dq diff blocks a breaking contract change](assets/contract-diff-demo.svg)](guide/diff.md)
-
-The non-zero exit code makes this a CI gate. Start with the
-[contract diff guide](guide/diff.md), run the
-[canonical example](https://github.com/dqflow/dqflow/tree/main/examples/contract-diff),
-or copy the [pull-request workflow](workflows/ci-pull-request.md).
-
-## 30-second quick start
-
-```python
-import pandas as pd
-from dqflow import Contract, Column
-
-df = pd.DataFrame({
-    "order_id": ["A001", "A002", None, "A004"],
-    "amount":   [19.99, -5.00, 42.50, 99.00],
-    "currency": ["USD", "EUR", "USD", "GBP"],
-})
-
-contract = Contract(
-    name="orders",
-    columns={
-        "order_id": Column(str, not_null=True, unique=True),
-        "amount":   Column(float, min=0),
-        "currency": Column(str, allowed=["USD", "EUR"]),
-    },
-    rules=["row_count > 0"],
-)
-
-result = contract.validate(df)
-print(result.summary())
-
-if not result.ok:
-    raise ValueError(result.summary())
-```
-
-```text
-Contract 'orders': 5/8 checks passed
-Failed checks:
-  - not_null:order_id: Column 'order_id' has 1 null value
-  - min:amount: Column 'amount' has 1 value below the minimum 0
-  - allowed:currency: Column 'currency' has 1 value outside the allowed set
-```
-
-## Why dqflow
-
-- **Contracts, not scattered asserts.** One declarative artifact — reviewed, diffed,
-  and versioned like the rest of your code.
-- **Lightweight.** Three runtime dependencies (`pandas`, `pyyaml`, `click`). No
-  server, no database, no daemon.
-- **Pythonic.** Plain `Contract` / `Column` objects, or YAML. Validation returns a
-  structured result object, not a stack trace.
-- **Fail fast, on purpose.** `result.ok` is a boolean; `dq validate --fail-fast`
-  evaluates every check and returns a non-zero exit code on validation failure.
-
-## What's implemented
-
-| Capability | Status |
-| --- | --- |
-| Python & YAML contracts | ✅ Implemented |
-| Schema check — required columns must be present | ✅ Implemented |
-| Validity checks — `not_null`, `min`, `max`, `allowed`, `unique`, `pattern` | ✅ Implemented |
-| Table rules — `row_count`, `null_rate('col')`, `unique_count('col')` | ✅ Implemented |
-| Cross-column rules — `left`/`op`/`right` or a callable | ✅ Implemented |
-| Structured results — `.ok`, `.failed_checks`, `.summary()`, `.to_dict()` | ✅ Implemented |
-| CLI — `dq validate` / `dq show` / `dq infer` / `dq diff` | ✅ Implemented |
-| Contract diff — breaking / non-breaking classification, JSON, CI exit code | ✅ Implemented |
-| pandas engine | ✅ Implemented |
-| Polars engine (`dqflow[polars]`) | 🧪 Experimental |
-| Declared `dtype` / `freshness_minutes` / `custom` enforcement | 🔜 Not yet enforced |
-| PySpark & SQL engines, GitHub Action, HTML reports | 🔜 Planned |
-
-!!! note
-    A `Column` accepts `dtype`, `freshness_minutes`, and `custom` today,
-    and `dq show` / `dq infer` use the declared dtype — but the engines do **not** yet
-    validate data against them. Regex `pattern` constraints are enforced. See the
-    [roadmap](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md).
-
-## When to use dqflow
-
-- You have Python data pipelines — Airflow, Dagster, Prefect, dbt-adjacent scripts,
-  notebooks headed for production.
-- You want data expectations in git, reviewed in pull requests.
-- You want a pipeline step or CI job to **hard-fail** on bad data.
-- Your data fits in memory as a pandas (or Polars) DataFrame.
-
-## When *not* to use dqflow
-
-- You need dashboards, alerting, anomaly detection, or lineage — dqflow produces
-  files and exit codes, not a web app.
-- You need warehouse push-down or Spark-scale distributed validation (planned, not
-  available).
-- You need dtype / freshness / `custom` enforcement *today*. Regex `pattern`
-  constraints are supported.
-- You need to execute contracts from untrusted sources. Table-rule expressions
-  are evaluated by a whitelisted AST walker (no `eval`), but that is still not a
-  security boundary — run only contracts you trust.
-
-!!! quote
-    dqflow is **not** a full data observability platform. It is a small, opinionated
-    library meant to be embedded directly into pipelines. Where richer tooling is
-    useful, dqflow's job is to emit clean, structured results those systems can
-    consume.
-
-## Next steps
-
-- [Installation](getting-started/installation.md)
-- [Quick Start](getting-started/quickstart.md)
-- [Defining Contracts](guide/contracts.md)
-- [YAML Contracts](guide/yaml.md)
-- [CLI Usage](guide/cli.md)
-- [Diffing Contracts](guide/diff.md)
-- [Validate in an ETL Pipeline](workflows/etl-pipeline.md)
-- [Gate a Pull Request](workflows/ci-pull-request.md)
-- [Roadmap](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md)
+Questions or ideas? [Open an issue](https://github.com/dqflow/dqflow/issues/new)
+or explore the [runnable examples](https://github.com/dqflow/dqflow/tree/main/examples).

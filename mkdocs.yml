@@ -6,6 +6,11 @@ repo_name: dqflow/dqflow
 
 theme:
   name: material
+  logo: assets/dqflow-icon-logo.png
+  favicon: assets/dqflow-icon-logo.png
+  font:
+    text: Inter
+    code: JetBrains Mono
   palette:
     - scheme: default
       primary: indigo
@@ -22,18 +27,27 @@ theme:
   features:
     - navigation.instant
     - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
-    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
     - content.code.copy
     - content.code.annotate
+    - content.tabs.link
 
 nav:
   - Home: index.md
-  - Getting Started:
+  - Start Here:
+      - 5-minute quickstart: getting-started/quickstart.md
       - Installation: getting-started/installation.md
-      - Quick Start: getting-started/quickstart.md
   - User Guide:
-      - Contract Diff & PR Gates: guide/diff.md
+      - Contract Diff: guide/diff.md
       - Defining Contracts: guide/contracts.md
       - Column Validations: guide/columns.md
       - Table Rules: guide/rules.md
@@ -47,7 +61,7 @@ nav:
       - Choosing an Engine: guide/engines.md
   - Workflows:
       - Validate in an ETL Pipeline: workflows/etl-pipeline.md
-      - Gate a Pull Request: workflows/ci-pull-request.md
+      - CI/CD tutorial: workflows/ci-pull-request.md
       - Infer and Refine a Contract: workflows/infer-refine.md
   - API Reference:
       - Contract: api/contract.md
@@ -69,6 +83,9 @@ nav:
 
 hooks:
   - mkdocs_hooks.py
+
+extra_css:
+  - stylesheets/extra.css
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -96,8 +113,11 @@ plugins:
             signature_crossrefs: true
 
 extra:
+  generator: false
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/dqflow/dqflow
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/dqflow/
+
+copyright: Copyright &copy; 2026 dqflow contributors

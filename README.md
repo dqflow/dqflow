@@ -26,7 +26,9 @@
 </p>
 
 <p align="center">
+  <a href="https://dqflow.readthedocs.io/en/latest/getting-started/quickstart/"><strong>5-minute quickstart</strong></a> ·
   <a href="https://dqflow.readthedocs.io/en/latest/">Documentation</a> ·
+  <a href="https://github.com/dqflow/dqflow/tree/main/examples">Examples</a> ·
   <a href="https://pypi.org/project/dqflow/">PyPI</a> ·
   <a href="https://github.com/dqflow/dqflow/blob/main/ROADMAP.md">Roadmap</a>
 </p>
@@ -36,6 +38,10 @@
 **dqflow** treats a data contract like a versioned API. Validate data at runtime,
 then compare contract revisions during review and block a pull request before a
 breaking requirement reaches data producers.
+
+**New to dqflow?** Go from install to first validation with the
+**[5-minute quickstart](https://dqflow.readthedocs.io/en/latest/getting-started/quickstart/)**,
+then add the copyable **[CI/CD gate](https://dqflow.readthedocs.io/en/latest/workflows/ci-pull-request/)**.
 
 ## Workflow
 

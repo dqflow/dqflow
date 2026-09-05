@@ -1,0 +1,181 @@
+:root {
+  --dqflow-blue: #2563eb;
+  --dqflow-indigo: #4f46e5;
+  --dqflow-ink: #0f172a;
+  --dqflow-muted: #475569;
+}
+
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #312e81;
+  --md-accent-fg-color: #2563eb;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #111827;
+  --md-accent-fg-color: #60a5fa;
+}
+
+.md-header {
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--md-default-fg-color) 12%, transparent);
+}
+
+.md-tabs {
+  background: var(--md-primary-fg-color);
+}
+
+.dq-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+  gap: 3rem;
+  align-items: center;
+  margin: 1.5rem 0 3rem;
+  padding: clamp(2rem, 5vw, 4.5rem);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--md-accent-fg-color) 22%, transparent);
+  border-radius: 1.2rem;
+  background:
+    radial-gradient(circle at 92% 15%, rgba(99, 102, 241, 0.2), transparent 33%),
+    linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(79, 70, 229, 0.04));
+}
+
+.dq-hero h1 {
+  max-width: 15ch;
+  margin: 0 0 1rem;
+  color: var(--md-default-fg-color);
+  font-size: clamp(2.35rem, 6vw, 4.8rem);
+  font-weight: 750;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+.dq-hero__eyebrow {
+  margin-bottom: 0.75rem;
+  color: var(--md-accent-fg-color);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dq-hero__lede {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--dqflow-muted);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.65;
+}
+
+[data-md-color-scheme="slate"] .dq-hero__lede {
+  color: #cbd5e1;
+}
+
+.dq-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.6rem;
+}
+
+.dq-hero__proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.2rem;
+  margin-top: 1.4rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.78rem;
+}
+
+.dq-terminal {
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 0.8rem;
+  background: #0b1020;
+  box-shadow: 0 1.2rem 3rem rgba(15, 23, 42, 0.25);
+  color: #dbeafe;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  line-height: 1.75;
+}
+
+.dq-terminal__bar {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.8rem;
+}
+
+.dq-terminal__bar span {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #f87171;
+}
+
+.dq-terminal__bar span:nth-child(2) { background: #fbbf24; }
+.dq-terminal__bar span:nth-child(3) { background: #34d399; }
+.dq-terminal .prompt { color: #60a5fa; }
+.dq-terminal .ok { color: #34d399; }
+.dq-terminal .fail { color: #fb7185; }
+.dq-terminal .dim { color: #94a3b8; }
+
+.dq-workflow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+  margin: 1.25rem 0 2.5rem;
+}
+
+.dq-workflow > div {
+  position: relative;
+  padding: 1rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.6rem;
+  background: var(--md-default-bg-color);
+}
+
+.dq-workflow > div:not(:last-child)::after {
+  position: absolute;
+  top: 50%;
+  right: -0.72rem;
+  z-index: 1;
+  padding: 0.1rem;
+  background: var(--md-default-bg-color);
+  color: var(--md-accent-fg-color);
+  content: "→";
+  font-weight: 700;
+}
+
+.dq-workflow strong,
+.dq-workflow span {
+  display: block;
+}
+
+.dq-workflow strong { margin-bottom: 0.25rem; }
+.dq-workflow span { color: var(--md-default-fg-color--light); font-size: 0.78rem; }
+
+.grid.cards > ul > li {
+  border-radius: 0.7rem;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.grid.cards > ul > li:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--md-accent-fg-color) 55%, transparent);
+  box-shadow: 0 0.8rem 2rem rgba(15, 23, 42, 0.08);
+}
+
+.dq-section-intro {
+  max-width: 46rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 1.05rem;
+}
+
+@media screen and (max-width: 76.1875em) {
+  .dq-hero { grid-template-columns: 1fr; }
+  .dq-terminal { max-width: 38rem; }
+}
+
+@media screen and (max-width: 44.984375em) {
+  .dq-hero { margin-top: 0.5rem; padding: 1.5rem; }
+  .dq-workflow { grid-template-columns: 1fr 1fr; }
+  .dq-workflow > div::after { display: none; }
+}
