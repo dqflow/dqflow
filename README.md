@@ -307,8 +307,11 @@ dqflow is `0.x` and still moving. A small set of surfaces — the `dqflow` /
 `--output json` payloads — is treated as a compatibility contract: changes are
 listed in the [changelog](https://github.com/dqflow/dqflow/blob/main/CHANGELOG.md)
 with a migration note, and a CI snapshot test blocks accidental breakage. See
+
 [Stability & compatibility](https://dqflow.readthedocs.io/en/latest/reference/stability/)
 and the [1.0 readiness checklist](https://dqflow.readthedocs.io/en/latest/reference/v1-readiness/).
+
+
 
 ## Architecture
 
