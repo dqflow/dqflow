@@ -5,41 +5,7 @@ repo_url: https://github.com/dqflow/dqflow
 repo_name: dqflow/dqflow
 
 theme:
-  name: material
-  logo: assets/dqflow-icon-logo.png
-  favicon: assets/dqflow-icon-logo.png
-  font:
-    text: Inter
-    code: JetBrains Mono
-  palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-  features:
-    - navigation.instant
-    - navigation.tracking
-    - navigation.tabs
-    - navigation.tabs.sticky
-    - navigation.sections
-    - navigation.path
-    - navigation.top
-    - navigation.footer
-    - toc.follow
-    - search.suggest
-    - search.highlight
-    - search.share
-    - content.code.copy
-    - content.code.annotate
-    - content.tabs.link
+  name: readthedocs
 
 nav:
   - Home: index.md
@@ -84,9 +50,6 @@ nav:
 hooks:
   - mkdocs_hooks.py
 
-extra_css:
-  - stylesheets/extra.css
-
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -111,13 +74,5 @@ plugins:
             show_root_heading: true
             show_source: false
             signature_crossrefs: true
-
-extra:
-  generator: false
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/dqflow/dqflow
-    - icon: fontawesome/brands/python
-      link: https://pypi.org/project/dqflow/
 
 copyright: Copyright &copy; 2026 dqflow contributors
