@@ -14,23 +14,23 @@ engine, file format, or development setup.
 Create a virtual environment so dqflow and its dependencies stay isolated from
 your other projects:
 
-=== "macOS / Linux"
+### macOS / Linux
 
-    ```bash
-    python3 -m venv .venv
-    source .venv/bin/activate
-    python -m pip install dqflow
-    dq --version
-    ```
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install dqflow
+dq --version
+```
 
-=== "Windows PowerShell"
+### Windows PowerShell
 
-    ```powershell
-    py -m venv .venv
-    .venv\Scripts\Activate.ps1
-    python -m pip install dqflow
-    dq --version
-    ```
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install dqflow
+dq --version
+```
 
 For an existing managed environment, the install itself is one command:
 

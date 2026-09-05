@@ -54,8 +54,6 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.superfences
-  - pymdownx.tabbed:
-      alternate_style: true
   - admonition
   - pymdownx.details
   - attr_list
