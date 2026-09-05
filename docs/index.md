@@ -1,138 +1,90 @@
----
-hide:
-  - navigation
-  - toc
----
+# Welcome to dqflow
 
-<section class="dq-hero">
-  <div>
-    <div class="dq-hero__eyebrow">Data contracts for Python pipelines</div>
-    <h1>Stop bad data before it ships.</h1>
-    <p class="dq-hero__lede">
-      dqflow turns data expectations into versioned contracts. Infer a useful
-      starting point, validate every pipeline run, and block breaking contract
-      changes in pull requests—with one lightweight Python package.
-    </p>
-    <div class="dq-hero__actions">
-      <a class="md-button md-button--primary" href="getting-started/quickstart/">Validate data in 5 minutes</a>
-      <a class="md-button" href="guide/diff/">See contract diff</a>
-    </div>
-    <div class="dq-hero__proof">
-      <span>✓ No service to operate</span>
-      <span>✓ pandas + experimental Polars</span>
-      <span>✓ CI-friendly exit codes</span>
-    </div>
-  </div>
-  <div class="dq-terminal" aria-label="dqflow command line example">
-    <div class="dq-terminal__bar"><span></span><span></span><span></span></div>
-    <div><span class="prompt">$</span> dq validate contracts/orders.yaml data/orders.csv --fail-fast</div>
-    <div class="ok">✓ Schema &nbsp;3/3 passed</div>
-    <div class="fail">✘ Columns 2/4 failed</div>
-    <div class="dim">&nbsp; amount &nbsp;&nbsp;&nbsp;below minimum 0</div>
-    <div class="dim">&nbsp; currency &nbsp;outside [USD, EUR]</div>
-    <br/>
-    <div><span class="prompt">$</span> dq diff orders-v1.yaml orders-v2.yaml</div>
-    <div class="fail">BREAKING &nbsp;amount.min: 0 → 1</div>
-    <div class="dim">exit 1 · pull request blocked</div>
-  </div>
-</section>
+**dqflow** is a lightweight data-contract library for Python pipelines. It helps
+you define data expectations once, validate incoming data at runtime, and catch
+breaking contract changes before they merge.
 
-## One contract, from discovery to deployment
-
-<p class="dq-section-intro">
-Validation catches bad data now. Contract diff catches a proposed requirement
-that could break producers later. dqflow gives both checks the same reviewable,
-version-controlled source of truth.
-</p>
-
-<div class="dq-workflow">
-  <div><strong>1. Infer</strong><span>Generate a draft from real data</span></div>
-  <div><strong>2. Validate</strong><span>Check each batch or DataFrame</span></div>
-  <div><strong>3. Diff</strong><span>Classify contract changes</span></div>
-  <div><strong>4. Gate</strong><span>Block unsafe pull requests</span></div>
-</div>
-
-<div class="grid cards" markdown>
-
--   ⏱ **Get a result in 5 minutes**
-
-    ---
-
-    Install dqflow, infer a YAML contract, and validate a CSV with commands you
-    can copy directly.
-
-    [→ Start the quickstart](getting-started/quickstart.md)
-
--   ⎇ **Review contracts like APIs**
-
-    ---
-
-    See exactly which edits are breaking, why they are unsafe, and how the CLI
-    communicates them to reviewers.
-
-    [→ Learn contract diff](guide/diff.md)
-
--   ◉ **Gate every pull request**
-
-    ---
-
-    Copy a complete GitHub Actions workflow that validates fixtures and rejects
-    incompatible contract changes.
-
-    [→ Add the CI gate](workflows/ci-pull-request.md)
-
-</div>
-
-## What dqflow protects
-
-| Risk | dqflow check | Where it runs |
-| --- | --- | --- |
-| Required columns disappear | Schema validation | Pipeline or CI |
-| Nulls, duplicates, invalid ranges, or unexpected values arrive | `dq validate` | Pipeline or CI |
-| A contract becomes stricter without producer coordination | `dq diff` | Pull request |
-| A malformed contract reaches production | `dq lint` | Editor or CI |
-
-```bash title="Install the stable pandas workflow"
-python -m pip install dqflow
-dq --version
+```text
+infer → validate → diff → gate the pull request
 ```
 
-!!! info "Deliberately lightweight"
-    dqflow produces structured results and reliable exit codes. It does not run
-    a server, store your data, or replace observability and lineage platforms.
-    Your contracts and data stay in your pipeline.
+## Installation
 
-## Choose your next step
+Install dqflow from PyPI:
 
-<div class="grid cards" markdown>
+```bash
+python -m pip install dqflow
+```
 
--   **I am evaluating dqflow**
+Requires Python 3.9 or newer. See [Installation](getting-started/installation.md)
+for virtual environments, Polars, Parquet, and development setup.
 
-    Run the [5-minute quickstart](getting-started/quickstart.md), then try the
-    [pandas ETL example](https://github.com/dqflow/dqflow/tree/main/examples/pandas-etl).
+## Get started in 5 minutes
 
--   **I have a dataset**
+The [5-minute quickstart](getting-started/quickstart.md) walks through the full
+local workflow with copyable commands:
 
-    Follow [infer and refine](workflows/infer-refine.md) to turn it into a
-    reviewed contract.
+1. Install dqflow.
+2. Infer a YAML contract from a CSV file.
+3. Validate the data against that contract.
+4. Diff two contract revisions.
+5. See a breaking change return exit code `1`.
 
--   **I already have contracts**
+After that, follow the [CI/CD tutorial](workflows/ci-pull-request.md) to add the
+same checks to a GitHub pull request. Both guides take about 10 minutes total.
 
-    Add the [CI/CD workflow](workflows/ci-pull-request.md) and protect contract
-    changes before merge.
+## Why dqflow
 
--   **I need the full syntax**
+- **Contracts instead of scattered assertions.** Keep expectations in one YAML
+  or Python artifact that can be reviewed and versioned.
+- **Runtime validation.** Catch missing columns, nulls, duplicates, invalid
+  ranges, unexpected values, and failed table rules.
+- **Contract compatibility checks.** Detect stricter requirements that could
+  reject data previously accepted from producers.
+- **CI-friendly behavior.** Use standard commands, structured JSON output, and
+  non-zero exit codes without operating another service.
+- **Lightweight integration.** Use pandas by default or the experimental Polars
+  engine directly inside an existing Python pipeline.
 
-    Browse [column checks](guide/columns.md), [table rules](guide/rules.md), or
-    the [Python API](api/contract.md).
+## Validation and contract diff
 
-</div>
+These checks protect different parts of the workflow:
+
+| Command | Purpose | Typical location |
+| --- | --- | --- |
+| `dq lint` | Find malformed or contradictory contracts | Editor or CI |
+| `dq validate` | Find data that violates the current contract | Pipeline or CI |
+| `dq diff` | Find proposed requirements that may break producers | Pull request |
+
+```bash
+dq validate contracts/orders.yaml data/orders.csv --fail-fast
+dq diff orders-v1.yaml orders-v2.yaml
+```
+
+Read [Contract Diff](guide/diff.md) for the breaking-change rules and
+[Add contract checks to CI](workflows/ci-pull-request.md) for a complete GitHub
+Actions workflow.
+
+## Documentation
+
+- [5-minute quickstart](getting-started/quickstart.md)
+- [Defining contracts](guide/contracts.md)
+- [Column validations](guide/columns.md)
+- [Table rules](guide/rules.md)
+- [YAML contracts](guide/yaml.md)
+- [Contract Diff](guide/diff.md)
+- [CLI usage](guide/cli.md)
+- [API reference](api/contract.md)
+- [Runnable examples](https://github.com/dqflow/dqflow/tree/main/examples)
 
 !!! note "Current enforcement boundary"
-    Column existence, `not_null`, `min`, `max`, `allowed`, `unique`, and
+    Column existence, `not_null`, `min`, `max`, `allowed`, `unique`, and regex
     `pattern` are enforced. `dtype`, `freshness_minutes`, and `custom` can be
-    declared and diffed but are not yet validated by the engines. See
-    [stability and compatibility](reference/stability.md).
+    declared and diffed but are not yet validated by the engines.
 
-Questions or ideas? [Open an issue](https://github.com/dqflow/dqflow/issues/new)
-or explore the [runnable examples](https://github.com/dqflow/dqflow/tree/main/examples).
+## Project links
+
+- [Source code](https://github.com/dqflow/dqflow)
+- [Python package](https://pypi.org/project/dqflow/)
+- [Issue tracker](https://github.com/dqflow/dqflow/issues)
+- [Roadmap](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md)

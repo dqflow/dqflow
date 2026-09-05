@@ -8,43 +8,43 @@ folder and use dqflow's small example datasets.
 
 ## 1. Install dqflow
 
-=== "macOS / Linux"
+### macOS / Linux
 
-    ```bash
-    mkdir dqflow-quickstart && cd dqflow-quickstart
-    python3 -m venv .venv
-    source .venv/bin/activate
-    python -m pip install dqflow
-    dq --version
-    ```
+```bash
+mkdir dqflow-quickstart && cd dqflow-quickstart
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install dqflow
+dq --version
+```
 
-=== "Windows PowerShell"
+### Windows PowerShell
 
-    ```powershell
-    New-Item -ItemType Directory dqflow-quickstart
-    Set-Location dqflow-quickstart
-    py -m venv .venv
-    .venv\Scripts\Activate.ps1
-    python -m pip install dqflow
-    dq --version
-    ```
+```powershell
+New-Item -ItemType Directory dqflow-quickstart
+Set-Location dqflow-quickstart
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install dqflow
+dq --version
+```
 
 You should see `dqflow, version 0.4.0` or newer. If installation fails, see the
 [installation guide](installation.md).
 
 ## 2. Download a three-row dataset
 
-=== "curl (macOS / Linux)"
+### macOS / Linux
 
-    ```bash
-    curl -fsSL https://raw.githubusercontent.com/dqflow/dqflow/main/examples/infer-refine/data/customers.csv -o customers.csv
-    ```
+```bash
+curl -fsSL https://raw.githubusercontent.com/dqflow/dqflow/main/examples/infer-refine/data/customers.csv -o customers.csv
+```
 
-=== "PowerShell"
+### Windows PowerShell
 
-    ```powershell
-    Invoke-WebRequest https://raw.githubusercontent.com/dqflow/dqflow/main/examples/infer-refine/data/customers.csv -OutFile customers.csv
-    ```
+```powershell
+Invoke-WebRequest https://raw.githubusercontent.com/dqflow/dqflow/main/examples/infer-refine/data/customers.csv -OutFile customers.csv
+```
 
 The data looks like this:
 
@@ -95,21 +95,21 @@ All checks still run, so you get the complete failure report in one pass.
 
 Download two revisions of an orders contract:
 
-=== "curl (macOS / Linux)"
+### macOS / Linux
 
-    ```bash
-    curl -fsSL https://raw.githubusercontent.com/dqflow/dqflow/main/examples/contract-diff/orders-v1.yaml -o orders-v1.yaml
-    curl -fsSL https://raw.githubusercontent.com/dqflow/dqflow/main/examples/contract-diff/orders-v2.yaml -o orders-v2.yaml
-    dq diff orders-v1.yaml orders-v2.yaml
-    ```
+```bash
+curl -fsSL https://raw.githubusercontent.com/dqflow/dqflow/main/examples/contract-diff/orders-v1.yaml -o orders-v1.yaml
+curl -fsSL https://raw.githubusercontent.com/dqflow/dqflow/main/examples/contract-diff/orders-v2.yaml -o orders-v2.yaml
+dq diff orders-v1.yaml orders-v2.yaml
+```
 
-=== "PowerShell"
+### Windows PowerShell
 
-    ```powershell
-    Invoke-WebRequest https://raw.githubusercontent.com/dqflow/dqflow/main/examples/contract-diff/orders-v1.yaml -OutFile orders-v1.yaml
-    Invoke-WebRequest https://raw.githubusercontent.com/dqflow/dqflow/main/examples/contract-diff/orders-v2.yaml -OutFile orders-v2.yaml
-    dq diff orders-v1.yaml orders-v2.yaml
-    ```
+```powershell
+Invoke-WebRequest https://raw.githubusercontent.com/dqflow/dqflow/main/examples/contract-diff/orders-v1.yaml -OutFile orders-v1.yaml
+Invoke-WebRequest https://raw.githubusercontent.com/dqflow/dqflow/main/examples/contract-diff/orders-v2.yaml -OutFile orders-v2.yaml
+dq diff orders-v1.yaml orders-v2.yaml
+```
 
 ```text
 orders: 3 changes (1 breaking)
