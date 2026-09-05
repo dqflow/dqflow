@@ -1,0 +1,30 @@
+name: Contract compatibility
+
+on:
+  pull_request:
+    paths:
+      - "contracts/**/*.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install dqflow
+
+      - name: Block breaking contract changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git show "origin/${BASE_REF}:contracts/orders.yaml" > "${RUNNER_TEMP}/orders-base.yaml"
+          dq diff "${RUNNER_TEMP}/orders-base.yaml" contracts/orders.yaml

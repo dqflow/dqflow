@@ -56,6 +56,11 @@ contract.to_yaml("contracts/orders-copy.yaml")
 Use YAML for reviewable declarative contracts and Python when you need callable
 cross-column rules. See [YAML contracts](yaml.md).
 
+When a YAML contract changes, compare the base and proposed versions with
+[`dq diff`](diff.md). It classifies changes from a producer's perspective and
+returns a non-zero exit code for breaking changes, making contracts safe to
+review and gate in CI.
+
 ## Select an engine
 
 Pandas is the default. Polars is explicit:

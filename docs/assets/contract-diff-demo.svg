@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="500" viewBox="0 0 1000 500" role="img" aria-labelledby="title desc">
+  <title id="title">dq diff blocks a breaking contract change</title>
+  <desc id="desc">Terminal output showing one breaking and two non-breaking changes, followed by exit code one.</desc>
+  <rect width="1000" height="500" rx="18" fill="#111827"/>
+  <rect width="1000" height="54" rx="18" fill="#1f2937"/>
+  <rect y="36" width="1000" height="18" fill="#1f2937"/>
+  <circle cx="30" cy="27" r="7" fill="#f87171"/>
+  <circle cx="54" cy="27" r="7" fill="#fbbf24"/>
+  <circle cx="78" cy="27" r="7" fill="#34d399"/>
+  <text x="500" y="34" text-anchor="middle" fill="#9ca3af" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">contract compatibility · pull request</text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">
+    <text x="32" y="92" fill="#a7f3d0">$ <tspan fill="#f9fafb">dq diff orders-v1.yaml orders-v2.yaml</tspan></text>
+    <text x="32" y="130" fill="#f9fafb">orders: 3 changes (1 breaking)</text>
+    <text x="32" y="180" fill="#fca5a5" font-weight="700">  BREAKING</text>
+    <text x="32" y="214" fill="#f9fafb">    ~ column "amount" min: 0 -&gt; 1  <tspan fill="#9ca3af">(stricter lower bound)</tspan></text>
+    <text x="32" y="264" fill="#86efac" font-weight="700">  non-breaking</text>
+    <text x="32" y="298" fill="#f9fafb">    ~ column "currency" allowed: +[GBP]  <tspan fill="#9ca3af">(widened allowed set)</tspan></text>
+    <text x="32" y="332" fill="#f9fafb">    + column "discount" (float)          <tspan fill="#9ca3af">(new nullable column)</tspan></text>
+    <text x="32" y="394" fill="#a7f3d0">$ <tspan fill="#f9fafb">echo $?</tspan></text>
+    <text x="32" y="428" fill="#fca5a5" font-weight="700">1</text>
+    <text x="70" y="428" fill="#fca5a5">breaking contract change blocked</text>
+  </g>
+</svg>

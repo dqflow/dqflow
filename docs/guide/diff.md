@@ -4,19 +4,35 @@
 **breaking** or **non-breaking** for data producers. Use it in code review and CI
 to catch a tightened constraint before it rejects data that used to pass.
 
+Validation and diffing protect different moments in the lifecycle:
+
+| Command | Runs | Catches |
+| --- | --- | --- |
+| `dq validate` | Against actual data, usually in a pipeline | Rows or datasets that violate the current contract |
+| `dq diff` | Between contract revisions, usually in a pull request | Proposed requirements that may reject data accepted by the old contract |
+
+## One change, from YAML to a blocked PR
+
+The [canonical runnable example](https://github.com/dqflow/dqflow/tree/main/examples/contract-diff)
+compares these changes:
+
+| `orders-v1.yaml` | `orders-v2.yaml` |
+| --- | --- |
+| `amount:`<br>&nbsp;&nbsp;`min: 0`<br><br>`currency:`<br>&nbsp;&nbsp;`allowed: [USD, EUR]`<br><br>*(no `discount` column)* | `amount:`<br>&nbsp;&nbsp;`min: 1` **breaking**<br><br>`currency:`<br>&nbsp;&nbsp;`allowed: [USD, EUR, GBP]` **non-breaking**<br><br>`discount:`<br>&nbsp;&nbsp;`dtype: float` **non-breaking** |
+
 ```bash
 dq diff OLD NEW [--output text|json] [--allow-breaking]
 ```
 
 ```console
-$ dq diff contracts/orders@v1.yaml contracts/orders@v2.yaml
+$ dq diff examples/contract-diff/orders-v1.yaml examples/contract-diff/orders-v2.yaml
 orders: 3 changes (1 breaking)
 
   BREAKING
-    ~ column "amount" min: 0 -> 10        (stricter lower bound)
+    ~ column "amount" min: 0 -> 1  (stricter lower bound)
 
   non-breaking
-    ~ column "currency" allowed: +[JPY]  (widened allowed set)
+    ~ column "currency" allowed: +[GBP]  (widened allowed set)
     + column "discount" (float)          (new nullable column)
 
 $ echo $?
@@ -26,6 +42,8 @@ $ echo $?
 `OLD` and `NEW` are contract YAML files. The command exits `1` when any breaking
 change is present so a CI job fails the pull request; pass `--allow-breaking` to
 force exit `0`.
+
+![Terminal output showing dq diff blocking a breaking change](../assets/contract-diff-demo.svg)
 
 ## What counts as breaking
 
@@ -124,15 +142,45 @@ print(result.render_text())  # the grouped text summary
 
 ## In CI
 
+Copy
+[`examples/contract-diff/contract-compatibility.yml`](https://github.com/dqflow/dqflow/blob/main/examples/contract-diff/contract-compatibility.yml)
+to `.github/workflows/contract-compatibility.yml` and replace the contract path:
+
 ```yaml
-- name: Contract compatibility
-  run: |
-    git show origin/main:contracts/orders.yaml > /tmp/orders-main.yaml
-    dq diff /tmp/orders-main.yaml contracts/orders.yaml
+name: Contract compatibility
+
+on:
+  pull_request:
+    paths:
+      - "contracts/**/*.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install dqflow
+      - name: Block breaking contract changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git show "origin/${BASE_REF}:contracts/orders.yaml" > "${RUNNER_TEMP}/orders-base.yaml"
+          dq diff "${RUNNER_TEMP}/orders-base.yaml" contracts/orders.yaml
 ```
 
-The step fails when the pull request tightens the contract. Reviewers who have
-decided a breaking change is acceptable re-run with `--allow-breaking` or merge
-past the failed check.
+This CLI-based workflow is for a contract already present on the base branch.
+The step fails when the pull request tightens that contract. Reviewers who have
+decided a breaking change is acceptable can document the decision and add
+`--allow-breaking`; dqflow does not silently approve the change. A dedicated
+dqflow GitHub Action is planned in
+[#42](https://github.com/dqflow/dqflow/issues/42).
 
 See [CLI usage](cli.md) for the other `dq` commands.

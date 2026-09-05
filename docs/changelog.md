@@ -5,6 +5,9 @@ The complete release history lives in
 
 ## Unreleased
 
+- Contract diff is now a headline end-to-end story with exact CLI output, a
+  producer-oriented explanation, a copyable pull-request gate, and a reusable
+  visual ([#69](https://github.com/dqflow/dqflow/issues/69)).
 - Documentation is now built and versioned by Read the Docs. Public documentation
   links and the published contract schema URL now use
   `https://dqflow.readthedocs.io/en/latest/` ([#76](https://github.com/dqflow/dqflow/issues/76)).

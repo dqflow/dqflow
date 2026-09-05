@@ -33,6 +33,7 @@ nav:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quickstart.md
   - User Guide:
+      - Contract Diff & PR Gates: guide/diff.md
       - Defining Contracts: guide/contracts.md
       - Column Validations: guide/columns.md
       - Table Rules: guide/rules.md
@@ -42,7 +43,6 @@ nav:
       - Schema Versioning: guide/schema-versioning.md
       - Editor Integration: guide/editor-integration.md
       - CLI Usage: guide/cli.md
-      - Diffing Contracts: guide/diff.md
       - Inferring Contracts: guide/inference.md
       - Choosing an Engine: guide/engines.md
   - Workflows:

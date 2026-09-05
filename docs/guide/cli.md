@@ -119,7 +119,8 @@ dq diff contracts/orders@v1.yaml contracts/orders@v2.yaml
 dq diff old.yaml new.yaml --output json
 ```
 
-See [Diffing contracts](diff.md) for the full classification table and the JSON
+See [Diffing contracts](diff.md) for the producer-oriented model, exact output,
+copyable CI workflow, runnable example, full classification table, and JSON
 schema.
 
 ## `dq show`
