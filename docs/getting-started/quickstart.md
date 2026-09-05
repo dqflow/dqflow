@@ -66,6 +66,7 @@ print(json.dumps(result.to_dict(), indent=2))
 
 ## Next Steps
 
+- [Diff Contracts](../guide/diff.md) - Block breaking contract changes in review
 - [Column Validations](../guide/columns.md) - Learn all column checks
 - [Table Rules](../guide/rules.md) - Add table-level validations
 - [YAML Contracts](../guide/yaml.md) - Define contracts in YAML

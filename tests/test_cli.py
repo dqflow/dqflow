@@ -385,6 +385,28 @@ rules:
             assert "BREAKING" in result.output
             assert "stricter lower bound" in result.output
 
+    def test_diff_canonical_example_output_and_classification(self) -> None:
+        example = Path(__file__).parents[1] / "examples" / "contract-diff"
+
+        result = CliRunner().invoke(
+            main,
+            ["diff", str(example / "orders-v1.yaml"), str(example / "orders-v2.yaml")],
+        )
+
+        assert result.exit_code == 1
+        assert (
+            result.output
+            == """orders: 3 changes (1 breaking)
+
+  BREAKING
+    ~ column "amount" min: 0 -> 1  (stricter lower bound)
+
+  non-breaking
+    ~ column "currency" allowed: +[GBP]  (widened allowed set)
+    + column "discount" (float)          (new nullable column)
+"""
+        )
+
     def test_diff_allow_breaking_forces_exit_zero(self) -> None:
         runner = CliRunner()
         with TemporaryDirectory() as tmpdir:

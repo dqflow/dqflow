@@ -43,7 +43,7 @@ Tracking issue: [#67](https://github.com/dqflow/dqflow/issues/67).
 ## Documentation
 
 - [ ] Documentation site published with Getting Started, Concepts, Guides, and Reference ([#76](https://github.com/dqflow/dqflow/issues/76))
-- [ ] Contract diff is a headline, end-to-end story with a copyable CI gate ([#69](https://github.com/dqflow/dqflow/issues/69))
+- [x] Contract diff is a headline, end-to-end story with a copyable CI gate ([#69](https://github.com/dqflow/dqflow/issues/69))
 - [ ] A first-class pytest integration is documented ([#64](https://github.com/dqflow/dqflow/issues/64))
 - [ ] An upgrade guide covering every pre-1.0 breaking change
 

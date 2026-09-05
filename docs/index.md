@@ -8,7 +8,7 @@
   />
 </p>
 
-<p align="center"><strong>Data contracts for Python data pipelines.</strong><br/>Define → Validate → Fail Fast</p>
+<p align="center"><strong>Data contracts for Python data pipelines.</strong><br/>Infer → Validate → Diff → Gate the PR</p>
 
 [![PyPI version](https://img.shields.io/pypi/v/dqflow.svg)](https://pypi.org/project/dqflow/)
 [![CI](https://github.com/dqflow/dqflow/actions/workflows/ci.yml/badge.svg)](https://github.com/dqflow/dqflow/actions/workflows/ci.yml)
@@ -17,10 +17,9 @@
 
 ---
 
-**dqflow** lets you declare what a DataFrame must look like — required columns, valid
-values, table-level rules — as a small, versionable contract, validate your data
-against it inside the pipeline, and stop bad data *before* it reaches anything
-downstream.
+**dqflow** treats a data contract like a versioned API. Validate data at runtime,
+then compare contract revisions during review and block a pull request before a
+breaking requirement reaches data producers.
 
 !!! note "Current enforcement boundary"
     `dtype`, `freshness_minutes`, and `custom` can be declared but are not
@@ -29,14 +28,39 @@ downstream.
 ## Workflow
 
 ```text
-  1. DEFINE                2. VALIDATE                 3. FAIL FAST
-  ─────────                ───────────                 ────────────
-  write a contract   ─▶    contract.validate(df)  ─▶   result.ok is False
-  in Python or YAML        → ValidationResult          → raise / exit code ≠ 0
-
-                                                       result.ok is True
-                                                       → pipeline continues
+  1. INFER             2. VALIDATE            3. DIFF              4. GATE
+  ────────             ───────────            ────────             ────────
+  data → draft    ─▶   contract + data   ─▶   old vs new      ─▶   exit 1 blocks
+  refine in git        catch bad rows         classify changes     the pull request
 ```
+
+Validation and diffing catch different failures: `dq validate` catches data that
+violates a contract at runtime; `dq diff` catches an incompatible contract edit
+before merge.
+
+## Catch breaking changes in review
+
+```console
+$ dq diff examples/contract-diff/orders-v1.yaml examples/contract-diff/orders-v2.yaml
+orders: 3 changes (1 breaking)
+
+  BREAKING
+    ~ column "amount" min: 0 -> 1  (stricter lower bound)
+
+  non-breaking
+    ~ column "currency" allowed: +[GBP]  (widened allowed set)
+    + column "discount" (float)          (new nullable column)
+
+$ echo $?
+1
+```
+
+[![dq diff blocks a breaking contract change](assets/contract-diff-demo.svg)](guide/diff.md)
+
+The non-zero exit code makes this a CI gate. Start with the
+[contract diff guide](guide/diff.md), run the
+[canonical example](https://github.com/dqflow/dqflow/tree/main/examples/contract-diff),
+or copy the [pull-request workflow](workflows/ci-pull-request.md).
 
 ## 30-second quick start
 

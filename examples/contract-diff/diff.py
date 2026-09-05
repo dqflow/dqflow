@@ -7,7 +7,7 @@ from dqflow import diff_contracts
 HERE = Path(__file__).parent
 
 
-def main() -> None:
+def main() -> int:
     result = diff_contracts(HERE / "orders-v1.yaml", HERE / "orders-v2.yaml")
 
     print(result.render_text())
@@ -15,9 +15,11 @@ def main() -> None:
     breaking = result.breaking_changes
     if breaking:
         print(f"\nblocked: {len(breaking)} breaking change(s) for data producers")
-    else:
-        print("\nsafe to roll out")
+        return 1
+
+    print("\nsafe to roll out")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

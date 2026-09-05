@@ -15,7 +15,7 @@
 </p>
 
 <h2 align="center">Data contracts for Python data pipelines.</h2>
-<p align="center"><strong>Define → Validate → Fail Fast</strong></p>
+<p align="center"><strong>Infer → Validate → Diff → Gate the PR</strong></p>
 
 <p align="center">
   <a href="https://pypi.org/project/dqflow/"><img src="https://img.shields.io/pypi/v/dqflow.svg" alt="PyPI version"></a>
@@ -33,22 +33,51 @@
 
 ---
 
-**dqflow** lets you declare what a DataFrame must look like — required columns, valid
-values, table-level rules — as a small, versionable contract, validate your data
-against it inside the pipeline, and stop bad data *before* it reaches anything
-downstream.
+**dqflow** treats a data contract like a versioned API. Validate data at runtime,
+then compare contract revisions during review and block a pull request before a
+breaking requirement reaches data producers.
 
 ## Workflow
 
 ```text
-  1. DEFINE                2. VALIDATE                 3. FAIL FAST
-  ─────────                ───────────                 ────────────
-  write a contract   ─▶    contract.validate(df)  ─▶   result.ok is False
-  in Python or YAML        → ValidationResult          → raise / exit code ≠ 0
-
-                                                       result.ok is True
-                                                       → pipeline continues
+  1. INFER             2. VALIDATE            3. DIFF              4. GATE
+  ────────             ───────────            ────────             ────────
+  data → draft    ─▶   contract + data   ─▶   old vs new      ─▶   exit 1 blocks
+  refine in git        catch bad rows         classify changes     the pull request
 ```
+
+Validation and diffing catch different failures: `dq validate` catches data that
+violates a contract at runtime; `dq diff` catches a contract edit that may reject
+previously valid producer data before merge.
+
+## Catch a breaking contract change
+
+| `orders-v1.yaml` | `orders-v2.yaml` |
+| --- | --- |
+| `amount:`<br>&nbsp;&nbsp;`min: 0`<br>`currency:`<br>&nbsp;&nbsp;`allowed: [USD, EUR]`<br>*(no `discount` column)* | `amount:`<br>&nbsp;&nbsp;`min: 1` **breaking**<br>`currency:`<br>&nbsp;&nbsp;`allowed: [USD, EUR, GBP]` **non-breaking**<br>`discount:`<br>&nbsp;&nbsp;`dtype: float` **non-breaking** |
+
+```console
+$ dq diff orders-v1.yaml orders-v2.yaml
+orders: 3 changes (1 breaking)
+
+  BREAKING
+    ~ column "amount" min: 0 -> 1  (stricter lower bound)
+
+  non-breaking
+    ~ column "currency" allowed: +[GBP]  (widened allowed set)
+    + column "discount" (float)          (new nullable column)
+
+$ echo $?
+1
+```
+
+A change is breaking when data accepted by the old contract may be rejected by
+the new one. Because `dq diff` exits `1`, the same command is a CI gate—no custom
+service required. See the **[contract diff guide](https://dqflow.readthedocs.io/en/latest/guide/diff/)**,
+the **[runnable example](https://github.com/dqflow/dqflow/tree/main/examples/contract-diff)**,
+and its copyable GitHub Actions workflow.
+
+![dq diff blocks a breaking contract change](https://raw.githubusercontent.com/dqflow/dqflow/main/docs/assets/contract-diff-demo.svg)
 
 ## Why dqflow
 

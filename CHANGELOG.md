@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Contract diff is now a headline README and documentation workflow, with an
+  old/new YAML walkthrough, exact CLI output, a producer-oriented explanation,
+  a copyable GitHub Actions gate, a tested end-to-end example, and a reusable
+  terminal visual ([#69](https://github.com/dqflow/dqflow/issues/69))
 - `dq lint CONTRACT` — validate a contract file's structure without reading any
   data. Reports unknown fields, wrong types, invalid regexes, contradictory
   bounds, unparseable table rules, bad cross-column operators, and an unsupported
