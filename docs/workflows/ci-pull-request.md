@@ -55,7 +55,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dqflow
-        run: python -m pip install dqflow
+        run: python -m pip install "dqflow[pandas]"
 
       - name: Lint the contract
         run: dq lint contracts/orders.yaml --strict

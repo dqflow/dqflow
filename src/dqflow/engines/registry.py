@@ -25,7 +25,13 @@ class UnknownEngineError(ValueError):
 
 
 def _pandas_engine() -> Engine:
-    from dqflow.engines.pandas import PandasEngine
+    try:
+        from dqflow.engines.pandas import PandasEngine
+    except ImportError as exc:  # pragma: no cover - exercised in wheel smoke tests
+        raise ImportError(
+            "The 'pandas' engine requires the optional pandas dependency. "
+            'Install it with: pip install "dqflow[pandas]"'
+        ) from exc
 
     return PandasEngine()
 

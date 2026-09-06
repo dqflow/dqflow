@@ -3,7 +3,7 @@
 By the end of this guide you will have a contract inferred from real data, a
 successful validation, and a breaking contract change caught before merge.
 
-**You need:** Python 3.9+ and a terminal. The commands below create an isolated
+**You need:** Python 3.11–3.14 and a terminal. The commands below create an isolated
 folder and use dqflow's small example datasets.
 
 ## 1. Install dqflow
@@ -14,7 +14,7 @@ folder and use dqflow's small example datasets.
 mkdir dqflow-quickstart && cd dqflow-quickstart
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install dqflow
+python -m pip install "dqflow[pandas]"
 dq --version
 ```
 
@@ -25,7 +25,7 @@ New-Item -ItemType Directory dqflow-quickstart
 Set-Location dqflow-quickstart
 py -m venv .venv
 .venv\Scripts\Activate.ps1
-python -m pip install dqflow
+python -m pip install "dqflow[pandas]"
 dq --version
 ```
 

@@ -42,6 +42,7 @@ nav:
       - Execution context: api/context.md
       - Inference: api/inference.md
   - Reference:
+      - Supported Environments: reference/compatibility.md
       - Stability & Compatibility: reference/stability.md
       - 1.0 Readiness: reference/v1-readiness.md
   - Changelog: changelog.md

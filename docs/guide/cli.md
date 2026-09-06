@@ -4,12 +4,12 @@ The `dq` command validates files, inspects contracts, and infers draft contracts
 
 ## Install file-format support
 
-CSV and JSON work with the base installation. Parquet requires a pandas Parquet
-backend:
+CSV and JSON require a dataframe backend but no additional file-format package.
+Parquet with pandas also requires PyArrow:
 
 ```bash
-pip install dqflow
-pip install "dqflow[parquet]"  # adds pyarrow
+pip install "dqflow[pandas]"
+pip install "dqflow[pandas-parquet]"  # adds pyarrow
 ```
 
 ## `dq validate`

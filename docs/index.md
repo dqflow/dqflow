@@ -13,10 +13,10 @@ infer → validate → diff → gate the pull request
 Install dqflow from PyPI:
 
 ```bash
-python -m pip install dqflow
+python -m pip install "dqflow[pandas]"
 ```
 
-Requires Python 3.9 or newer. See [Installation](getting-started/installation.md)
+Supports Python 3.11 through 3.14. See [Installation](getting-started/installation.md)
 for virtual environments, Polars, Parquet, and development setup.
 
 ## Get started in 5 minutes

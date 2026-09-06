@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import re
 from datetime import date, datetime
-from typing import Any
-
-import pandas as pd
+from functools import lru_cache
+from importlib import import_module
+from typing import TYPE_CHECKING, Any
 
 from dqflow.column import Column
 from dqflow.contract import Contract
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 EMAIL_PATTERN = r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$"
 UUID_PATTERN = (
@@ -19,6 +22,18 @@ UUID_PATTERN = (
 ISO_DATE_PATTERN = r"^\d{4}-\d{2}-\d{2}$"
 
 _COMMON_PATTERNS = (EMAIL_PATTERN, UUID_PATTERN, ISO_DATE_PATTERN)
+
+
+@lru_cache(maxsize=1)
+def _pandas_module() -> Any:
+    """Import pandas only when inference is used."""
+    try:
+        return import_module("pandas")
+    except ImportError as exc:
+        raise ImportError(
+            "Contract inference requires the optional pandas dependency. "
+            'Install it with: pip install "dqflow[pandas]"'
+        ) from exc
 
 
 def infer_contract(
@@ -48,6 +63,8 @@ def infer_contract(
     """
     if max_allowed_cardinality < 0:
         raise ValueError("max_allowed_cardinality must be non-negative")
+
+    _pandas_module()
 
     columns: dict[str, Column] = {}
     for name_, series in df.items():
@@ -101,7 +118,8 @@ def inference_header(
     )
 
 
-def _infer_dtype(series: pd.Series) -> type | str:
+def _infer_dtype(series: Any) -> type | str:
+    pd = _pandas_module()
     dtype = series.dtype
     if pd.api.types.is_bool_dtype(dtype):
         return bool
@@ -114,7 +132,8 @@ def _infer_dtype(series: pd.Series) -> type | str:
     return str
 
 
-def _supports_ranges(series: pd.Series) -> bool:
+def _supports_ranges(series: Any) -> bool:
+    pd = _pandas_module()
     dtype = series.dtype
     return bool(
         not pd.api.types.is_bool_dtype(dtype)
@@ -122,7 +141,8 @@ def _supports_ranges(series: pd.Series) -> bool:
     )
 
 
-def _supports_allowed_values(series: pd.Series) -> bool:
+def _supports_allowed_values(series: Any) -> bool:
+    pd = _pandas_module()
     dtype = series.dtype
     return bool(
         isinstance(dtype, pd.CategoricalDtype)
@@ -131,13 +151,14 @@ def _supports_allowed_values(series: pd.Series) -> bool:
     )
 
 
-def _supports_patterns(series: pd.Series) -> bool:
+def _supports_patterns(series: Any) -> bool:
+    pd = _pandas_module()
     return bool(
         pd.api.types.is_object_dtype(series.dtype) or pd.api.types.is_string_dtype(series.dtype)
     )
 
 
-def _infer_pattern(series: pd.Series) -> str | None:
+def _infer_pattern(series: Any) -> str | None:
     values = series.tolist()
     if not all(isinstance(value, str) for value in values):
         return None
@@ -148,6 +169,7 @@ def _infer_pattern(series: pd.Series) -> str | None:
 
 
 def _python_scalar(value: Any) -> Any:
+    pd = _pandas_module()
     if isinstance(value, pd.Timestamp):
         return value.to_pydatetime()
     if isinstance(value, (datetime, date)):

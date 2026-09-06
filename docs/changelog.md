@@ -5,6 +5,11 @@ The complete release history lives in
 
 ## Unreleased
 
+- Python 3.11–3.14 and bounded pandas, Polars, and PyArrow versions now have a
+  published compatibility matrix and release-blocking CI. pandas is now an
+  optional backend: migrate `pip install dqflow` to `pip install
+  "dqflow[pandas]"`; use `dqflow[pandas-parquet]` for pandas Parquet files.
+  Polars-only installations no longer install pandas ([#65](https://github.com/dqflow/dqflow/issues/65)).
 - Contract diff is now a headline end-to-end story with exact CLI output, a
   producer-oriented explanation, a copyable pull-request gate, and a reusable
   visual ([#69](https://github.com/dqflow/dqflow/issues/69)).

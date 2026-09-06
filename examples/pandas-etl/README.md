@@ -4,7 +4,7 @@ This example loads orders, validates them before the publish step, and fails the
 pipeline with a structured summary when the contract does not pass.
 
 ```bash
-pip install dqflow
+pip install "dqflow[pandas]"
 python examples/pandas-etl/pipeline.py
 ```
 

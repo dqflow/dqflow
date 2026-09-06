@@ -24,16 +24,16 @@ Tracking issue: [#67](https://github.com/dqflow/dqflow/issues/67).
 
 ## Supported environments
 
-- [ ] A public compatibility matrix and support policy exist (Python, pandas, Polars, PyArrow) ([#65](https://github.com/dqflow/dqflow/issues/65))
-- [ ] CI covers every supported Python version and the min/latest dependency sets ([#65](https://github.com/dqflow/dqflow/issues/65))
-- [ ] Windows and macOS smoke tests cover CLI paths and serialization ([#65](https://github.com/dqflow/dqflow/issues/65))
-- [ ] Each backend installs with only its documented dependencies ([#65](https://github.com/dqflow/dqflow/issues/65))
-- [ ] Built-wheel install/import smoke tests run before every release ([#65](https://github.com/dqflow/dqflow/issues/65))
+- [x] A public compatibility matrix and support policy exist (Python, pandas, Polars, PyArrow) ([#65](https://github.com/dqflow/dqflow/issues/65))
+- [x] CI covers every supported Python version and the min/latest dependency sets ([#65](https://github.com/dqflow/dqflow/issues/65))
+- [x] Windows and macOS smoke tests cover CLI paths and serialization ([#65](https://github.com/dqflow/dqflow/issues/65))
+- [x] Each backend installs with only its documented dependencies ([#65](https://github.com/dqflow/dqflow/issues/65))
+- [x] Built-wheel install/import smoke tests run before every release ([#65](https://github.com/dqflow/dqflow/issues/65))
 
 ## Supply chain & release
 
 - [ ] `SECURITY.md`, pinned GitHub Actions, build provenance / attestations, and an SBOM ([#66](https://github.com/dqflow/dqflow/issues/66))
-- [ ] Release checks fail on metadata, wheel-content, or optional-extra drift ([#65](https://github.com/dqflow/dqflow/issues/65))
+- [x] Release checks fail on metadata, wheel-content, or optional-extra drift ([#65](https://github.com/dqflow/dqflow/issues/65))
 
 ## Performance
 

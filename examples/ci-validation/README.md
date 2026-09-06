@@ -3,7 +3,7 @@
 The script wraps `dq validate --fail-fast`, the same command used in a CI job.
 
 ```bash
-pip install dqflow
+pip install "dqflow[pandas]"
 python examples/ci-validation/validate.py
 ```
 

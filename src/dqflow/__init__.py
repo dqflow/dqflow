@@ -1,5 +1,6 @@
 """dqflow - Lightweight, contract-first data quality engine."""
 
+from dqflow._version import __version__ as __version__
 from dqflow.cache import StatsCache
 from dqflow.column import Column, CrossColumnRule
 from dqflow.contract import Contract
@@ -12,7 +13,6 @@ from dqflow.result import ValidationResult
 from dqflow.rules import evaluate_rule
 from dqflow.spec import ValidationSpec
 
-__version__ = "0.4.0"
 __all__ = [
     "Column",
     "Contract",

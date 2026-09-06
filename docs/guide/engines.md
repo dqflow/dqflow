@@ -5,12 +5,12 @@ produce the same `ValidationResult` shape and are covered by output-parity tests
 
 | Engine | Install | Input | Current behavior |
 | --- | --- | --- | --- |
-| pandas | `pip install dqflow` | `pandas.DataFrame` | Default and stable |
+| pandas | `pip install "dqflow[pandas]"` | `pandas.DataFrame` | Default and stable |
 | Polars | `pip install "dqflow[polars]"` | `DataFrame` or `LazyFrame` | Experimental; lazy input is collected |
 
 ## Pandas
 
-No engine argument is needed:
+Install `dqflow[pandas]`; no engine argument is then needed:
 
 ```python
 result = contract.validate(pandas_df)
