@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- A public supported-environments matrix for Python 3.11–3.14, pandas 2.3/3.x,
+  Polars 1.x, and PyArrow 22–25. CI now tests supported Python versions,
+  minimum/latest dependencies, pandas major lines, macOS/Windows smoke paths,
+  and clean installations of the built wheel and every optional extra
+  ([#65](https://github.com/dqflow/dqflow/issues/65))
 - Contract diff is now a headline README and documentation workflow, with an
   old/new YAML walkthrough, exact CLI output, a producer-oriented explanation,
   a copyable GitHub Actions gate, a tested end-to-end example, and a reusable
@@ -55,6 +60,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#67](https://github.com/dqflow/dqflow/issues/67))
 
 ### Changed
+- **Migration:** pandas is no longer installed by `pip install dqflow`. Existing
+  pandas users should install `dqflow[pandas]`; pandas plus Parquet support is
+  `dqflow[pandas-parquet]`. `dqflow[polars]` no longer installs pandas. Python
+  3.9 and 3.10 are no longer supported. Backend and PyArrow versions now have
+  tested lower and upper bounds ([#65](https://github.com/dqflow/dqflow/issues/65))
+- Package metadata and `dqflow.__version__` now read the same version source.
+  Releases publish the exact wheel that passed metadata, content, import, CLI,
+  backend-isolation, and serialization checks
+  ([#65](https://github.com/dqflow/dqflow/issues/65))
 - Documentation is now built and versioned by Read the Docs. Public documentation
   links, including `dqflow.schema.CONTRACT_SCHEMA_URI`, now use
   `https://dqflow.readthedocs.io/en/latest/`; replace bookmarks to the previous

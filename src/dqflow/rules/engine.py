@@ -140,7 +140,7 @@ class _Evaluator:
 
     def _eval_Compare(self, node: ast.Compare) -> bool:
         left = self.run(node.left)
-        for op_node, comparator in zip(node.ops, node.comparators):
+        for op_node, comparator in zip(node.ops, node.comparators, strict=True):
             fn = _CMP_OPS.get(type(op_node))
             if fn is None:
                 raise RuleError(f"comparison {type(op_node).__name__} is not allowed")

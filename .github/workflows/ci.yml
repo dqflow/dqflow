@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +37,101 @@ jobs:
         with:
           files: ./coverage.xml
           fail_ci_if_error: false
+
+  dependency-compatibility:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: minimum-supported
+            python-version: "3.11"
+            constraints: >-
+              click==8.1.7 pyyaml==6.0.2 pandas==2.3.3
+              polars==1.0.0 pyarrow==22.0.0
+          - name: pandas-2
+            python-version: "3.14"
+            constraints: pandas==2.3.3
+          - name: pandas-3
+            python-version: "3.14"
+            constraints: "pandas>=3,<4"
+
+    name: Dependencies (${{ matrix.name }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade pip
+      # $CONSTRAINTS is expanded after redirection parsing, so specifiers
+      # containing `>` or `<` are passed to pip intact and still word-split.
+      - run: pip install -e ".[dev]" $CONSTRAINTS
+        env:
+          CONSTRAINTS: ${{ matrix.constraints }}
+      - run: pytest
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip build twine
+      - run: python -m build
+      - run: python -m twine check dist/*
+      - run: python tests/packaging/check_wheel.py dist/*.whl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+
+  wheel-smoke:
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            profile: base
+            extra: ""
+          - os: ubuntu-latest
+            profile: pandas
+            extra: "[pandas]"
+          - os: ubuntu-latest
+            profile: polars
+            extra: "[polars]"
+          - os: ubuntu-latest
+            profile: pandas-parquet
+            extra: "[pandas-parquet]"
+          - os: ubuntu-latest
+            profile: all
+            extra: "[all]"
+          - os: windows-latest
+            profile: all
+            extra: "[all]"
+          - os: macos-latest
+            profile: all
+            extra: "[all]"
+
+    name: Wheel (${{ matrix.os }}, ${{ matrix.profile }})
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install --no-deps --no-index --find-links dist dqflow
+      - run: python -m pip install --find-links dist "dqflow${{ matrix.extra }}"
+      - run: python -m pip check
+      - run: python tests/packaging/smoke.py
+        env:
+          DQFLOW_SMOKE_PROFILE: ${{ matrix.profile }}
 
   lint:
     runs-on: ubuntu-latest

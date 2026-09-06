@@ -86,11 +86,13 @@ class TestRegistry:
 
 
 def test_importing_dqflow_does_not_import_engine_modules() -> None:
-    """``import dqflow`` must not eagerly import pandas/polars engine modules."""
+    """``import dqflow`` must not eagerly import dataframe backends."""
     code = (
         "import sys, dqflow; "
         "assert 'dqflow.engines.pandas' not in sys.modules, 'pandas engine imported'; "
-        "assert 'dqflow.engines.polars' not in sys.modules, 'polars engine imported'"
+        "assert 'dqflow.engines.polars' not in sys.modules, 'polars engine imported'; "
+        "assert 'pandas' not in sys.modules, 'pandas imported'; "
+        "assert 'polars' not in sys.modules, 'polars imported'"
     )
     proc = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
     assert proc.returncode == 0, proc.stderr

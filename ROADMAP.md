@@ -220,7 +220,7 @@ credible 1.0.
 
 | Issue | Title | Priority | Depends on | Status |
 |-------|-------|----------|------------|--------|
-| [#65](https://github.com/dqflow/dqflow/issues/65) | Harden packaging and the supported compatibility matrix | P0 | — (benefits from #17) | 🔜 Planned |
+| [#65](https://github.com/dqflow/dqflow/issues/65) | Harden packaging and the supported compatibility matrix | P0 | — (benefits from #17) | ✅ Unreleased |
 | [#67](https://github.com/dqflow/dqflow/issues/67) | Define the stable public API and dqflow 1.0 readiness bar | P0 | #61 | 🚧 Policy, public-surface CI snapshot, and 1.0 checklist landed (unreleased) |
 | [#66](https://github.com/dqflow/dqflow/issues/66) | Add supply-chain security and verifiable release provenance | P1 | coordinates with #18, #61 | 🔜 Planned |
 

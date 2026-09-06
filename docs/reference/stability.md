@@ -4,6 +4,9 @@ dqflow is pre-1.0 and still changing quickly. This page defines the **small set
 of surfaces we treat as a compatibility contract**, how they may change, and how
 that promise is enforced.
 
+Supported Python, dataframe, file-format, and operating-system combinations are
+listed separately in [Supported environments](compatibility.md).
+
 !!! note "Current status"
     dqflow is `0.x`. The policy below is already enforced in CI, but the
     guarantees only become *release blocking* at 1.0 — see the

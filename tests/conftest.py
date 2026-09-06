@@ -1,6 +1,6 @@
 """Pytest fixtures for dqflow tests."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pandas as pd
 import pytest
@@ -18,9 +18,9 @@ def sample_df() -> pd.DataFrame:
             "currency": ["USD", "EUR", "USD"],
             "created_at": pd.to_datetime(
                 [
-                    datetime.now(timezone.utc) - timedelta(minutes=30),
-                    datetime.now(timezone.utc) - timedelta(minutes=20),
-                    datetime.now(timezone.utc) - timedelta(minutes=10),
+                    datetime.now(UTC) - timedelta(minutes=30),
+                    datetime.now(UTC) - timedelta(minutes=20),
+                    datetime.now(UTC) - timedelta(minutes=10),
                 ]
             ),
         }

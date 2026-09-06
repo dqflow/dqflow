@@ -89,8 +89,8 @@ and its copyable GitHub Actions workflow.
 
 - **Contracts, not scattered asserts.** One declarative artifact — reviewed, diffed,
   and versioned like the rest of your code.
-- **Lightweight.** Three runtime dependencies (`pandas`, `pyyaml`, `click`). No
-  server, no database, no daemon. `pip install` and embed it.
+- **Lightweight.** The base install has only `pyyaml` and `click`; pandas and
+  Polars are opt-in backends. No server, database, or daemon.
 - **Pythonic.** Plain `Contract` / `Column` objects, or YAML. Validation returns a
   structured result object, not a stack trace.
 - **Fail fast, on purpose.** `result.ok` is a boolean; `dq validate --fail-fast`
@@ -101,16 +101,17 @@ and its copyable GitHub Actions workflow.
 ## Installation
 
 ```bash
-pip install dqflow
+pip install "dqflow[pandas]"
 
 # optional, experimental Polars engine
 pip install "dqflow[polars]"
 
-# optional, required for Parquet files in the CLI
-pip install "dqflow[parquet]"
+# pandas plus PyArrow-backed Parquet files in the CLI
+pip install "dqflow[pandas-parquet]"
 ```
 
-Requires Python 3.9+.
+Supports Python 3.11–3.14. The base `pip install dqflow` includes no dataframe
+backend; see the [compatibility matrix](https://dqflow.readthedocs.io/en/latest/reference/compatibility/).
 
 > `dtype`, `freshness_minutes`, and `custom` can be declared on a `Column`, but
 > are not enforced by the validation engines yet. `pattern` **is** enforced.
@@ -284,7 +285,7 @@ prints only the failures, `-v/--verbose` prints every check.
 
 `--fail-fast` evaluates the complete contract, prints all failed checks, and then
 returns exit code `1` when validation fails. It does not stop after the first
-failed check. Parquet input requires `dqflow[parquet]`.
+failed check. Parquet input with pandas requires `dqflow[pandas-parquet]`.
 
 Given `data/orders.csv` where `order_id` has a duplicate and a null, `amount` has a
 negative value, and `currency` contains `GBP`:
@@ -400,10 +401,10 @@ a runnable script, and its own README.
 
 | Example | What it demonstrates | Install |
 | --- | --- | --- |
-| [pandas ETL](https://github.com/dqflow/dqflow/tree/main/examples/pandas-etl) | Validate transformed orders before publishing downstream | `pip install dqflow` |
+| [pandas ETL](https://github.com/dqflow/dqflow/tree/main/examples/pandas-etl) | Validate transformed orders before publishing downstream | `pip install "dqflow[pandas]"` |
 | [Polars pipeline](https://github.com/dqflow/dqflow/tree/main/examples/polars-pipeline) | Validate a Polars `LazyFrame` with the experimental engine | `pip install "dqflow[polars]"` |
-| [CI validation](https://github.com/dqflow/dqflow/tree/main/examples/ci-validation) | Turn a failed YAML contract into a non-zero CI exit code | `pip install dqflow` |
-| [Infer and refine](https://github.com/dqflow/dqflow/tree/main/examples/infer-refine) | Infer a draft, replace observed bounds with business rules, and validate it | `pip install dqflow` |
+| [CI validation](https://github.com/dqflow/dqflow/tree/main/examples/ci-validation) | Turn a failed YAML contract into a non-zero CI exit code | `pip install "dqflow[pandas]"` |
+| [Infer and refine](https://github.com/dqflow/dqflow/tree/main/examples/infer-refine) | Infer a draft, replace observed bounds with business rules, and validate it | `pip install "dqflow[pandas]"` |
 | [Contract diff](https://github.com/dqflow/dqflow/tree/main/examples/contract-diff) | Compare two contract versions and block breaking changes | `pip install dqflow` |
 
 Run them from the repository root:

@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Any
 
 import click
-import pandas as pd
 
 from dqflow import __version__
 from dqflow.contract import Contract
@@ -257,7 +256,7 @@ def infer(
     """Infer a contract from DATA and write to OUTPUT."""
     try:
         df = _load_dataframe(data, sample=sample, strict=strict)
-    except (OSError, ValueError, pd.errors.ParserError) as exc:
+    except (OSError, ValueError) as exc:
         raise click.ClickException(f"Could not read {data}: {exc}") from exc
 
     contract = infer_contract(
@@ -296,8 +295,14 @@ def _load_dataframe(
     *,
     sample: int | None = None,
     strict: bool = True,
-) -> pd.DataFrame:
+) -> Any:
     """Load DataFrame from file based on extension."""
+    try:
+        import pandas as pd
+    except ImportError as exc:
+        raise click.ClickException(
+            'This command requires pandas. Install it with: pip install "dqflow[pandas]"'
+        ) from exc
     suffix = path.suffix.lower()
     if suffix == ".parquet":
         df = pd.read_parquet(path)
