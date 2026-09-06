@@ -66,7 +66,6 @@ Read [Contract Diff](guide/diff.md) for the breaking-change rules and
 Actions workflow.
 
 ## Documentation
-
 - [5-minute quickstart](getting-started/quickstart.md)
 - [Defining contracts](guide/contracts.md)
 - [Column validations](guide/columns.md)

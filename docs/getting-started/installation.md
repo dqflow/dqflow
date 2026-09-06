@@ -19,7 +19,7 @@ your other projects:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install "dqflow[pandas]"
+python -m pip install dqflow
 dq --version
 ```
 
