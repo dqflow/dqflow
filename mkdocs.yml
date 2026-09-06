@@ -11,6 +11,7 @@ nav:
   - Home: index.md
   - Start Here:
       - 5-minute quickstart: getting-started/quickstart.md
+      - 10-minute first PR gate: getting-started/first-pr-gate.md
       - Installation: getting-started/installation.md
   - User Guide:
       - Contract Diff: guide/diff.md
@@ -45,6 +46,15 @@ nav:
       - Supported Environments: reference/compatibility.md
       - Stability & Compatibility: reference/stability.md
       - 1.0 Readiness: reference/v1-readiness.md
+  - Compare:
+      - How dqflow compares: comparison/index.md
+      - Migrating from Pandera: comparison/from-pandera.md
+  - Community:
+      - Overview: community/index.md
+      - Adoption Funnel: community/adoption-funnel.md
+      - Launch Playbook: community/launch-playbook.md
+      - Release Post Template: community/release-post-template.md
+      - Discussions Setup: community/discussions.md
   - Changelog: changelog.md
   - Contributing: contributing.md
 

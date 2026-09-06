@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Repository discoverability and community infrastructure: structured GitHub
+  issue forms (bug / feature / integration / question) and a pull-request
+  template, a `CODE_OF_CONDUCT.md`, RFC and Roadmap discussion forms, an honest
+  [comparison guide](https://dqflow.readthedocs.io/en/latest/comparison/) covering
+  Pandera, Great Expectations, Soda, and Data Contract CLI with a
+  [Pandera migration path](https://dqflow.readthedocs.io/en/latest/comparison/from-pandera/),
+  the copyable [`examples/first-pr-gate/`](https://github.com/dqflow/dqflow/tree/main/examples/first-pr-gate)
+  starter with a [10-minute tutorial](https://dqflow.readthedocs.io/en/latest/getting-started/first-pr-gate/),
+  and a [community section](https://dqflow.readthedocs.io/en/latest/community/)
+  with the adoption funnel, a launch playbook, a monthly release/content cadence,
+  and maintainer response expectations. Expanded PyPI keywords, classifiers, and
+  project URLs ([#62](https://github.com/dqflow/dqflow/issues/62))
 - A public supported-environments matrix for Python 3.11–3.14, pandas 2.3/3.x,
   Polars 1.x, and PyArrow 22–25. CI now tests supported Python versions,
   minimum/latest dependencies, pandas major lines, macOS/Windows smoke paths,

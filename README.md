@@ -28,9 +28,11 @@
 <p align="center">
   <a href="https://dqflow.readthedocs.io/en/latest/getting-started/quickstart/"><strong>5-minute quickstart</strong></a> ·
   <a href="https://dqflow.readthedocs.io/en/latest/">Documentation</a> ·
+  <a href="https://dqflow.readthedocs.io/en/latest/comparison/">Compare</a> ·
   <a href="https://github.com/dqflow/dqflow/tree/main/examples">Examples</a> ·
   <a href="https://pypi.org/project/dqflow/">PyPI</a> ·
-  <a href="https://github.com/dqflow/dqflow/blob/main/ROADMAP.md">Roadmap</a>
+  <a href="https://github.com/dqflow/dqflow/blob/main/ROADMAP.md">Roadmap</a> ·
+  <a href="https://github.com/dqflow/dqflow/discussions">Discussions</a>
 </p>
 
 ---
@@ -97,6 +99,19 @@ and its copyable GitHub Actions workflow.
   returns a non-zero exit code. Wire it into a pipeline task or a CI step.
 - **Deliberately scoped.** dqflow emits structured results — it does not try to be a
   monitoring platform.
+
+## How dqflow compares
+
+dqflow's wedge is the **contract pull-request gate for in-memory Python
+DataFrames** — not the largest check catalogue or a data platform. Prefer
+**Pandera** for typed schema models across many backends and statistical checks;
+**Great Expectations** for a huge expectation library and HTML Data Docs;
+**Soda** for warehouse-native SQL checks; **Data Contract CLI** for ODCS and
+broad format interoperability.
+
+The [comparison guide](https://dqflow.readthedocs.io/en/latest/comparison/) has
+the full table, an honest limitations list, and a
+[migration guide from Pandera](https://dqflow.readthedocs.io/en/latest/comparison/from-pandera/).
 
 ## Installation
 
@@ -396,7 +411,7 @@ result = contract.validate(polars_df, engine=PolarsEngine())
 ## Runnable examples
 
 The [`examples/`](https://github.com/dqflow/dqflow/tree/main/examples) directory
-contains five self-contained projects. Each one includes sample data or contracts,
+contains six self-contained projects. Each one includes sample data or contracts,
 a runnable script, and its own README.
 
 | Example | What it demonstrates | Install |
@@ -406,6 +421,7 @@ a runnable script, and its own README.
 | [CI validation](https://github.com/dqflow/dqflow/tree/main/examples/ci-validation) | Turn a failed YAML contract into a non-zero CI exit code | `pip install "dqflow[pandas]"` |
 | [Infer and refine](https://github.com/dqflow/dqflow/tree/main/examples/infer-refine) | Infer a draft, replace observed bounds with business rules, and validate it | `pip install "dqflow[pandas]"` |
 | [Contract diff](https://github.com/dqflow/dqflow/tree/main/examples/contract-diff) | Compare two contract versions and block breaking changes | `pip install dqflow` |
+| [First PR gate](https://github.com/dqflow/dqflow/tree/main/examples/first-pr-gate) | Copyable starter — a stricter contract fails the pull-request check | `pip install "dqflow[pandas]"` |
 
 Run them from the repository root:
 
@@ -415,6 +431,7 @@ python examples/polars-pipeline/pipeline.py
 python examples/ci-validation/validate.py
 python examples/infer-refine/infer_and_validate.py
 python examples/contract-diff/diff.py
+python examples/first-pr-gate/gate.py
 ```
 
 Expected output:
@@ -433,9 +450,12 @@ reviewed the inferred draft and validated the curated contract
 
 orders: 3 changes (1 breaking)
 blocked: 1 breaking change(s) for data producers
+
+orders: 3 changes (2 breaking)
+first-pr-gate: blocked a breaking contract change before merge
 ```
 
-All five scripts are also exercised by
+All six scripts are also exercised by
 [`tests/test_examples.py`](https://github.com/dqflow/dqflow/blob/main/tests/test_examples.py).
 
 ## When to use dqflow
@@ -471,9 +491,20 @@ A GitHub Action, HTML reports, severity levels, Polars parity, and PySpark / SQL
 engines are all planned. See **[ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md)** for the full
 plan, priorities, and non-goals.
 
+## Community
+
+- **Questions & help** — [GitHub Discussions](https://github.com/dqflow/dqflow/discussions)
+- **Bugs, features, integrations** — [open an issue](https://github.com/dqflow/dqflow/issues/new/choose)
+- **Design proposals & roadmap feedback** — RFC / Roadmap discussions
+- **Find something to work on** — [`good first issue`](https://github.com/dqflow/dqflow/labels/good%20first%20issue)
+
+See the [community guide](https://dqflow.readthedocs.io/en/latest/community/) for
+maintainer response expectations and how the project grows.
+
 ## Contributing
 
-Issues and pull requests are welcome. See [CONTRIBUTING.md](https://github.com/dqflow/dqflow/blob/main/CONTRIBUTING.md).
+Issues and pull requests are welcome. See [CONTRIBUTING.md](https://github.com/dqflow/dqflow/blob/main/CONTRIBUTING.md)
+and the [Code of Conduct](https://github.com/dqflow/dqflow/blob/main/CODE_OF_CONDUCT.md).
 
 ```bash
 git clone https://github.com/dqflow/dqflow.git

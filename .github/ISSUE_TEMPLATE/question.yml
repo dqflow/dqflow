@@ -1,0 +1,33 @@
+name: Question
+description: Ask about using dqflow
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Most questions belong in
+        [Q&A discussions](https://github.com/dqflow/dqflow/discussions/categories/q-a)**,
+        where more people can help and answers stay searchable. Use this issue
+        form only if your question is really about a possible bug or a
+        documentation gap.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before asking
+      options:
+        - label: I read the [quickstart](https://dqflow.readthedocs.io/en/latest/getting-started/quickstart/) and searched the [docs](https://dqflow.readthedocs.io/en/latest/) and [discussions](https://github.com/dqflow/dqflow/discussions)
+          required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What are you trying to do, and what have you tried?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: dqflow version
+      placeholder: "dqflow, version 0.4.0"
+    validations:
+      required: false

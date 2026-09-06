@@ -1,0 +1,21 @@
+schema_version: "1.0"
+name: orders
+description: Checkout orders, validated before publishing downstream
+
+columns:
+  order_id:
+    dtype: string
+    not_null: true
+    unique: true
+
+  amount:
+    dtype: float
+    min: 0
+
+  currency:
+    dtype: string
+    allowed: [USD, EUR, GBP]
+
+rules:
+  - row_count > 0
+  - "null_rate('order_id') == 0"

@@ -1,0 +1,46 @@
+title: "RFC: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Open an RFC before a non-trivial change — a new engine, a contract-schema
+        addition, a CLI behaviour change, severity levels. Small, obvious changes
+        skip this: open an issue or PR directly.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is not possible or is awkward today? Who does it affect?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The design. Contract fields, CLI, API, YAML — be concrete.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Other designs considered, and why this one.
+    validations:
+      required: true
+  - type: textarea
+    id: compat
+    attributes:
+      label: Compatibility impact
+      description: >
+        Effect on the public API (`dqflow` / `dqflow.schema`), the `dq` CLI and
+        exit codes, `--output json`, and the contract schema version. Any
+        migration needed?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Out of scope
+      description: What this RFC deliberately does not cover.
+    validations:
+      required: false

@@ -1,0 +1,54 @@
+# Copy this file to .github/workflows/data-contract.yml in your repository.
+#
+# It runs three checks on every pull request that touches the contract or its
+# fixture:
+#   1. dq lint     - the contract document is well-formed
+#   2. dq validate - the committed fixture still satisfies the contract
+#   3. dq diff     - the proposed contract does not tighten requirements in a way
+#                    that would reject data producers already send
+#
+# No dqflow account, token, server, or database is required.
+name: Data contract
+
+on:
+  pull_request:
+    paths:
+      - "contracts/**"
+      - "data/**"
+      - ".github/workflows/data-contract.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the pull request
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dqflow
+        run: python -m pip install "dqflow[pandas]"
+
+      - name: Lint the contract
+        run: dq lint contracts/orders.yaml --strict
+
+      - name: Validate a representative fixture
+        run: dq validate contracts/orders.yaml data/orders.csv --fail-fast
+
+      - name: Read the contract from the pull-request base branch
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git show "origin/${BASE_REF}:contracts/orders.yaml" \
+            > "${RUNNER_TEMP}/orders-base.yaml"
+
+      - name: Block breaking contract changes
+        run: dq diff "${RUNNER_TEMP}/orders-base.yaml" contracts/orders.yaml

@@ -27,6 +27,11 @@ ROOT = Path(__file__).parents[1]
             "blocked: 1 breaking change(s) for data producers",
             1,
         ),
+        (
+            "first-pr-gate/gate.py",
+            "first-pr-gate: blocked a breaking contract change before merge",
+            1,
+        ),
     ],
 )
 def test_runnable_example(script: str, expected: str, exit_code: int) -> None:
