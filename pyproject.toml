@@ -112,7 +112,10 @@ testpaths = ["tests"]
 addopts = "-v --tb=short"
 
 [tool.mypy]
-python_version = "3.11"
+# Analysis target. The runtime floor (3.11) is enforced by requires-python,
+# ruff's target-version, and the 3.11 leg of the test matrix; mypy stays on
+# 3.12 because current third-party stubs (numpy) use 3.12+ syntax.
+python_version = "3.12"
 strict = true
 warn_return_any = true
 warn_unused_configs = true

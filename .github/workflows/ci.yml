@@ -54,7 +54,7 @@ jobs:
             constraints: pandas==2.3.3
           - name: pandas-3
             python-version: "3.14"
-            constraints: pandas>=3,<4
+            constraints: "pandas>=3,<4"
 
     name: Dependencies (${{ matrix.name }})
     steps:
@@ -63,7 +63,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install --upgrade pip
-      - run: pip install -e ".[dev]" ${{ matrix.constraints }}
+      # $CONSTRAINTS is expanded after redirection parsing, so specifiers
+      # containing `>` or `<` are passed to pip intact and still word-split.
+      - run: pip install -e ".[dev]" $CONSTRAINTS
+        env:
+          CONSTRAINTS: ${{ matrix.constraints }}
       - run: pytest
 
   package:
