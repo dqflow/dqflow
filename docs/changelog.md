@@ -5,6 +5,15 @@ The complete release history lives in
 
 ## Unreleased
 
+- Discoverability and community infrastructure: GitHub issue forms and a PR
+  template, a Code of Conduct, RFC/Roadmap discussion forms, an honest
+  [comparison guide](comparison/index.md) (Pandera, Great Expectations, Soda,
+  Data Contract CLI) with a [Pandera migration path](comparison/from-pandera.md),
+  the copyable `examples/first-pr-gate/` starter and its
+  [10-minute tutorial](getting-started/first-pr-gate.md), and a
+  [community section](community/index.md) covering the adoption funnel, a launch
+  playbook, and maintainer response expectations
+  ([#62](https://github.com/dqflow/dqflow/issues/62)).
 - Python 3.11–3.14 and bounded pandas, Polars, and PyArrow versions now have a
   published compatibility matrix and release-blocking CI. pandas is now an
   optional backend: migrate `pip install dqflow` to `pip install

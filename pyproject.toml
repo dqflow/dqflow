@@ -18,13 +18,20 @@ keywords = [
     "data-quality",
     "data-validation",
     "data-contracts",
+    "data-contract",
+    "data-engineering",
+    "schema-validation",
+    "dataframe",
     "etl",
+    "ci-cd",
     "pandas",
+    "polars",
 ]
 
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
@@ -32,6 +39,8 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Database",
 ]
 
 dependencies = [
@@ -91,8 +100,11 @@ dq = "dqflow.cli:main"
 [project.urls]
 Homepage = "https://github.com/dqflow/dqflow"
 Repository = "https://github.com/dqflow/dqflow"
-Issues = "https://github.com/dqflow/dqflow/issues"
 Documentation = "https://dqflow.readthedocs.io/en/latest/"
+Issues = "https://github.com/dqflow/dqflow/issues"
+Discussions = "https://github.com/dqflow/dqflow/discussions"
+Changelog = "https://github.com/dqflow/dqflow/blob/main/CHANGELOG.md"
+Roadmap = "https://github.com/dqflow/dqflow/blob/main/ROADMAP.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dqflow"]

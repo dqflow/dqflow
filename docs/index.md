@@ -67,6 +67,7 @@ Actions workflow.
 
 ## Documentation
 - [5-minute quickstart](getting-started/quickstart.md)
+- [10-minute first PR gate](getting-started/first-pr-gate.md)
 - [Defining contracts](guide/contracts.md)
 - [Column validations](guide/columns.md)
 - [Table rules](guide/rules.md)
@@ -74,6 +75,8 @@ Actions workflow.
 - [Contract Diff](guide/diff.md)
 - [CLI usage](guide/cli.md)
 - [API reference](api/contract.md)
+- [How dqflow compares](comparison/index.md) · [migrating from Pandera](comparison/from-pandera.md)
+- [Community & how the project grows](community/index.md)
 - [Runnable examples](https://github.com/dqflow/dqflow/tree/main/examples)
 
 !!! note "Current enforcement boundary"

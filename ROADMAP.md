@@ -132,15 +132,26 @@ parallel; later categories begin when their dependencies are ready.
 diff story, then improve discovery and run small measurable launches. No runtime
 telemetry is added.
 
-| Issue | Title | Priority | Depends on |
-|-------|-------|----------|------------|
-| [#60](https://github.com/dqflow/dqflow/issues/60) | Define adoption metrics and publish a privacy-safe project health dashboard | P0 | — |
-| [#62](https://github.com/dqflow/dqflow/issues/62) | Build repository discoverability and a repeatable community growth loop | P0 | #60 |
-| [#69](https://github.com/dqflow/dqflow/issues/69) | Make contract diff a headline README and docs story | P0 | #37 (shipped); measure with #60 |
+| Issue | Title | Priority | Depends on | Status |
+|-------|-------|----------|------------|--------|
+| [#60](https://github.com/dqflow/dqflow/issues/60) | Define adoption metrics and publish a privacy-safe project health dashboard | P0 | — | 🔜 Planned |
+| [#62](https://github.com/dqflow/dqflow/issues/62) | Build repository discoverability and a repeatable community growth loop | P0 | #60 (funnel instrumentation) | 🚧 Repo metadata, issue/PR templates, discussions, comparison + Pandera migration, `first-pr-gate` starter, and the launch/cadence playbook landed (unreleased); conversion tracking waits on #60 |
+| [#69](https://github.com/dqflow/dqflow/issues/69) | Make contract diff a headline README and docs story | P0 | #37 (shipped); measure with #60 | ✅ Unreleased |
 
 Covers: the active-user definition and funnel, repository metadata and community
 workflows, honest comparison/migration pages, and a canonical `dq diff` demo that
 blocks a breaking contract change in CI.
+
+The discovery and community half of #62 is in place: repository homepage +
+topics, structured issue forms and a PR template, a
+[Contributor Covenant](CODE_OF_CONDUCT.md), seeded GitHub Discussions
+(Q&A / Roadmap / RFC / Show and tell), an honest
+[comparison guide](docs/comparison/index.md) with a
+[Pandera migration path](docs/comparison/from-pandera.md), a copyable
+[`first-pr-gate` starter](examples/first-pr-gate/) with a 10-minute tutorial, and
+a [launch playbook](docs/community/launch-playbook.md) with a monthly
+release/content cadence. The [adoption funnel](docs/community/adoption-funnel.md)
+is defined; automated conversion tracking is part of #60.
 
 ---
 
