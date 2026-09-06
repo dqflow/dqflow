@@ -1,0 +1,24 @@
+schema_version: "1.0"
+name: orders
+description: Checkout orders, validated before publishing downstream
+
+columns:
+  order_id:
+    dtype: string
+    not_null: true
+    unique: true
+
+  amount:
+    dtype: float
+    min: 1  # breaking: stricter lower bound rejects amounts in [0, 1)
+
+  currency:
+    dtype: string
+    allowed: [USD, EUR]  # breaking: GBP removed from the allowed set
+
+  ship_country:
+    dtype: string  # non-breaking: new nullable column
+
+rules:
+  - row_count > 0
+  - "null_rate('order_id') == 0"
