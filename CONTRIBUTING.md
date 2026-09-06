@@ -10,6 +10,18 @@ Thank you for your interest in contributing to dqflow! This guide will help you 
 - **Write code** - Fix bugs or implement new features
 - **Review PRs** - Help review pull requests
 
+## Where things go
+
+| Kind | Where |
+| --- | --- |
+| "How do I…?" / open-ended help | [GitHub Discussions → Q&A](https://github.com/dqflow/dqflow/discussions/categories/q-a) |
+| A specific bug or a concrete feature/integration request | [New issue → pick a form](https://github.com/dqflow/dqflow/issues/new/choose) |
+| A design proposal for a non-trivial change | [Discussions → RFC](https://github.com/dqflow/dqflow/discussions) |
+| Feedback on priorities | [Discussions → Roadmap](https://github.com/dqflow/dqflow/discussions) · [ROADMAP.md](ROADMAP.md) |
+
+Maintainer response expectations (triage times, PR review windows) are documented
+in the [community guide](https://dqflow.readthedocs.io/en/latest/community/).
+
 ## Reporting Bugs
 
 Found a bug? Please help us fix it!
@@ -25,38 +37,10 @@ Found a bug? Please help us fix it!
 
 ### How to Report
 
-Open a [new issue](https://github.com/dqflow/dqflow/issues/new) with:
-
-```markdown
-## Bug Description
-A clear, concise description of the bug.
-
-## Steps to Reproduce
-1. Install dqflow `pip install dqflow`
-2. Run this code:
-
-```python
-import pandas as pd
-from dqflow import Contract, Column
-
-# Minimal code to reproduce the bug
-df = pd.DataFrame({...})
-contract = Contract(...)
-result = contract.validate(df)
-```
-
-## Expected Behavior
-What you expected to happen.
-
-## Actual Behavior
-What actually happened. Include the full error message/traceback.
-
-## Environment
-- dqflow version: (run `dq --version`)
-- Python version: (run `python --version`)
-- pandas version: (run `pip show pandas`)
-- OS: macOS / Linux / Windows
-```
+Open a [new issue](https://github.com/dqflow/dqflow/issues/new/choose) and pick
+the **Bug report** form. It asks for the dqflow version, install profile, engine,
+Python version, OS, a minimal reproducible example, and the expected vs. actual
+behavior — have those ready.
 
 ### Good Bug Reports
 
@@ -294,34 +278,31 @@ dqflow/
 └── scripts/             # Contributor setup helpers
 ```
 
-## Feature Ideas
+## Finding something to work on
 
-Looking for something to work on? Here are some ideas:
+- [`good first issue`](https://github.com/dqflow/dqflow/labels/good%20first%20issue)
+  — scoped tasks with a clear acceptance bar, held for first-time contributors
+  for two weeks after someone claims one
+- [`help wanted`](https://github.com/dqflow/dqflow/labels/help%20wanted) — larger
+  pieces where a contributor would be welcome
+- The [ROADMAP](ROADMAP.md) — every item is a tracked issue; comment on one to
+  pick it up
 
-### Good First Issues
-- Improve error messages with more context
-- Add more examples to documentation
-- Add validation for column name patterns
-
-### Medium Complexity
-- Add severity levels (warning vs error)
-- Add custom validator support
-- Improve schema inference in `dq infer`
-
-### Larger Features
-- PySpark engine
-- SQL/database engine
-- dbt integration
-- Prometheus metrics export
+Comment on the issue before starting non-trivial work so effort is not
+duplicated.
 
 ## Questions?
 
-- Open a [GitHub Issue](https://github.com/dqflow/dqflow/issues)
-- Check existing issues and discussions
+- [GitHub Discussions](https://github.com/dqflow/dqflow/discussions) for help and
+  open-ended questions
+- [Issues](https://github.com/dqflow/dqflow/issues) for specific, actionable bugs
+  and changes
 
 ## Code of Conduct
 
-Be respectful and inclusive. We welcome contributors of all backgrounds and experience levels.
+Participation is governed by the [Contributor Covenant](CODE_OF_CONDUCT.md).
+Report unacceptable behavior to the address in that document. We welcome
+contributors of all backgrounds and experience levels.
 
 ---
 

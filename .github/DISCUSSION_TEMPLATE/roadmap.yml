@@ -1,0 +1,29 @@
+title: "Roadmap feedback: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feedback on the [ROADMAP](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md).
+        Concrete "we can't adopt dqflow until X" is the most useful thing you can
+        write here.
+  - type: textarea
+    id: blocker
+    attributes:
+      label: What blocks you?
+      description: The single missing capability that stops you using dqflow (or using it more).
+    validations:
+      required: true
+  - type: textarea
+    id: priority
+    attributes:
+      label: Priority order
+      description: Where is the roadmap's sequencing wrong for your use case?
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Your context
+      description: Pipeline stack, data sizes, where dqflow would run. Helps weigh the feedback.
+    validations:
+      required: false

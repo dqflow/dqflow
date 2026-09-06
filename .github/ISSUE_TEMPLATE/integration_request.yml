@@ -1,0 +1,54 @@
+name: Integration or engine request
+description: Support for another DataFrame library, orchestrator, or data-contract format
+labels: ["integration"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for a new engine (PySpark, SQL…), an orchestrator adapter
+        (Airflow, Dagster, Prefect, dbt), or interoperability with another
+        contract format (ODCS…). Several of these are already tracked on the
+        [ROADMAP](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) — check first.
+  - type: input
+    id: target
+    attributes:
+      label: Target tool / library
+      placeholder: "PySpark 3.5 / Dagster / Open Data Contract Standard"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of integration
+      options:
+        - New validation engine (a DataFrame backend)
+        - Orchestrator adapter (task/asset wrapper)
+        - Contract format import / export
+        - CI / reporting integration
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: usecase
+    attributes:
+      label: Use case
+      description: What does your pipeline look like, and where would dqflow slot in?
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Relevant versions
+      placeholder: "pyspark==3.5.1, python 3.11"
+    validations:
+      required: false
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Would you be willing to contribute this?
+      options:
+        - "Yes, with review guidance"
+        - "Maybe, with help"
+        - "No"
+    validations:
+      required: true

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or help
+    url: https://github.com/dqflow/dqflow/discussions/categories/q-a
+    about: "How do I…? Getting dqflow running, writing a contract, wiring CI. Ask in Q&A."
+  - name: Propose a design change (RFC)
+    url: https://github.com/dqflow/dqflow/discussions
+    about: For non-trivial changes, open an RFC discussion before an issue or PR.
+  - name: Documentation
+    url: https://dqflow.readthedocs.io/en/latest/
+    about: Quickstart, guides, comparison, and the API reference.

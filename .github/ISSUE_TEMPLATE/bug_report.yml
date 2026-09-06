@@ -1,0 +1,87 @@
+name: Bug report
+description: Something in dqflow behaves incorrectly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. A minimal reproducible example
+        is the single most useful thing you can include.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before filing
+      options:
+        - label: I searched [existing issues](https://github.com/dqflow/dqflow/issues?q=is%3Aissue) and this is not a duplicate
+          required: true
+        - label: I reproduced this on the latest release of dqflow
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: dqflow version
+      description: Output of `dq --version`
+      placeholder: "dqflow, version 0.4.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Install profile
+      options:
+        - "dqflow[pandas]"
+        - "dqflow[polars]"
+        - "dqflow[pandas-parquet]"
+        - "dqflow[all]"
+        - "dqflow (base, no engine)"
+        - other / not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Engine
+      options:
+        - pandas
+        - polars
+        - not applicable (lint / diff / schema / infer)
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.12.4"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 14 / Ubuntu 22.04 / Windows 11"
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproducible example
+      description: >
+        The smallest contract + data + code (or CLI commands) that shows the bug.
+        Paste the contract inline; do not link a private repo.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the full output or traceback.
+      render: shell
+    validations:
+      required: true
