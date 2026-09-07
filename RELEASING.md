@@ -10,12 +10,14 @@ Step-by-step guide to release a new version.
 
 ## Step 1: Update Version Numbers
 
-Update version in **both** files:
+Update the package's single version source:
 
 | File | Location |
 |------|----------|
-| `pyproject.toml` | `version = "X.Y.Z"` |
-| `src/dqflow/__init__.py` | `__version__ = "X.Y.Z"` |
+| `src/dqflow/_version.py` | `__version__ = "X.Y.Z"` |
+
+`pyproject.toml` and `dqflow.__version__` both read this value. Regenerate the
+public API snapshot with `python -m tests.api_surface.collect`.
 
 ## Step 2: Update CHANGELOG.md
 

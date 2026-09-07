@@ -5,6 +5,8 @@ The complete release history lives in
 
 ## Unreleased
 
+## 0.5.0 — 2026-09-07
+
 - Declared dtypes are enforced consistently in pandas and Polars using five
   backend-independent logical type families. Dtype checks include expected and
   actual types in structured output; unknown names remain backward-compatible

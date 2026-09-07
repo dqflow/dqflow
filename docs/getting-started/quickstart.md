@@ -29,7 +29,7 @@ python -m pip install "dqflow[pandas]"
 dq --version
 ```
 
-You should see `dqflow, version 0.4.0` or newer. If installation fails, see the
+You should see `dqflow, version 0.5.0` or newer. If installation fails, see the
 [installation guide](installation.md).
 
 ## 2. Download a three-row dataset
