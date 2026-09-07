@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 import yaml
 
 from dqflow.column import Column, CrossColumnRule
+from dqflow.dtypes import normalize_declared_dtype
 from dqflow.engines.registry import DEFAULT_ENGINE
 from dqflow.execution.context import ExecutionContext
 from dqflow.result import ValidationResult
@@ -221,25 +222,15 @@ class Contract:
 
 def _dtype_to_str(dtype: type | str) -> str:
     """Convert dtype to string representation."""
-    if isinstance(dtype, str):
-        return dtype
-    if dtype is str:
-        return "string"
-    if dtype is int:
-        return "integer"
-    if dtype is float:
-        return "float"
-    if dtype is bool:
-        return "boolean"
-    return str(dtype)
+    return normalize_declared_dtype(dtype)
 
 
 def column_to_dict(col: Column) -> dict[str, Any]:
     """Return the serializable, validation-affecting fields of a column.
 
-    Only fields the engines act on are included: ``dtype`` plus any set
-    constraint. ``description``, ``metadata``, and callable ``custom`` are
-    omitted, matching :meth:`Contract.to_yaml`. Used for YAML output and by
+    Includes ``dtype`` plus serializable declared constraints. ``description``,
+    ``metadata``, and callable ``custom`` are omitted, matching
+    :meth:`Contract.to_yaml`. Used for YAML output and by
     :func:`dqflow.diff.diff_contracts`.
     """
     col_dict: dict[str, Any] = {"dtype": _dtype_to_str(col.dtype)}

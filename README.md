@@ -128,8 +128,8 @@ pip install "dqflow[pandas-parquet]"
 Supports Python 3.11–3.14. The base `pip install dqflow` includes no dataframe
 backend; see the [compatibility matrix](https://dqflow.readthedocs.io/en/latest/reference/compatibility/).
 
-> `dtype`, `freshness_minutes`, and `custom` can be declared on a `Column`, but
-> are not enforced by the validation engines yet. `pattern` **is** enforced.
+> `dtype` and `pattern` are enforced by both validation engines.
+> `freshness_minutes` and `custom` can be declared but are not enforced yet.
 
 ## 30-second Quick Start
 
@@ -161,7 +161,7 @@ if not result.ok:
 ```
 
 ```text
-Contract 'orders': 5/8 checks passed
+Contract 'orders': 8/11 checks passed
 Failed checks:
   - not_null:order_id: Column 'order_id' has 1 null value
   - min:amount: Column 'amount' has 1 value below the minimum 0
@@ -217,7 +217,7 @@ result.to_dict()       # JSON-serializable dict for logs / CI
 ```
 
 ```text
-Contract 'orders': 13/14 checks passed
+Contract 'orders': 17/18 checks passed
 Failed checks:
   - cross_column:shipped_after_created: shipped_at must not precede created_at
 ```
@@ -307,11 +307,11 @@ negative value, and `currency` contains `GBP`:
 
 ```console
 $ dq validate contracts/orders.yaml data/orders.csv --fail-fast
-orders · 5 of 8 checks failed on 4 rows
+orders · 5 of 11 checks failed on 4 rows
 
   Schema  3/3 passed
 
-  Columns  4/4 failed
+  Columns  4/7 failed
     order_id  ✘ not_null  has 1 null value (25.0%)
               ✘ unique    has 2 non-unique values (50.0%)  ·  e.g. 'A001'
     amount    ✘ min       has 1 value below the minimum 0 (25.0%)
@@ -320,7 +320,7 @@ orders · 5 of 8 checks failed on 4 rows
   Table rules  1/1 failed
     ✘ null_rate('order_id') == 0
 
-  3 passed · 5 failed
+  6 passed · 5 failed
 $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 1
 ```
@@ -332,7 +332,7 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 | Python contracts — `Contract`, `Column`, `CrossColumnRule` | ✅ Implemented |
 | YAML contracts — `Contract.from_yaml()` / `.to_yaml()` | ✅ Implemented |
 | Schema check — required columns must be present in the data | ✅ Implemented |
-| Validity checks — `not_null`, `min`, `max`, `allowed`, `unique`, `pattern` | ✅ Implemented |
+| Validity checks — `dtype`, `not_null`, `min`, `max`, `allowed`, `unique`, `pattern` | ✅ Implemented |
 | Table rules — `row_count`, `null_rate('col')`, `unique_count('col')` | ✅ Implemented |
 | Cross-column rules — `left`/`op`/`right` or a callable | ✅ Implemented |
 | Structured results — `.ok`, `.failed_checks`, `.summary()`, `.to_dict()` | ✅ Implemented |
@@ -342,14 +342,13 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 | Versioned schema — `schema_version`, `dq lint` diagnostics, published JSON Schema for editors | ✅ Implemented |
 | pandas engine | ✅ Implemented |
 | Polars engine (`dqflow[polars]`) | 🧪 Experimental |
-| Declared type / `freshness_minutes` / `custom` enforcement | 🔜 Declared in the contract, not yet enforced |
+| Logical dtype enforcement | ✅ Implemented for integer, float, string, boolean, and timestamp |
+| `freshness_minutes` / `custom` enforcement | 🔜 Declared in the contract, not yet enforced |
 | GitHub Action, HTML reports, severity levels | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
 | PySpark & SQL engines | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
 
-> A `Column` accepts `dtype`, `freshness_minutes`, and `custom` today, and
-> `dq show` / `dq infer` use the declared dtype — but the engines do **not** yet check
-> data against them. Regex `pattern` constraints are enforced. Treat the other
-> fields as documentation until the roadmap catches up.
+> Both engines enforce logical `dtype` and regex `pattern` constraints.
+> `freshness_minutes` and `custom` remain descriptive until the roadmap catches up.
 
 ## Stability
 
@@ -437,15 +436,15 @@ python examples/first-pr-gate/gate.py
 Expected output:
 
 ```text
-Contract 'orders': 9/9 checks passed
+Contract 'orders': 12/12 checks passed
 published 3 valid orders
 
-Contract 'events': 9/9 checks passed
+Contract 'events': 12/12 checks passed
 validated 3 Polars rows
 
-Contract 'users': 11/11 checks passed
+Contract 'users': 14/14 checks passed
 
-Contract 'customers': 12/12 checks passed
+Contract 'customers': 15/15 checks passed
 reviewed the inferred draft and validated the curated contract
 
 orders: 3 changes (1 breaking)
@@ -475,9 +474,9 @@ All six scripts are also exercised by
 - You need to push checks down to a warehouse table without loading it (SQL engine is
   planned, not available).
 - You need Spark-scale distributed validation (PySpark engine is planned).
-- You need dtype conformance, freshness, or `custom` column functions enforced
-  *today* — those fields are declared but not yet checked. Regex `pattern` checks
-  are enforced.
+- You need freshness or `custom` column functions enforced today — those fields
+  are declared but not yet checked. Logical dtype and regex `pattern` checks are
+  enforced.
 - You need to execute contracts from untrusted sources — rule expressions use a
   whitelisted AST evaluator (no `eval`), which is still not a security boundary.
 

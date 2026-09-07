@@ -22,6 +22,7 @@ from typing import Any
 import yaml
 
 from dqflow.column import SUPPORTED_OPS
+from dqflow.dtypes import SUPPORTED_LOGICAL_DTYPES, is_supported_dtype
 from dqflow.rules import RuleError, evaluate_rule
 from dqflow.schema.errors import ERROR, WARNING, ContractParseError, Diagnostic
 from dqflow.schema.version import check_version
@@ -313,7 +314,9 @@ def _check_columns(columns: Any) -> list[Diagnostic]:
     for name, spec in columns.items():
         path = _child("columns", str(name))
         if spec is None or isinstance(spec, _SCALAR):
-            continue  # shorthand: `col: string` — a bare dtype, always valid
+            if isinstance(spec, str) and not is_supported_dtype(spec):
+                out.append(_unsupported_dtype(name, spec, path, _line_of(columns, name)))
+            continue  # shorthand: `col: string`
         if not isinstance(spec, dict):
             out.append(
                 Diagnostic(
@@ -360,6 +363,18 @@ def _check_column_spec(name: Any, spec: dict[Any, Any], path: str) -> list[Diagn
                 line=_line_of(spec),
             )
         )
+    else:
+        dtype = spec.get("dtype", spec.get("type"))
+        if isinstance(dtype, str) and not is_supported_dtype(dtype):
+            dtype_key = "dtype" if "dtype" in spec else "type"
+            out.append(
+                _unsupported_dtype(
+                    name,
+                    dtype,
+                    _child(path, dtype_key),
+                    _line_of(spec, dtype_key),
+                )
+            )
 
     lo, hi = spec.get("min"), spec.get("max")
     if isinstance(lo, _SCALAR) and isinstance(hi, _SCALAR) and not isinstance(lo, bool):
@@ -406,6 +421,17 @@ def _check_column_spec(name: Any, spec: dict[Any, Any], path: str) -> list[Diagn
         )
 
     return out
+
+
+def _unsupported_dtype(name: Any, dtype: str, path: str, line: int | None) -> Diagnostic:
+    supported = ", ".join(sorted(SUPPORTED_LOGICAL_DTYPES))
+    return Diagnostic(
+        WARNING,
+        "unsupported-dtype",
+        f"column {name!r} uses unsupported dtype {dtype!r}; supported types: {supported}",
+        path=path,
+        line=line,
+    )
 
 
 def _check_rules(rules: Any) -> list[Diagnostic]:

@@ -20,8 +20,8 @@ contract = Contract(
 )
 ```
 
-`dtype` is part of the declaration but is not checked yet. The current engines
-enforce column existence and the constraints listed in
+`dtype` is enforced as a backend-independent logical type. The current engines
+also enforce column existence and the constraints listed in
 [Column validations](columns.md).
 
 ## Validate data

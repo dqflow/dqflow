@@ -72,7 +72,7 @@ class TestErrors:
             "$schema": "https://dqflow.readthedocs.io/en/latest/schema/contract-1.0.json",
             "schema_version": "1.0",
             "name": "x",
-            "columns": {"a": {"dtype": "s"}},
+            "columns": {"a": {"dtype": "string"}},
         }
         assert lint_contract_data(data) == []
 
@@ -196,7 +196,7 @@ def test_known_column_fields_stay_in_sync_with_the_dataclass() -> None:
     ],
 )
 def test_schema_version_values(value: str, code: str | None) -> None:
-    data = {"schema_version": value, "name": "x", "columns": {"a": {"dtype": "s"}}}
+    data = {"schema_version": value, "name": "x", "columns": {"a": {"dtype": "string"}}}
     codes = _codes(data)
     if code is None:
         assert not any(c.startswith(("unsupported-", "newer-", "missing-schema")) for c in codes)

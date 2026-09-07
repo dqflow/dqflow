@@ -64,12 +64,13 @@ class CrossColumnRule:
 class Column:
     """Declare constraints and metadata for one required column.
 
-    The current pandas and Polars engines enforce ``not_null``, ``min``,
-    ``max``, ``allowed``, ``unique``, and ``pattern``. They preserve but do not
-    yet enforce ``dtype``, ``freshness_minutes``, or ``custom``.
+    The current pandas and Polars engines enforce ``dtype``, ``not_null``,
+    ``min``, ``max``, ``allowed``, ``unique``, and ``pattern``. They preserve
+    but do not yet enforce ``freshness_minutes`` or ``custom``.
 
     Attributes:
-        dtype: Declared Python type or string type name. Currently descriptive.
+        dtype: Declared Python type or logical type name. The supported logical
+            types are integer, float, string, boolean, and timestamp.
         not_null: Fail when the column contains null values.
         min: Inclusive minimum value.
         max: Inclusive maximum value.

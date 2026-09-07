@@ -14,7 +14,7 @@ move.
 | Pandera | dqflow | Notes |
 | --- | --- | --- |
 | `DataFrameSchema({...})` or `class S(pa.DataFrameModel)` | `Contract(name=..., columns={...})` | One object; serialise with `Contract.to_yaml()` / load with `Contract.from_yaml()` |
-| `Column(dtype)` / `field: Series[dtype]` | `Column(dtype, ...)` | In dqflow the dtype is **descriptive today** — not coerced or enforced (see below) |
+| `Column(dtype)` / `field: Series[dtype]` | `Column(dtype, ...)` | dqflow enforces five logical dtype families but does not coerce values |
 | `Column(nullable=False)` / `Field(nullable=False)` | `Column(not_null=True)` | Pandera columns are non-nullable by default; **dqflow columns are nullable by default** |
 | `Field(unique=True)` | `Column(unique=True)` | |
 | `Field(ge=0, le=100)` | `Column(min=0, max=100)` | dqflow bounds are inclusive |
@@ -114,9 +114,9 @@ dqflow has **no equivalent** for these Pandera features:
   distribution test).
 - **Data synthesis** — Pandera can generate example data from a schema
   (`schema.example()`); dqflow cannot.
-- **Type coercion and enforcement** — `Field(coerce=True)` and strict dtype
-  checking. dqflow keeps `dtype` as documentation for now
-  ([limitations](index.md#dqflows-current-limitations)).
+- **Type coercion and backend-exact types** — dqflow validates logical integer,
+  float, string, boolean, and timestamp families, but does not coerce values or
+  distinguish every native backend dtype.
 - **Index / MultiIndex validation** — dqflow validates columns only.
 - **Wide backend support** — Pandera runs on pandas, Polars, PySpark, Ibis, Dask,
   Modin, PyArrow and GeoPandas. dqflow runs on pandas, with an experimental

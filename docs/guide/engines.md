@@ -75,9 +75,9 @@ result = contract.validate(df, engine="myengine")
 
 ## Constraints shared by both engines
 
-Both engines enforce column existence, `not_null`, `min`, `max`, `allowed`,
-`unique`, `pattern`, table rules, and cross-column rules. Neither currently
-enforces declared dtype, freshness, or `Column.custom`.
+Both engines enforce column existence, logical `dtype`, `not_null`, `min`,
+`max`, `allowed`, `unique`, `pattern`, table rules, and cross-column rules.
+Neither currently enforces freshness or `Column.custom`.
 
 Engines do not read `Column` objects directly. `Contract.validate()` first
 compiles the contract into an engine-agnostic

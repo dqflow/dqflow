@@ -16,7 +16,7 @@ ROOT = Path(__file__).parents[1]
     [
         ("pandas-etl/pipeline.py", "published 3 valid orders", 0),
         ("polars-pipeline/pipeline.py", "validated 3 Polars rows", 0),
-        ("ci-validation/validate.py", "11/11 checks passed", 0),
+        ("ci-validation/validate.py", "14/14 checks passed", 0),
         (
             "infer-refine/infer_and_validate.py",
             "reviewed the inferred draft and validated the curated contract",

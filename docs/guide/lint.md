@@ -72,6 +72,7 @@ is a subset of the linter (no cross-field checks), so keep `dq lint` in CI.
 | `newer-schema-minor` | `schema_version` is a newer minor of the current major. |
 | `missing-name` | No `name`; the file stem is used. |
 | `missing-column-dtype` | A column mapping has no `dtype` / `type`; it defaults to string. |
+| `unsupported-dtype` | The dtype is retained for compatibility but is not one of the supported logical types. |
 | `empty-contract` | No columns, rules, or cross-column rules. |
 | `empty-allowed` | `allowed: []` — every non-null value would fail. |
 | `duplicate-rule` | The same table-rule string appears twice. |

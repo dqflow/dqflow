@@ -10,11 +10,13 @@ import polars as pl
 
 from dqflow.cache import StatsCache
 from dqflow.contract import Contract
+from dqflow.dtypes import dtype_details, dtypes_compatible
 from dqflow.engines.base import (
     SAMPLE_LIMIT,
     Engine,
     allowed_message,
     cross_column_error_message,
+    dtype_message,
     max_message,
     min_message,
     missing_column_message,
@@ -66,6 +68,7 @@ class _Run:
         self.columns = set(df.columns)
         self._cache = cache
         self._stats: StatsCache | None = None
+        self.invalid_dtype_columns: set[str] = set()
 
     @property
     def stats(self) -> StatsCache:
@@ -103,6 +106,7 @@ class PolarsEngine(Engine):
         run = _Run(data, cache=context.cache)
         handlers: dict[str, Callable[[_Run, CheckSpec], CheckResult | None]] = {
             "column_exists": self._check_column_exists,
+            "dtype": self._check_dtype,
             "not_null": self._check_not_null,
             "min": self._check_min,
             "max": self._check_max,
@@ -132,8 +136,27 @@ class PolarsEngine(Engine):
 
     # --- column constraints (skipped when the column is absent) ---------
 
-    def _check_not_null(self, run: _Run, check: CheckSpec) -> CheckResult | None:
+    def _check_dtype(self, run: _Run, check: CheckSpec) -> CheckResult | None:
         if check.target not in run.columns:
+            return None
+        expected = check.params["expected_dtype"]
+        actual = _logical_dtype(run.df[check.target])
+        passed = dtypes_compatible(expected, actual)
+        if not passed:
+            run.invalid_dtype_columns.add(check.target)
+        return CheckResult(
+            name=check.name,
+            passed=passed,
+            message=dtype_message(check.target, expected, actual, passed=passed),
+            details=dtype_details(expected, actual),
+        )
+
+    @staticmethod
+    def _column_usable(run: _Run, column: str) -> bool:
+        return column in run.columns and column not in run.invalid_dtype_columns
+
+    def _check_not_null(self, run: _Run, check: CheckSpec) -> CheckResult | None:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -150,7 +173,7 @@ class PolarsEngine(Engine):
         )
 
     def _check_min(self, run: _Run, check: CheckSpec) -> CheckResult | None:
-        if check.target not in run.columns:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -172,7 +195,7 @@ class PolarsEngine(Engine):
         )
 
     def _check_max(self, run: _Run, check: CheckSpec) -> CheckResult | None:
-        if check.target not in run.columns:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -194,7 +217,7 @@ class PolarsEngine(Engine):
         )
 
     def _check_allowed(self, run: _Run, check: CheckSpec) -> CheckResult | None:
-        if check.target not in run.columns:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -218,7 +241,7 @@ class PolarsEngine(Engine):
         )
 
     def _check_unique(self, run: _Run, check: CheckSpec) -> CheckResult | None:
-        if check.target not in run.columns:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -240,7 +263,7 @@ class PolarsEngine(Engine):
         )
 
     def _check_pattern(self, run: _Run, check: CheckSpec) -> CheckResult | None:
-        if check.target not in run.columns:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -316,3 +339,35 @@ class PolarsEngine(Engine):
                 "failing_rate": rate(failing_rows, len(df)),
             },
         )
+
+
+def _logical_dtype(series: pl.Series) -> str:
+    """Map a Polars Series to dqflow's backend-independent logical dtype."""
+    non_null = series.drop_nulls()
+    if len(non_null) == 0:
+        return "null"
+
+    dtype = series.dtype
+    integer_types = {
+        pl.Int8,
+        pl.Int16,
+        pl.Int32,
+        pl.Int64,
+        pl.UInt8,
+        pl.UInt16,
+        pl.UInt32,
+        pl.UInt64,
+    }
+    if dtype == pl.Boolean:
+        return "boolean"
+    if dtype in integer_types:
+        return "integer"
+    if dtype in {pl.Float32, pl.Float64}:
+        if series.null_count() and bool(((non_null % 1) == 0).all()):
+            return "integer"
+        return "float"
+    if dtype in {pl.String, pl.Categorical, pl.Enum}:
+        return "string"
+    if dtype == pl.Date or isinstance(dtype, pl.Datetime):
+        return "timestamp"
+    return str(dtype).lower()

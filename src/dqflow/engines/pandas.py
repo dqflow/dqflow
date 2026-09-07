@@ -11,11 +11,13 @@ import pandas as pd
 
 from dqflow.cache import StatsCache
 from dqflow.contract import Contract
+from dqflow.dtypes import dtype_details, dtypes_compatible
 from dqflow.engines.base import (
     SAMPLE_LIMIT,
     Engine,
     allowed_message,
     cross_column_error_message,
+    dtype_message,
     max_message,
     min_message,
     missing_column_message,
@@ -67,6 +69,7 @@ class _Run:
         self.columns = set(df.columns)
         self._cache = cache
         self._stats: StatsCache | None = None
+        self.invalid_dtype_columns: set[str] = set()
 
     @property
     def stats(self) -> StatsCache:
@@ -97,6 +100,7 @@ class PandasEngine(Engine):
         run = _Run(data, cache=context.cache)
         handlers: dict[str, Callable[[_Run, CheckSpec], CheckResult | None]] = {
             "column_exists": self._check_column_exists,
+            "dtype": self._check_dtype,
             "not_null": self._check_not_null,
             "min": self._check_min,
             "max": self._check_max,
@@ -126,8 +130,27 @@ class PandasEngine(Engine):
 
     # --- column constraints (skipped when the column is absent) ---------
 
-    def _check_not_null(self, run: _Run, check: CheckSpec) -> CheckResult | None:
+    def _check_dtype(self, run: _Run, check: CheckSpec) -> CheckResult | None:
         if check.target not in run.columns:
+            return None
+        expected = check.params["expected_dtype"]
+        actual = _logical_dtype(run.df[check.target])
+        passed = dtypes_compatible(expected, actual)
+        if not passed:
+            run.invalid_dtype_columns.add(check.target)
+        return CheckResult(
+            name=check.name,
+            passed=passed,
+            message=dtype_message(check.target, expected, actual, passed=passed),
+            details=dtype_details(expected, actual),
+        )
+
+    @staticmethod
+    def _column_usable(run: _Run, column: str) -> bool:
+        return column in run.columns and column not in run.invalid_dtype_columns
+
+    def _check_not_null(self, run: _Run, check: CheckSpec) -> CheckResult | None:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -144,7 +167,7 @@ class PandasEngine(Engine):
         )
 
     def _check_min(self, run: _Run, check: CheckSpec) -> CheckResult | None:
-        if check.target not in run.columns:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -166,7 +189,7 @@ class PandasEngine(Engine):
         )
 
     def _check_max(self, run: _Run, check: CheckSpec) -> CheckResult | None:
-        if check.target not in run.columns:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -188,7 +211,7 @@ class PandasEngine(Engine):
         )
 
     def _check_allowed(self, run: _Run, check: CheckSpec) -> CheckResult | None:
-        if check.target not in run.columns:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -212,7 +235,7 @@ class PandasEngine(Engine):
         )
 
     def _check_unique(self, run: _Run, check: CheckSpec) -> CheckResult | None:
-        if check.target not in run.columns:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -233,7 +256,7 @@ class PandasEngine(Engine):
         )
 
     def _check_pattern(self, run: _Run, check: CheckSpec) -> CheckResult | None:
-        if check.target not in run.columns:
+        if not self._column_usable(run, check.target):
             return None
         series = run.df[check.target]
         total = len(series)
@@ -322,3 +345,37 @@ def _result_value(value: Any) -> float | int | str | None:
     if isinstance(value, (float, int, str)):
         return value
     return str(value)
+
+
+def _logical_dtype(series: pd.Series[Any]) -> str:
+    """Map a pandas Series to dqflow's backend-independent logical dtype."""
+    non_null = series.dropna()
+    if non_null.empty:
+        return "null"
+
+    dtype = series.dtype
+    if pd.api.types.is_bool_dtype(dtype):
+        return "boolean"
+    if pd.api.types.is_datetime64_any_dtype(dtype):
+        return "timestamp"
+    if pd.api.types.is_integer_dtype(dtype):
+        return "integer"
+    if pd.api.types.is_float_dtype(dtype):
+        # Plain pandas promotes nullable integer values to float. Treat that
+        # representation as integer when every observed value is integral.
+        if bool(series.isna().any()) and bool((non_null % 1 == 0).all()):
+            return "integer"
+        return "float"
+
+    inferred = pd.api.types.infer_dtype(non_null, skipna=True)
+    return {
+        "boolean": "boolean",
+        "date": "timestamp",
+        "datetime": "timestamp",
+        "datetime64": "timestamp",
+        "floating": "float",
+        "integer": "integer",
+        "mixed-integer-float": "float",
+        "string": "string",
+        "unicode": "string",
+    }.get(inferred, "mixed" if inferred.startswith("mixed") else inferred)

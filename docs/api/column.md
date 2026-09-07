@@ -6,10 +6,10 @@
 
 ::: dqflow.column.Column
 
-!!! warning "Declared but not enforced"
-    `dtype`, `freshness_minutes`, and `custom` are stored and serialized, but the
-    current engines do not validate them. Use the enforced `pattern` constraint
-    or a callable `CrossColumnRule` where appropriate.
+!!! note "Enforcement boundary"
+    `dtype` is enforced as one of five logical types: integer, float, string,
+    boolean, or timestamp. `freshness_minutes` and `custom` are stored but are
+    not yet validated. Use a callable `CrossColumnRule` for custom logic today.
 
 ## CrossColumnRule
 

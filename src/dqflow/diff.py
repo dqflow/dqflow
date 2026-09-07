@@ -3,9 +3,9 @@
 The public entry point is :func:`diff_contracts`; the ``dq diff`` CLI command
 wraps it. A change is **breaking** when data that conformed to the old contract
 may violate the new one, judged from the contract's *declared intent*. This is
-independent of which constraints an engine enforces today, so ``dtype`` and
-``freshness_minutes`` changes are classified too (see the guide for the
-enforcement caveat).
+independent of which constraints an engine enforces today, so
+``freshness_minutes`` changes are classified even though freshness is not yet
+enforced (see the guide for the enforcement caveat).
 """
 
 from __future__ import annotations

@@ -16,6 +16,7 @@ Column(str, allowed=["USD", "EUR"])
 
 | Constraint | Behavior |
 | --- | --- |
+| `dtype` | Requires a compatible logical integer, float, string, boolean, or timestamp dtype |
 | `not_null=True` | Fails when any value is null/NaN |
 | `min=value` | Requires the observed minimum to be at least `value` |
 | `max=value` | Requires the observed maximum to be at most `value` |
@@ -38,20 +39,30 @@ contract = Contract(
 )
 ```
 
+## Dtype compatibility
+
+Both engines normalize native backend types to five logical names: `integer`,
+`float`, `string`, `boolean`, and `timestamp`. Python declarations such as
+`int`, `float`, `str`, and `bool` map to those names. Integer data also satisfies
+a `float` declaration. Null values do not change the observed logical type, and
+an all-null column is dtype-compatible; add `not_null=True` to reject it.
+
+Dtype validation does not coerce values. A mismatch produces a `dtype:<name>`
+check with `expected_dtype` and `actual_dtype` details.
+
 ## Declared but not enforced
 
-`dtype`, `freshness_minutes`, and `custom` are currently descriptive fields.
-They are retained on `Column`; dtype and freshness can be written to YAML and
-displayed by the CLI, but neither validation engine checks them yet.
+`freshness_minutes` and `custom` remain descriptive fields. Freshness can be
+written to YAML and displayed by the CLI, but neither validation engine checks
+it yet; custom callables are retained only on Python `Column` objects.
 
 ```python
-Column("timestamp", freshness_minutes=60)  # declaration only today
-Column(str, custom=lambda value: bool(value))  # declaration only today
+Column("timestamp", freshness_minutes=60)  # dtype runs; freshness does not
+Column(str, custom=lambda value: bool(value))  # dtype runs; custom does not
 ```
 
 For custom logic that runs today, use a callable
-[`CrossColumnRule`](custom-checks.md). Track future enforcement in
-[#51](https://github.com/dqflow/dqflow/issues/51).
+[`CrossColumnRule`](custom-checks.md).
 
 ## Metadata
 
