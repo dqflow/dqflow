@@ -38,11 +38,15 @@ class TestFromContract:
             "column_exists:amount",
             "column_exists:currency",
             "column_exists:code",
+            "dtype:order_id",
             "not_null:order_id",
             "unique:order_id",
+            "dtype:amount",
             "min:amount",
             "max:amount",
+            "dtype:currency",
             "allowed:currency",
+            "dtype:code",
             "pattern:code",
         ]
 
@@ -53,6 +57,7 @@ class TestFromContract:
         )
         by_kind = {c.kind: c for c in ValidationSpec.from_contract(contract).checks}
 
+        assert by_kind["dtype"].params == {"expected_dtype": "float"}
         assert by_kind["min"].params == {"min": 0}
         assert by_kind["max"].params == {"max": 100}
         assert by_kind["allowed"].params == {"allowed": (1, 2)}
@@ -75,7 +80,7 @@ class TestFromContract:
 
     def test_column_without_constraints_yields_only_existence_check(self) -> None:
         spec = ValidationSpec.from_contract(Contract(name="c", columns={"a": Column(int)}))
-        assert _names(spec) == ["column_exists:a"]
+        assert _names(spec) == ["column_exists:a", "dtype:a"]
 
     def test_empty_contract_compiles_to_no_checks(self) -> None:
         assert ValidationSpec.from_contract(Contract(name="empty")).checks == ()

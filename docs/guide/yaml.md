@@ -33,7 +33,10 @@ cross_column_rules:
 ```
 
 Both `dtype` and the legacy key `type` are accepted when reading YAML. `to_yaml()`
-writes `dtype`. Declared dtype and freshness are not currently enforced.
+writes `dtype`. The supported logical values are `integer`, `float`, `string`,
+`boolean`, and `timestamp`; common aliases such as `int`, `str`, `bool`, and
+`datetime` are normalized when the contract is compiled. Freshness is not
+currently enforced.
 
 `schema_version` declares the contract *format* version. It is optional when
 reading (the current version is assumed, with a warning) and always written by

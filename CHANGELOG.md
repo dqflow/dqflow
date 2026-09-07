@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Declared column dtypes are now enforced consistently by the pandas and Polars
+  engines. Contracts compile `dtype` checks through `ValidationSpec`; results
+  include normalized `expected_dtype` and `actual_dtype` details for the logical
+  integer, float, string, boolean, and timestamp families. Unknown dtype names
+  remain loadable and receive an `unsupported-dtype` lint warning ([#51](https://github.com/dqflow/dqflow/issues/51))
 - Repository discoverability and community infrastructure: structured GitHub
   issue forms (bug / feature / integration / question) and a pull-request
   template, a `CODE_OF_CONDUCT.md`, RFC and Roadmap discussion forms, an honest

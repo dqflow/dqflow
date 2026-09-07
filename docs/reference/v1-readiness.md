@@ -17,7 +17,7 @@ Tracking issue: [#67](https://github.com/dqflow/dqflow/issues/67).
 
 ## Correctness & safety
 
-- [ ] Declared `dtype` is enforced by the engines, or removed from the covered contract format
+- [x] Declared `dtype` is enforced by the engines, or removed from the covered contract format
 - [ ] `freshness_minutes` and `custom` are enforced, or explicitly marked non-covered
 - [ ] Polars engine reaches pandas parity and graduates from experimental ([#25](https://github.com/dqflow/dqflow/issues/25))
 - [ ] Validation-severity levels and failure thresholds are settled ([#44](https://github.com/dqflow/dqflow/issues/44))

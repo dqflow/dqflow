@@ -71,10 +71,9 @@ milestone only when paired with active-project, retention, and contributor data.
 Already shipped:
 
 - `Contract` as code (Python) and YAML (`Contract.from_yaml` / `to_yaml`)
-- Column checks: `not_null`, `min`, `max`, `allowed`, `unique`
-- Column fields defined but **not yet enforced** by engines: `dtype`,
-  `freshness_minutes`, `custom`; `pattern` is enforced
-  (→ [#51](https://github.com/dqflow/dqflow/issues/51))
+- Column checks: `dtype`, `not_null`, `min`, `max`, `allowed`, `unique`, `pattern`
+- Column fields defined but **not yet enforced** by engines:
+  `freshness_minutes`, `custom`
 - Table rules (`row_count`, `null_rate`, `unique_count`) via a shared
   whitelisted-AST evaluator, `dqflow.rules.evaluate_rule` — no `eval`
   ([#18](https://github.com/dqflow/dqflow/issues/18), 0.4.0)
@@ -311,12 +310,12 @@ ODCS interoperability, a contract ⇄ dbt bridge, native PySpark and SQL
 
 | Issue | Title | Priority | Depends on |
 |-------|-------|----------|------------|
-| [#51](https://github.com/dqflow/dqflow/issues/51) | Add advanced validation rules | P2 | #16, #18, #44 |
+| [#51](https://github.com/dqflow/dqflow/issues/51) | Enforce declared column dtype in validation engines | P0 | #16 |
 
-Covers: enforce the already-defined `dtype` / `freshness_minutes` / `custom`
-fields (`pattern` already runs), referential integrity, distribution checks, absolute and relative
-row-count checks, `duplicate_rate` and other documented helpers, and a
-contract-level custom-validator hook. Severity levels (#44) apply throughout.
+Covers: dtype enforcement in pandas and Polars through `ValidationSpec`, with
+backend-independent logical compatibility and consistent diagnostics. Freshness,
+custom callables, referential integrity, distribution checks, and a general
+expression DSL remain separate, demand-driven work.
 
 ---
 

@@ -82,6 +82,13 @@ def missing_column_message(col: str) -> str:
     return f"Column '{col}' is missing from the data"
 
 
+def dtype_message(col: str, expected: str, actual: str, *, passed: bool) -> str:
+    """Message for a logical dtype check."""
+    if passed:
+        return ""
+    return f"Column '{col}' has dtype '{actual}'; expected '{expected}'"
+
+
 def not_null_message(col: str, null_count: int) -> str:
     if not null_count:
         return ""

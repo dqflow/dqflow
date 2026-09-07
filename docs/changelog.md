@@ -5,6 +5,10 @@ The complete release history lives in
 
 ## Unreleased
 
+- Declared dtypes are enforced consistently in pandas and Polars using five
+  backend-independent logical type families. Dtype checks include expected and
+  actual types in structured output; unknown names remain backward-compatible
+  on load and produce a lint warning ([#51](https://github.com/dqflow/dqflow/issues/51)).
 - Discoverability and community infrastructure: GitHub issue forms and a PR
   template, a Code of Conduct, RFC/Roadmap discussion forms, an honest
   [comparison guide](comparison/index.md) (Pandera, Great Expectations, Soda,

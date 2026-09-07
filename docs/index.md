@@ -80,9 +80,9 @@ Actions workflow.
 - [Runnable examples](https://github.com/dqflow/dqflow/tree/main/examples)
 
 !!! note "Current enforcement boundary"
-    Column existence, `not_null`, `min`, `max`, `allowed`, `unique`, and regex
-    `pattern` are enforced. `dtype`, `freshness_minutes`, and `custom` can be
-    declared and diffed but are not yet validated by the engines.
+    Column existence, logical `dtype`, `not_null`, `min`, `max`, `allowed`,
+    `unique`, and regex `pattern` are enforced. `freshness_minutes` and `custom`
+    can be declared and diffed but are not yet validated by the engines.
 
 ## Project links
 

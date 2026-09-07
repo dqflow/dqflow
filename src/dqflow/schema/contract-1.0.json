@@ -59,7 +59,8 @@
           "additionalProperties": false,
           "properties": {
             "dtype": {
-              "type": "string"
+              "type": "string",
+              "description": "Logical dtype: integer, float, string, boolean, or timestamp. Common aliases are accepted when loading."
             },
             "type": {
               "type": "string",

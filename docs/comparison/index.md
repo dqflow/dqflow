@@ -75,10 +75,9 @@ data sources. It is a specification and interoperability tool first.
 Stated plainly, and tracked on the
 [ROADMAP](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md):
 
-- **`dtype`, `freshness_minutes`, and `custom` are declared but not enforced** by
-  the engines yet. Column existence, `not_null`, `min`, `max`, `allowed`,
-  `unique`, and regex `pattern` are enforced. `dq show` and `dq diff` use the
-  declared dtype; validation does not.
+- **`freshness_minutes` and `custom` are declared but not enforced** by the
+  engines yet. Logical `dtype`, column existence, `not_null`, `min`, `max`,
+  `allowed`, `unique`, and regex `pattern` are enforced.
 - **The Polars engine is experimental.** The dependency and Python matrix is
   tested ([compatibility matrix](../reference/compatibility.md)), but the API and
   lazy-execution behaviour may still change ([#25](https://github.com/dqflow/dqflow/issues/25)).

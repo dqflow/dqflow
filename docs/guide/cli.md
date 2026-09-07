@@ -45,11 +45,11 @@ failure rate and a bounded sample of offending values to each failing check.
 
 ```console
 $ dq validate contracts/orders.yaml data/orders.csv
-orders · 5 of 8 checks failed on 4 rows
+orders · 5 of 11 checks failed on 4 rows
 
   Schema  3/3 passed
 
-  Columns  4/4 failed
+  Columns  4/7 failed
     order_id  ✘ not_null  has 1 null value (25.0%)
               ✘ unique    has 2 non-unique values (50.0%)  ·  e.g. 'A001'
     amount    ✘ min       has 1 value below the minimum 0 (25.0%)
@@ -58,7 +58,7 @@ orders · 5 of 8 checks failed on 4 rows
   Table rules  1/1 failed
     ✘ null_rate('order_id') == 0
 
-  3 passed · 5 failed
+  6 passed · 5 failed
 ```
 
 - `-q` / `--quiet` prints only failing checks (plus the summary line).
@@ -130,8 +130,8 @@ dq show contracts/orders.yaml
 ```
 
 This prints the contract description, declared columns and constraints, and table
-rules. Declared dtype and freshness values may appear even though the engines do
-not enforce them yet.
+rules. Declared dtype is enforced during validation; freshness is displayed but
+is not yet enforced.
 
 ## `dq infer`
 

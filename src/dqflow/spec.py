@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 CHECK_KINDS: frozenset[str] = frozenset(
     {
         "column_exists",
+        "dtype",
         "not_null",
         "min",
         "max",
@@ -61,8 +62,8 @@ class ValidationSpec:
     Attributes:
         contract_name: Name carried onto the :class:`~dqflow.result.ValidationResult`.
         checks: Checks in canonical execution order — every ``column_exists``
-            first, then per-column constraints (in ``Column`` field order), then
-            table rules, then cross-column rules.
+            first, then dtype and per-column constraints (in ``Column`` field
+            order), then table rules, then cross-column rules.
     """
 
     contract_name: str
@@ -97,6 +98,14 @@ class ValidationSpec:
 
 def _column_checks(name: str, column: Any) -> Iterator[CheckSpec]:
     """Yield the constraint checks declared on one column, in field order."""
+    from dqflow.dtypes import normalize_declared_dtype
+
+    yield CheckSpec(
+        "dtype",
+        name,
+        f"dtype:{name}",
+        {"expected_dtype": normalize_declared_dtype(column.dtype)},
+    )
     if column.not_null:
         yield CheckSpec("not_null", name, f"not_null:{name}")
     if column.min is not None:

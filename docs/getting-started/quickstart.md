@@ -80,12 +80,12 @@ The report groups schema, column, and table checks. This dataset matches the
 inferred contract, so the command exits `0`:
 
 ```text
-customers · 12/12 checks passed on 3 rows
+customers · 15/15 checks passed on 3 rows
 
   Schema  3/3 passed
   Columns  9/9 passed
 
-  12 passed · 0 failed
+  15 passed · 0 failed
 ```
 
 `--fail-fast` means “return a failing process exit code if the contract fails.”
@@ -136,6 +136,6 @@ copy the gate into GitHub Actions, or read the [contract diff guide](../guide/di
 for every breaking-change rule.
 
 !!! note "What dqflow enforces today"
-    Column existence, `not_null`, `min`, `max`, `allowed`, `unique`, and regex
-    `pattern` are enforced. `dtype`, `freshness_minutes`, and `custom` are
-    declarative fields that can be versioned and diffed but are not yet validated.
+    Column existence, logical `dtype`, `not_null`, `min`, `max`, `allowed`,
+    `unique`, and regex `pattern` are enforced. `freshness_minutes` and `custom`
+    can be versioned and diffed but are not yet validated.
