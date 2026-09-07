@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-07
+
 ### Added
 - Declared column dtypes are now enforced consistently by the pandas and Polars
   engines. Contracts compile `dtype` checks through `ValidationSpec`; results

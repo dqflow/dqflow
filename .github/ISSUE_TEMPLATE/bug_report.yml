@@ -21,7 +21,7 @@ body:
     attributes:
       label: dqflow version
       description: Output of `dq --version`
-      placeholder: "dqflow, version 0.4.0"
+      placeholder: "dqflow, version 0.5.0"
     validations:
       required: true
   - type: dropdown
