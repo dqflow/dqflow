@@ -75,8 +75,8 @@ result = contract.validate(df)
 contract.to_yaml("contracts/orders-copy.yaml")
 ```
 
-Callable cross-column rules and `custom` callables cannot be represented in YAML.
-Use a Python contract for those cases.
+Callable cross-column rules cannot be represented in YAML — use a Python
+contract for those.
 
 ## Validate with the CLI
 

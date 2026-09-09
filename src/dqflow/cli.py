@@ -211,8 +211,6 @@ def show(contract: Path) -> None:
             constraints.append(f"max={col_def.max}")
         if col_def.allowed:
             constraints.append(f"allowed={col_def.allowed}")
-        if col_def.freshness_minutes:
-            constraints.append(f"freshness={col_def.freshness_minutes}m")
         if col_def.unique:
             constraints.append("UNIQUE")
         if col_def.pattern:

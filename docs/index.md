@@ -81,8 +81,8 @@ Actions workflow.
 
 !!! note "Current enforcement boundary"
     Column existence, logical `dtype`, `not_null`, `min`, `max`, `allowed`,
-    `unique`, and regex `pattern` are enforced. `freshness_minutes` and `custom`
-    can be declared and diffed but are not yet validated by the engines.
+    `unique`, and regex `pattern` are enforced. Row-wise custom logic lives in a
+    callable [`CrossColumnRule`](guide/custom-checks.md).
 
 ## Project links
 

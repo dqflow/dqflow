@@ -130,8 +130,7 @@ dq show contracts/orders.yaml
 ```
 
 This prints the contract description, declared columns and constraints, and table
-rules. Declared dtype is enforced during validation; freshness is displayed but
-is not yet enforced.
+rules.
 
 ## `dq infer`
 

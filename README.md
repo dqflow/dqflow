@@ -128,8 +128,9 @@ pip install "dqflow[pandas-parquet]"
 Supports Python 3.11–3.14. The base `pip install dqflow` includes no dataframe
 backend; see the [compatibility matrix](https://dqflow.readthedocs.io/en/latest/reference/compatibility/).
 
-> `dtype` and `pattern` are enforced by both validation engines.
-> `freshness_minutes` and `custom` can be declared but are not enforced yet.
+> `dtype` and `pattern` are enforced by both validation engines. Row-wise custom
+> logic goes in a callable
+> [`CrossColumnRule`](https://dqflow.readthedocs.io/en/latest/guide/custom-checks/).
 
 ## 30-second Quick Start
 
@@ -343,12 +344,11 @@ $ echo $?          # --fail-fast turns a failed contract into a non-zero exit
 | pandas engine | ✅ Implemented |
 | Polars engine (`dqflow[polars]`) | 🧪 Experimental |
 | Logical dtype enforcement | ✅ Implemented for integer, float, string, boolean, and timestamp |
-| `freshness_minutes` / `custom` enforcement | 🔜 Declared in the contract, not yet enforced |
 | GitHub Action, HTML reports, severity levels | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
 | PySpark & SQL engines | 🔜 Planned — see [ROADMAP.md](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md) |
 
-> Both engines enforce logical `dtype` and regex `pattern` constraints.
-> `freshness_minutes` and `custom` remain descriptive until the roadmap catches up.
+> Both engines enforce logical `dtype` and regex `pattern` constraints. Row-wise
+> custom logic goes in a callable `CrossColumnRule`.
 
 ## Stability
 
@@ -474,9 +474,8 @@ All six scripts are also exercised by
 - You need to push checks down to a warehouse table without loading it (SQL engine is
   planned, not available).
 - You need Spark-scale distributed validation (PySpark engine is planned).
-- You need freshness or `custom` column functions enforced today — those fields
-  are declared but not yet checked. Logical dtype and regex `pattern` checks are
-  enforced.
+- You need a built-in timestamp-freshness check — express it as a table rule or a
+  callable `CrossColumnRule` instead.
 - You need to execute contracts from untrusted sources — rule expressions use a
   whitelisted AST evaluator (no `eval`), which is still not a security boundary.
 

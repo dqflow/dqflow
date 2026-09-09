@@ -48,9 +48,7 @@ force exit `0`.
 ## What counts as breaking
 
 A change is **breaking** when data that conformed to the old contract may violate
-the new one. Classification follows the contract's *declared intent* — `dtype`
-and `freshness_minutes` are compared even though the engines do not enforce them
-yet ([roadmap](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md)).
+the new one. Classification follows the contract's *declared intent*.
 
 | Change | Breaking | Non-breaking |
 | --- | --- | --- |
@@ -63,7 +61,6 @@ yet ([roadmap](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md)).
 | **`max`** | added; lowered | removed; raised |
 | **`allowed`** | added; any value removed from the set | removed; only additions to the set |
 | **`pattern`** | added; any change to an existing pattern | removed |
-| **`freshness_minutes`** | added; decreased | removed; increased |
 | **table rule** | added | removed |
 | **cross-column rule** | added; redefined (same `name`, different `left`/`op`/`right`) | removed |
 

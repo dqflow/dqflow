@@ -33,10 +33,6 @@ class TestColumn:
         col = Column(dtype=str, allowed=["USD", "EUR", "GBP"])
         assert col.allowed == ["USD", "EUR", "GBP"]
 
-    def test_column_with_freshness(self) -> None:
-        col = Column(dtype="timestamp", freshness_minutes=60)
-        assert col.freshness_minutes == 60
-
     def test_column_min_max_validation(self) -> None:
         with pytest.raises(ValueError, match="min.*cannot be greater than max"):
             Column(dtype=float, min=100, max=10)
@@ -49,23 +45,6 @@ class TestColumn:
         )
         assert col.description == "Customer identifier"
         assert col.metadata == {"source": "crm"}
-
-    def test_column_with_custom_check(self) -> None:
-        def is_email(value: str) -> bool:
-            """Check if value is a valid email."""
-            return "@" in str(value) and "." in str(value)
-
-        col = Column(dtype=str, custom=is_email)
-        assert col.custom is not None
-        assert col.custom("test@example.com") is True
-        assert col.custom("invalid-email") is False
-
-    def test_column_with_custom_check_lambda(self) -> None:
-        col = Column(dtype=int, custom=lambda x: x > 0)
-        assert col.custom is not None
-        assert col.custom(10) is True
-        assert col.custom(-5) is False
-        assert col.custom(0) is False
 
     def test_column_with_unique(self) -> None:
         col = Column(dtype=str, unique=True)

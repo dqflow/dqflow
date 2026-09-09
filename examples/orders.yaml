@@ -26,7 +26,7 @@ columns:
 
   created_at:
     type: timestamp
-    freshness_minutes: 1440  # declared only; not enforced yet
+    not_null: true
 
 rules:
   - row_count > 0

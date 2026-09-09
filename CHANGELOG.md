@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- The Polars engine now applies a `pattern` constraint as a full match, matching
+  the pandas engine and `re.fullmatch`. It previously used a substring search, so
+  an unanchored pattern such as `\d{3}` wrongly passed values like `"abc123"`.
+
+### Removed
+- `Column.freshness_minutes` and `Column.custom`. Both were declared-only fields
+  that no engine enforced. `freshness_minutes` is now rejected as an unknown key
+  by `dq lint` and `Contract.from_yaml`; remove it from contract files. For
+  row-wise custom logic use a callable
+  [`CrossColumnRule`](https://dqflow.readthedocs.io/en/latest/guide/custom-checks/).
+  `dq diff` no longer classifies `freshness_minutes` changes.
+
 ## [0.5.0] - 2026-09-07
 
 ### Added

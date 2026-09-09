@@ -72,8 +72,6 @@ Already shipped:
 
 - `Contract` as code (Python) and YAML (`Contract.from_yaml` / `to_yaml`)
 - Column checks: `dtype`, `not_null`, `min`, `max`, `allowed`, `unique`, `pattern`
-- Column fields defined but **not yet enforced** by engines:
-  `freshness_minutes`, `custom`
 - Table rules (`row_count`, `null_rate`, `unique_count`) via a shared
   whitelisted-AST evaluator, `dqflow.rules.evaluate_rule` — no `eval`
   ([#18](https://github.com/dqflow/dqflow/issues/18), 0.4.0)

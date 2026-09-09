@@ -137,5 +137,5 @@ for every breaking-change rule.
 
 !!! note "What dqflow enforces today"
     Column existence, logical `dtype`, `not_null`, `min`, `max`, `allowed`,
-    `unique`, and regex `pattern` are enforced. `freshness_minutes` and `custom`
-    can be versioned and diffed but are not yet validated.
+    `unique`, and regex `pattern` are enforced. Row-wise custom logic lives in a
+    callable [`CrossColumnRule`](../guide/custom-checks.md).

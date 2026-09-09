@@ -81,9 +81,6 @@
             "allowed": {
               "type": "array"
             },
-            "freshness_minutes": {
-              "type": "integer"
-            },
             "pattern": {
               "type": "string",
               "format": "regex"

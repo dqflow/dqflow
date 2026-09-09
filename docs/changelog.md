@@ -5,6 +5,15 @@ The complete release history lives in
 
 ## Unreleased
 
+- **Fixed** the Polars engine now applies a `pattern` constraint as a full match
+  (like the pandas engine and `re.fullmatch`), not a substring search. An
+  unanchored pattern such as `\d{3}` no longer wrongly passes `"abc123"`.
+- **Removed** `Column.freshness_minutes` and `Column.custom` — declared-only
+  fields that no engine enforced. `freshness_minutes` is now rejected as an
+  unknown key by `dq lint` and `Contract.from_yaml`; drop it from contract
+  files. Use a callable [`CrossColumnRule`](guide/custom-checks.md) for row-wise
+  custom logic. `dq diff` no longer classifies `freshness_minutes` changes.
+
 ## 0.5.0 — 2026-09-07
 
 - Declared dtypes are enforced consistently in pandas and Polars using five

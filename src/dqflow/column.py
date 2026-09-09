@@ -64,9 +64,9 @@ class CrossColumnRule:
 class Column:
     """Declare constraints and metadata for one required column.
 
-    The current pandas and Polars engines enforce ``dtype``, ``not_null``,
-    ``min``, ``max``, ``allowed``, ``unique``, and ``pattern``. They preserve
-    but do not yet enforce ``freshness_minutes`` or ``custom``.
+    The pandas and Polars engines enforce ``dtype``, ``not_null``, ``min``,
+    ``max``, ``allowed``, ``unique``, and ``pattern``. Row-wise custom logic
+    lives in a :class:`CrossColumnRule`.
 
     Attributes:
         dtype: Declared Python type or logical type name. The supported logical
@@ -75,12 +75,12 @@ class Column:
         min: Inclusive minimum value.
         max: Inclusive maximum value.
         allowed: Sequence of permitted non-null values.
-        freshness_minutes: Declared maximum timestamp age. Not yet enforced.
         unique: Require non-null values to be distinct.
-        pattern: Regular expression applied to every non-null string value.
+        pattern: Regular expression every non-null string value must match in
+            full (like ``re.fullmatch``); identical across the pandas and
+            Polars engines.
         description: Human-readable description.
         metadata: User-defined metadata preserved on the contract.
-        custom: Declared custom column callable. Not yet invoked by engines.
 
     Raises:
         ValueError: If ``min`` is greater than ``max``.
@@ -91,12 +91,10 @@ class Column:
     min: Any | None = None
     max: Any | None = None
     allowed: Sequence[Any] | None = None
-    freshness_minutes: int | None = None
     unique: bool = False
     pattern: str | None = None
     description: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
-    custom: Callable[[Any], bool] | None = None
 
     def __post_init__(self) -> None:
         if self.min is not None and self.max is not None and self.min > self.max:

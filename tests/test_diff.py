@@ -197,28 +197,6 @@ class TestPattern:
         assert change.breaking
 
 
-class TestFreshness:
-    @pytest.mark.parametrize(
-        ("old_col", "new_col", "expected"),
-        [
-            (Column("timestamp"), Column("timestamp", freshness_minutes=60), "breaking"),
-            (Column("timestamp", freshness_minutes=60), Column("timestamp"), "non_breaking"),
-            (
-                Column("timestamp", freshness_minutes=60),
-                Column("timestamp", freshness_minutes=30),
-                "breaking",
-            ),
-            (
-                Column("timestamp", freshness_minutes=30),
-                Column("timestamp", freshness_minutes=60),
-                "non_breaking",
-            ),
-        ],
-    )
-    def test_freshness(self, old_col: Column, new_col: Column, expected: str) -> None:
-        assert _diff_one(old_col, new_col).classification == expected
-
-
 class TestTableRules:
     def test_added_rule_is_breaking(self) -> None:
         old = Contract(name="t", rules=["row_count > 0"])

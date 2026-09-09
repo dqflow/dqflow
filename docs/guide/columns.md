@@ -22,7 +22,7 @@ Column(str, allowed=["USD", "EUR"])
 | `max=value` | Requires the observed maximum to be at most `value` |
 | `allowed=[...]` | Rejects non-null values outside the sequence |
 | `unique=True` | Rejects duplicated non-null values; nulls are ignored |
-| `pattern=...` | Requires every non-null string to match the regex |
+| `pattern=...` | Requires every non-null string to match the regex **in full** (like `re.fullmatch`, not a search) — both engines behave identically |
 
 Combine `unique=True` with `not_null=True` when null values must also fail.
 
@@ -50,19 +50,12 @@ an all-null column is dtype-compatible; add `not_null=True` to reject it.
 Dtype validation does not coerce values. A mismatch produces a `dtype:<name>`
 check with `expected_dtype` and `actual_dtype` details.
 
-## Declared but not enforced
+## Custom logic
 
-`freshness_minutes` and `custom` remain descriptive fields. Freshness can be
-written to YAML and displayed by the CLI, but neither validation engine checks
-it yet; custom callables are retained only on Python `Column` objects.
-
-```python
-Column("timestamp", freshness_minutes=60)  # dtype runs; freshness does not
-Column(str, custom=lambda value: bool(value))  # dtype runs; custom does not
-```
-
-For custom logic that runs today, use a callable
-[`CrossColumnRule`](custom-checks.md).
+`Column` has no callable hook. For a check that runs today — including a
+single-column predicate — use a callable
+[`CrossColumnRule`](custom-checks.md); it receives the whole DataFrame and
+returns a per-row boolean mask.
 
 ## Metadata
 
