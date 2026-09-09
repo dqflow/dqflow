@@ -55,6 +55,14 @@ class TestErrors:
         data = {"schema_version": "1.0", "name": "x", "columns": {"a": {"dtype": "s", "wat": 1}}}
         assert "unknown-field" in _errors(data)
 
+    def test_freshness_minutes_is_rejected(self) -> None:
+        data = {
+            "schema_version": "1.0",
+            "name": "x",
+            "columns": {"a": {"dtype": "timestamp", "freshness_minutes": 60}},
+        }
+        assert "unknown-field" in _errors(data)
+
     def test_wrong_type_not_null(self) -> None:
         data = {
             "schema_version": "1.0",
@@ -179,10 +187,9 @@ class TestWarnings:
 
 
 def test_known_column_fields_stay_in_sync_with_the_dataclass() -> None:
-    """Every serialisable ``Column`` field must be recognised by the linter."""
+    """Every ``Column`` field must be recognised by the linter."""
     dataclass_fields = {f.name for f in dataclasses.fields(Column)}
-    python_only = {"custom"}
-    expected = (dataclass_fields - python_only) | {"type"}  # "type" is the legacy alias
+    expected = dataclass_fields | {"type"}  # "type" is the legacy alias for "dtype"
     assert expected == KNOWN_COLUMN_FIELDS
 
 

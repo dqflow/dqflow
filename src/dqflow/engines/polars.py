@@ -17,6 +17,7 @@ from dqflow.engines.base import (
     allowed_message,
     cross_column_error_message,
     dtype_message,
+    full_match_pattern,
     max_message,
     min_message,
     missing_column_message,
@@ -270,7 +271,9 @@ class PolarsEngine(Engine):
         pattern = check.params["pattern"]
 
         non_null = series.drop_nulls().cast(pl.String)
-        mismatch_mask = ~non_null.str.contains(pattern)
+        # str.contains is a substring search; anchor it for full-match semantics
+        # so the result matches the pandas engine's Series.str.fullmatch.
+        mismatch_mask = ~non_null.str.contains(full_match_pattern(pattern))
         invalid_count = int(mismatch_mask.sum())
         sample = sorted_values(non_null.filter(mismatch_mask).to_list(), limit=SAMPLE_LIMIT)
 

@@ -263,6 +263,8 @@ class PandasEngine(Engine):
         pattern = check.params["pattern"]
 
         non_null = series.dropna().astype("string")
+        # A pattern constraint is a full match, not a search. Polars anchors the
+        # pattern itself (base.full_match_pattern); pandas has a native primitive.
         mismatch_mask = ~non_null.str.fullmatch(pattern, na=False)
         invalid_count = int(mismatch_mask.sum())
         sample = sorted_values(non_null[mismatch_mask], limit=SAMPLE_LIMIT)

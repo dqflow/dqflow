@@ -65,6 +65,20 @@ def rate(count: int, total: int) -> float:
     return float(count / total) if total else 0.0
 
 
+def full_match_pattern(pattern: str) -> str:
+    """Wrap ``pattern`` so a substring-search primitive behaves as a full match.
+
+    A ``Column.pattern`` constraint passes only when a value matches the regex in
+    its entirety, so the pandas engine calls the native ``Series.str.fullmatch``.
+    Engines whose regex primitive is a search (Polars' ``str.contains``) route
+    the pattern through this helper first. ``(?: ... )`` keeps top-level
+    alternation intact, and the Rust ``regex`` crate anchors ``$`` to the end of
+    the haystack (no trailing-newline special case), matching Python's
+    ``re.fullmatch``.
+    """
+    return f"^(?:{pattern})$"
+
+
 def count_noun(count: int, noun: str) -> str:
     """Return ``"1 value"`` / ``"3 values"`` — ``noun`` pluralised with a bare ``s``."""
     return f"{count} {noun}" if count == 1 else f"{count} {noun}s"

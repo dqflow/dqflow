@@ -8,8 +8,8 @@
 
 !!! note "Enforcement boundary"
     `dtype` is enforced as one of five logical types: integer, float, string,
-    boolean, or timestamp. `freshness_minutes` and `custom` are stored but are
-    not yet validated. Use a callable `CrossColumnRule` for custom logic today.
+    boolean, or timestamp. `Column` has no callable hook — use a callable
+    `CrossColumnRule` for custom logic.
 
 ## CrossColumnRule
 

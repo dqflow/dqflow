@@ -42,7 +42,6 @@ KNOWN_TOP_LEVEL: frozenset[str] = frozenset(
 )
 
 #: Accepted keys on a column mapping. ``type`` is the legacy alias for ``dtype``.
-#: ``custom`` is Python-only and deliberately excluded.
 KNOWN_COLUMN_FIELDS: frozenset[str] = frozenset(
     {
         "dtype",
@@ -51,7 +50,6 @@ KNOWN_COLUMN_FIELDS: frozenset[str] = frozenset(
         "min",
         "max",
         "allowed",
-        "freshness_minutes",
         "unique",
         "pattern",
         "description",
@@ -344,7 +342,6 @@ def _check_column_spec(name: Any, spec: dict[Any, Any], path: str) -> list[Diagn
         ("min", "scalar"),
         ("max", "scalar"),
         ("allowed", "list"),
-        ("freshness_minutes", "integer"),
         ("pattern", "string"),
         ("description", "string"),
         ("metadata", "mapping"),

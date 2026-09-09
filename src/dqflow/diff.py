@@ -2,10 +2,7 @@
 
 The public entry point is :func:`diff_contracts`; the ``dq diff`` CLI command
 wraps it. A change is **breaking** when data that conformed to the old contract
-may violate the new one, judged from the contract's *declared intent*. This is
-independent of which constraints an engine enforces today, so
-``freshness_minutes`` changes are classified even though freshness is not yet
-enforced (see the guide for the enforcement caveat).
+may violate the new one, judged from the contract's *declared intent*.
 """
 
 from __future__ import annotations
@@ -38,7 +35,6 @@ _FIELD_ORDER: tuple[str, ...] = (
     "max",
     "allowed",
     "pattern",
-    "freshness_minutes",
 )
 
 
@@ -394,20 +390,6 @@ def _diff_max(name: str, old: Any, new: Any) -> ContractChange | None:
     )
 
 
-def _diff_freshness(name: str, old: Any, new: Any) -> ContractChange | None:
-    return _diff_bound(
-        name,
-        "freshness_minutes",
-        old,
-        new,
-        added_reason="added a freshness limit",
-        removed_reason="removed the freshness limit",
-        stricter_reason="stricter freshness limit",
-        looser_reason="relaxed freshness limit",
-        is_stricter=lambda o, n: n < o,
-    )
-
-
 def _diff_allowed(name: str, old: Any, new: Any) -> ContractChange | None:
     if old is None and new is None:
         return None
@@ -513,7 +495,6 @@ _FIELD_HANDLERS: dict[str, Callable[[str, Any, Any], ContractChange | None]] = {
     "max": _diff_max,
     "allowed": _diff_allowed,
     "pattern": _diff_pattern,
-    "freshness_minutes": _diff_freshness,
 }
 
 

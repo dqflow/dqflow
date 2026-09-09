@@ -52,8 +52,9 @@ contract = Contract(
 ```
 
 Callable rules are trusted Python code and are not serialized by `to_yaml()`.
-Keep them in version-controlled Python modules. The `Column.custom` field is only
-declarative today and is not invoked by either engine.
+Keep them in version-controlled Python modules. A `CrossColumnRule` callable is
+also the way to run a single-column predicate — `Column` itself has no callable
+hook.
 
 ## Failure details
 

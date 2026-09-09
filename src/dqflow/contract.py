@@ -228,10 +228,9 @@ def _dtype_to_str(dtype: type | str) -> str:
 def column_to_dict(col: Column) -> dict[str, Any]:
     """Return the serializable, validation-affecting fields of a column.
 
-    Includes ``dtype`` plus serializable declared constraints. ``description``,
-    ``metadata``, and callable ``custom`` are omitted, matching
-    :meth:`Contract.to_yaml`. Used for YAML output and by
-    :func:`dqflow.diff.diff_contracts`.
+    Includes ``dtype`` plus serializable declared constraints. ``description``
+    and ``metadata`` are omitted, matching :meth:`Contract.to_yaml`. Used for
+    YAML output and by :func:`dqflow.diff.diff_contracts`.
     """
     col_dict: dict[str, Any] = {"dtype": _dtype_to_str(col.dtype)}
 
@@ -243,8 +242,6 @@ def column_to_dict(col: Column) -> dict[str, Any]:
         col_dict["max"] = col.max
     if col.allowed is not None:
         col_dict["allowed"] = list(col.allowed)
-    if col.freshness_minutes is not None:
-        col_dict["freshness_minutes"] = col.freshness_minutes
     if col.unique:
         col_dict["unique"] = True
     if col.pattern is not None:

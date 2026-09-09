@@ -75,9 +75,10 @@ data sources. It is a specification and interoperability tool first.
 Stated plainly, and tracked on the
 [ROADMAP](https://github.com/dqflow/dqflow/blob/main/ROADMAP.md):
 
-- **`freshness_minutes` and `custom` are declared but not enforced** by the
-  engines yet. Logical `dtype`, column existence, `not_null`, `min`, `max`,
-  `allowed`, `unique`, and regex `pattern` are enforced.
+- **No column-level custom callable and no timestamp-freshness check.** Logical
+  `dtype`, column existence, `not_null`, `min`, `max`, `allowed`, `unique`, and
+  regex `pattern` are enforced; row-wise custom logic goes in a callable
+  `CrossColumnRule`.
 - **The Polars engine is experimental.** The dependency and Python matrix is
   tested ([compatibility matrix](../reference/compatibility.md)), but the API and
   lazy-execution behaviour may still change ([#25](https://github.com/dqflow/dqflow/issues/25)).

@@ -113,3 +113,30 @@ def test_engine_output_match_with_pattern_and_nullable_unique():
     polars_result = PolarsEngine().validate(pl.DataFrame(data), contract)
 
     assert normalize(pandas_result) == normalize(polars_result)
+
+
+def test_pattern_is_a_full_match_not_a_search_on_both_engines():
+    # An unanchored pattern must still reject partial matches. A substring-search
+    # primitive (Polars' str.contains) would wrongly pass "abc123" for r"\d{3}".
+    contract = Contract(name="p", columns={"s": {"dtype": str, "pattern": r"\d{3}"}})
+    data = {"s": ["123", "abc123", "12", "x123x", "123\n"]}
+
+    pandas_result = PandasEngine().validate(pd.DataFrame(data), contract)
+    polars_result = PolarsEngine().validate(pl.DataFrame(data), contract)
+
+    assert normalize(pandas_result) == normalize(polars_result)
+    (pattern_check,) = [c for c in pandas_result.checks if c.name == "pattern:s"]
+    assert not pattern_check.passed
+    assert pattern_check.details["invalid_count"] == 4  # only "123" matches in full
+
+
+def test_pattern_with_top_level_alternation_matches_in_full_on_both_engines():
+    contract = Contract(name="p", columns={"s": {"dtype": str, "pattern": r"yes|no"}})
+    data = {"s": ["yes", "no", "nope", "ayes"]}
+
+    pandas_result = PandasEngine().validate(pd.DataFrame(data), contract)
+    polars_result = PolarsEngine().validate(pl.DataFrame(data), contract)
+
+    assert normalize(pandas_result) == normalize(polars_result)
+    (pattern_check,) = [c for c in polars_result.checks if c.name == "pattern:s"]
+    assert pattern_check.details["invalid_count"] == 2  # "nope", "ayes"

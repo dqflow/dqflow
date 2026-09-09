@@ -323,7 +323,7 @@
         "Column": {
           "kind": "class",
           "members": {},
-          "signature": "(dtype: 'type | str', not_null: 'bool' = False, min: 'Any | None' = None, max: 'Any | None' = None, allowed: 'Sequence[Any] | None' = None, freshness_minutes: 'int | None' = None, unique: 'bool' = False, pattern: 'str | None' = None, description: 'str' = '', metadata: 'dict[str, Any]' = <factory>, custom: 'Callable[[Any], bool] | None' = None) -> None"
+          "signature": "(dtype: 'type | str', not_null: 'bool' = False, min: 'Any | None' = None, max: 'Any | None' = None, allowed: 'Sequence[Any] | None' = None, unique: 'bool' = False, pattern: 'str | None' = None, description: 'str' = '', metadata: 'dict[str, Any]' = <factory>) -> None"
         },
         "Contract": {
           "kind": "class",
@@ -515,7 +515,6 @@
               "'allowed'",
               "'description'",
               "'dtype'",
-              "'freshness_minutes'",
               "'max'",
               "'metadata'",
               "'min'",
